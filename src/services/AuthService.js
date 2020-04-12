@@ -1,13 +1,21 @@
 const fakeAuth = {
-    isAuthenticated: false,
-    authenticate(cb) {
+  isAuthenticated: true,
+  authenticate() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
         fakeAuth.isAuthenticated = true;
-        setTimeout(cb, 100); // fake async
-    },
-    signout(cb) {
+        resolve(true);
+      }, 1000);
+    });
+  },
+  signout() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
         fakeAuth.isAuthenticated = false;
-        setTimeout(cb, 100);
-    }
-    };
+        resolve(true);
+      }, 1000);
+    });
+  },
+};
 
 export default fakeAuth;

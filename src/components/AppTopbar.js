@@ -1,14 +1,13 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import {
-    Icon,
-    Menu,
-    Label,
-  } from "semantic-ui-react";
-  
+import { Icon, Menu, Label, Dropdown } from "semantic-ui-react";
+import AuthService from "../services/AuthService";
+import { useHistory } from 'react-router-dom';
+
 const appBarColor = "#3d4977";
 
 export default function AppTopbar({ menuWidth }) {
+  const history = useHistory();
   return (
     <Menu
       fixed="top"
@@ -18,18 +17,12 @@ export default function AppTopbar({ menuWidth }) {
         background: appBarColor,
       }}
     >
-      <Menu.Item
-        style={{ width: `${menuWidth}rem` }}
-      >
+      <Menu.Item style={{ width: `${menuWidth}rem` }}>
         {/* this menu item is just a placeholder */}
       </Menu.Item>
 
       <Menu.Menu position="right">
-        <Menu.Item
-          as="a"
-          style={{ color: "white" }}
-          position="right"
-        >
+        <Menu.Item as="a" style={{ color: "white" }} position="right">
           <Icon name="bell" />
           <Label
             color="red"
@@ -40,15 +33,30 @@ export default function AppTopbar({ menuWidth }) {
             12
           </Label>
         </Menu.Item>
-        <Menu.Item
-          as={NavLink}
-          to="/account"
+
+        <Dropdown
+          item
           style={{ color: "white" }}
-          position="right"
+          text={
+            <>
+              <Icon name="user circle" /> Javier
+            </>
+          }
         >
-          <Icon name="user circle" />
-          Javier
-        </Menu.Item>
+          <Dropdown.Menu>
+            <Dropdown.Item as={NavLink} to="/dashboard">
+              Dashboard
+            </Dropdown.Item>
+            <Dropdown.Item
+              onClick={async () => {
+                AuthService.signout();
+                history.push('/');
+              }}
+            >
+              Logout
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </Menu.Menu>
     </Menu>
   );

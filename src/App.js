@@ -20,18 +20,22 @@ import UserProfilePage from "./pages/UserProfilePage";
 import AppSidebar from "./components/AppSidebar";
 import AppTopbar from "./components/AppTopbar";
 import AppContent from "./components/AppContent";
+import LoginPage from "./pages/LoginPage";
+import Error404 from "./pages/Error404";
+import PrivateRoute from "./router/PrivateRoute";
+import HomePage from "./pages/HomePage";
+import PublicLayout from "./pages/PublicLayout";
 
 const navigationMenu = [
   {
     name: "Dashbooard",
-    path: "/",
-    exact: true,
+    path: "/dashboard",
     iconName: "dashboard",
     page: DashboardPage,
   },
   {
-    name: "About",
-    path: "/about",
+    name: "Search",
+    path: "/search",
     iconName: "search",
     page: AboutPage,
   },
@@ -53,16 +57,34 @@ function App() {
 
   return (
     <Router>
-      <AppTopbar />
-      <AppSidebar navigationMenu={navigationMenu} />
       <Switch>
         {navigationMenu.map((item) => (
-          <Route key={item.path} exact={item.exact} path={item.path}>
+          <PrivateRoute key={item.path} exact={item.exact} path={item.path}>
+            <AppTopbar />
+            <AppSidebar navigationMenu={navigationMenu} />
             <AppContent menuWidth={menuWidth}>
               <item.page />
             </AppContent>
-          </Route>
+          </PrivateRoute>
         ))}
+
+        <Route path="/" exact>
+          <PublicLayout>
+            <HomePage />
+          </PublicLayout>
+        </Route>
+        <Route path="/about">
+          <PublicLayout>
+            <AboutPage />
+          </PublicLayout>
+        </Route>
+
+        <Route path="/login">
+          <LoginPage />
+        </Route>
+        <Route path="*" exact>
+          <Error404 />
+        </Route>
       </Switch>
     </Router>
   );
