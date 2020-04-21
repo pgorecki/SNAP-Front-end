@@ -4,14 +4,15 @@ import { useState } from 'react';
 function useAuth() {
   // const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errors, setErrors] = useState(null);
 
   async function authenticate(username, password) {
     setLoading(true);
-    setErrorMessage(null);
+    setErrors(null);
     let user = null;
     try {
-      const result = await axios.post('http://localhost:8000/users/auth/', {
+      const url = process.env.REACT_APP_BACKEND_URL;
+      const result = await axios.post(`${url}/users/auth/`, {
         username,
         password,
       });
@@ -19,15 +20,15 @@ function useAuth() {
       user = {
         ...result.data,
         name: 'Logman',
-      }
+      };
     } catch (e) {
-      setErrorMessage(e.response.data.non_field_errors[0]);
+      setErrors(e.response.data);
     }
     setLoading(false);
     return user;
   }
 
-  return [/*user, */loading, errorMessage, authenticate];
+  return [/*user, */ loading, errors, authenticate];
 }
 
 export default useAuth;

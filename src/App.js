@@ -7,6 +7,7 @@ import AboutPage from './pages/AboutPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AppSidebar from './components/AppSidebar';
 import AppTopbar from './components/AppTopbar';
+import AppFooter from './components/AppFooter';
 import AppContent from './components/AppContent';
 import LoginPage from './pages/LoginPage';
 import Error404 from './pages/Error404';
@@ -50,6 +51,7 @@ function App() {
               <AppContent>
                 <item.page />
               </AppContent>
+              <AppFooter>Footer</AppFooter>
             </PrivateRoute>
           ))}
 

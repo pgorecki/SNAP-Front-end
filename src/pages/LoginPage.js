@@ -16,10 +16,10 @@ export default function LoginPage() {
   const history = useHistory();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [state, dispatch] = useContext(AppContext);
-  const [loading, errorMessage, authenticate] = useAuth();
+  const [, dispatch] = useContext(AppContext);
+  const [loading, errors, authenticate] = useAuth();
 
-  console.log(loading, errorMessage);
+  console.log(loading, errors);
 
   return (
     <Grid
@@ -35,12 +35,26 @@ export default function LoginPage() {
               type="text"
               disabled={loading}
               onChange={(e) => setUsername(e.target.value)}
+              error={
+                errors &&
+                errors.username && {
+                  content: errors.username.join(' '),
+                  pointing: 'above',
+                }
+              }
             />
             <Form.Input
               label="Password"
               type="password"
               disabled={loading}
               onChange={(e) => setPassword(e.target.value)}
+              error={
+                errors &&
+                errors.password && {
+                  content: errors.password.join(' '),
+                  pointing: 'above',
+                }
+              }
             />
             <Button
               fluid
@@ -58,7 +72,9 @@ export default function LoginPage() {
               Log in
             </Button>
           </Form>
-          {errorMessage && <Message error>{errorMessage}</Message>}
+          {errors && errors.non_field_errors && (
+            <Message error>{errors.non_field_errors.join(', ')}</Message>
+          )}
         </Segment>
         <Message>
           New to us? <Link to="/signup">Sign up</Link>
