@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Route } from "react-router-dom";
-import AuthService from "../services/AuthService";
 import LoginPage from "../pages/LoginPage";
+import { AppContext } from "../AppStore";
 
 
 export default function PrivateRoute({ children, ...rest }) {
+  const [{ isLoggedIn }] = useContext(AppContext);
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        AuthService.isAuthenticated ? children : <LoginPage />
+        isLoggedIn ? children : <LoginPage />
       }
     />
   );

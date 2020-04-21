@@ -1,12 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { Icon, Menu, Label, Button } from "semantic-ui-react";
-import AuthService from "../services/AuthService";
+import { AppContext } from '../AppStore';
 
-const appBarColor = "#3d4977";
-const menuWidth = 1;
 
 export default function PublicLayout({ children }) {
+  const [{ theme, isLoggedIn }] = useContext(AppContext);
   return (
     <>
       <Menu
@@ -14,7 +13,7 @@ export default function PublicLayout({ children }) {
         style={{
           boxShadow:
             "0px 4px 5px -2px rgba(0,0,0,0.2), 0px 7px 10px 1px rgba(0,0,0,0.14), 0px 2px 16px 1px rgba(0,0,0,0.12)",
-          background: appBarColor,
+          background: theme.appBarColor,
         }}
       >
         <Menu.Item style={{ color: "white" }}>[LOGO]</Menu.Item>
@@ -26,7 +25,7 @@ export default function PublicLayout({ children }) {
         </Menu.Item>
 
         <Menu.Menu position="right">
-          {AuthService.isAuthenticated ? (
+          {isLoggedIn ? (
             <Menu.Item
               as={NavLink}
               to="/dashboard"
@@ -53,7 +52,7 @@ export default function PublicLayout({ children }) {
         style={{
           width: "100%",
           paddingTop: "4rem",
-          paddingLeft: `${menuWidth}rem`,
+          paddingLeft: `${theme.menuWidth}rem`,
         }}
       >
         <div style={{ marginRight: "1rem", marginLeft: "1rem" }}>
