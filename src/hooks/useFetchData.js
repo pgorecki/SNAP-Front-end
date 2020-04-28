@@ -1,8 +1,9 @@
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import useApiClient from './useApiClient';
 
-function useFetchData(url, timeout) {
-  const [data, setData] = useState([]);
+function useFetchData(url) {
+  const [apiClient] = useApiClient();
+  const [data, setData] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -12,19 +13,25 @@ function useFetchData(url, timeout) {
     setLoading(false);
   }
 
-  async function load() {
+  async function fetchData() {
     init();
     setLoading(true);
     try {
-      const result = await axios.fetch(url, { timeout: timeout }).data;
-      setData(result);
+      const result = await apiClient.get(url);
+      setData(result.data);
+      setError(false);
     } catch (e) {
-      setError(true);
+      setError(e.response);
+      setData(false);
     }
     setLoading(false);
   }
 
-  return { data, loading, error, load };
+  useEffect(() => {
+    fetchData();
+  }, [apiClient, url]);
+
+  return [data, error, loading, fetchData];
 }
 
 export default useFetchData;

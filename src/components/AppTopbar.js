@@ -32,7 +32,7 @@ export default function AppTopbar({ menuWidth }) {
           </Label>
         </Menu.Item>
 
-        <Dropdown item style={{ color: 'white' }} text={user.name}>
+        <Dropdown item style={{ color: 'white' }} text={user.username}>
           <Dropdown.Menu>
             <Dropdown.Item as={NavLink} to="/dashboard">
               Dashboard

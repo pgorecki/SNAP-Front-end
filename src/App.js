@@ -14,6 +14,7 @@ import Error404 from './pages/Error404';
 import PrivateRoute from './router/PrivateRoute';
 import HomePage from './pages/HomePage';
 import PublicLayout from './pages/PublicLayout';
+import SurveyList from './pages/surveys/SurveyList';
 import AppStore from './AppStore';
 
 const navigationMenu = [
@@ -28,6 +29,12 @@ const navigationMenu = [
     path: '/search',
     iconName: 'search',
     page: AboutPage,
+  },
+  {
+    name: 'Surveys',
+    path: '/surveys',
+    iconName: 'bed',
+    page: SurveyList,
   },
   {
     name: 'Account',
