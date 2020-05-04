@@ -15,6 +15,7 @@ import PrivateRoute from './router/PrivateRoute';
 import HomePage from './pages/HomePage';
 import PublicLayout from './pages/PublicLayout';
 import SurveyList from './pages/surveys/SurveyList';
+import SurveyDetails from './pages/surveys/SurveyDetails';
 import AppStore from './AppStore';
 
 const navigationMenu = [
@@ -31,15 +32,38 @@ const navigationMenu = [
     page: AboutPage,
   },
   {
+    name: 'Clients',
+    path: '/clients',
+    iconName: 'address card outline',
+    page: 'TODO',
+  },
+  {
+    path: '/surveys/:id',
+    page: SurveyDetails,
+  },
+  {
     name: 'Surveys',
     path: '/surveys',
-    iconName: 'bed',
+    iconName: 'file alternate outline',
     page: SurveyList,
   },
   {
+    name: 'Question Bank',
+    path: '/questions',
+    iconName: 'question',
+    page: 'TODO',
+  },
+  {
+    name: 'Responses',
+    path: '/responses',
+    iconName: 'comment outline',
+    page: 'TODO',
+  },
+
+  {
     name: 'Account',
     path: '/account',
-    iconName: 'bed',
+    iconName: 'user outline',
     page: UserProfilePage,
   },
 ];

@@ -4,6 +4,12 @@ import { Button, Icon, Grid, Header, Label } from 'semantic-ui-react';
 import useFetchData from '../../hooks/useFetchData';
 import ControlledTable from '../../components/ControlledTable';
 import { formatDateTime } from '../../utils/dateUtils';
+import {
+  EditActionLink,
+  DeleteActionButton,
+  PrimaryActionLink,
+} from '../../components/tableComponents';
+import { formatOwner } from '../../utils/modelUtils';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
@@ -36,41 +42,22 @@ export default function SurveyList() {
         Cell: ({ value }) => formatDateTime(value, true),
       },
       {
+        Header: 'Created By',
+        accessor: 'created_by',
+        Cell: ({ value }) => formatOwner(value),
+      },
+      {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <Button
-              size="tiny"
-              basic
-              color="blue"
-              as={NavLink}
-              to={`/surveys/${row.original.id}/edit`}
-            >
-              <Icon name="edit" /> Edit
-            </Button>
-            <Button
-              size="tiny"
-              basic
-              color="blue"
-              as={NavLink}
+            <EditActionLink to={`/surveys/${row.original.id}/edit`} />
+            <PrimaryActionLink
+              icon="table"
+              label="Builder"
               to={`/surveys/${row.original.id}/builder`}
-            >
-              <Icon name="table" /> Builder
-            </Button>
-            <Button size="tiny" negative>
-              <Icon name="trash" /> Delete
-            </Button>
-
-            {/* <NavLink to={`/surveys/${row.original.id}/edit`}>
-              <Icon name="edit" />
-            </NavLink>
-            <NavLink to={`/surveys/${row.original.id}/builder`}>
-              <Icon name="table" />
-            </NavLink>
-            <NavLink to={`/surveys/${row.original.id}/builder`}>
-              <Icon name="trash" />
-            </NavLink> */}
+            />
+            <DeleteActionButton onClick={() => alert('Not yet implemented')} />
           </>
         ),
       },
