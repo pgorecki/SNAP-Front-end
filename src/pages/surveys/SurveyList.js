@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Button, Icon, Grid, Header, Label } from 'semantic-ui-react';
 import useFetchData from '../../hooks/useFetchData';
 import ControlledTable from '../../components/ControlledTable';
-import { formatDateTime } from '../../utils/dateUtils';
+import { formatDateTime } from '../../utils/typeUtils';
 import {
   EditActionLink,
   DeleteActionButton,

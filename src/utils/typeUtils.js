@@ -1,5 +1,8 @@
-import React from 'react';
 import moment from 'moment';
+
+export function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 export function formatDateTime(value, ago = false) {
   const date = moment(value);
