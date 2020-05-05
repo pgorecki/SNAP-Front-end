@@ -531,6 +531,7 @@ export default class Question extends Item {
         <label>
           {this.props.item.title} {disabled}
         </label>
+        <p>{text}</p>
         {this.renderQuestionCategory(this.isRefused() ? '' : value, disabled)}
         {this.renderRefuseCheckbox(disabled)}
       </Form.Field>

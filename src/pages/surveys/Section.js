@@ -5,7 +5,6 @@ import Grid from './Grid';
 import Question from './Question';
 import Score from './Score';
 import Text from './Text';
-import { Segment } from 'semantic-ui-react';
 
 export default class Section extends Item {
   constructor() {

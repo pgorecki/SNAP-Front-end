@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 import useApiClient from './useApiClient';
 
-function useFetchData(url) {
+function useFetchData(url, initialData = null) {
   const [apiClient] = useApiClient();
-  const [data, setData] = useState(false);
+  const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  function init() {
-    setData([]);
-    setLoading(true);
-    setLoading(false);
-  }
+  // function init() {
+  //   setData(initialData);
+  //   setLoading(true);
+  //   setLoading(false);
+  // }
 
   async function fetchData() {
-    init();
+    // init();
     setLoading(true);
     try {
       const result = await apiClient.get(url);

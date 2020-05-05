@@ -19,11 +19,12 @@ export default function DetailsPage({ loading, error, children }) {
         background: '#fff',
         margin: 0,
         padding: 30,
+        minHeight: '50vh',
       }}
     >
-      {loading ? renderLoading() : error ? renderError() : children}
+      <Grid.Column>
+        {loading ? renderLoading() : error ? renderError() : children}
+      </Grid.Column>
     </Grid>
   );
-
-  return <div>{children}</div>;
 }

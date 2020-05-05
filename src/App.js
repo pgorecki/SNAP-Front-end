@@ -14,6 +14,8 @@ import Error404 from './pages/Error404';
 import PrivateRoute from './router/PrivateRoute';
 import HomePage from './pages/HomePage';
 import PublicLayout from './pages/PublicLayout';
+import QuestionList from './pages/questions/QuestionList';
+import QuestionDetails from './pages/questions/QuestionDetails';
 import SurveyList from './pages/surveys/SurveyList';
 import SurveyDetails from './pages/surveys/SurveyDetails';
 import AppStore from './AppStore';
@@ -48,10 +50,14 @@ const navigationMenu = [
     page: SurveyList,
   },
   {
+    path: '/questions/:id',
+    page: QuestionDetails,
+  },
+  {
     name: 'Question Bank',
     path: '/questions',
     iconName: 'question',
-    page: 'TODO',
+    page: QuestionList,
   },
   {
     name: 'Responses',
