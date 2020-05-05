@@ -8,7 +8,7 @@ import Survey from './Survey';
 
 export default function SurveyDetails() {
   const [urlParams] = useUrlParams();
-  const [data, error, loading] = useFetchData(`/surveys/${urlParams.id}`);
+  const [data, error, loading] = useFetchData(`/surveys/${urlParams.id}`, {});
   console.log(data);
   return (
     <DetailsPage loading={loading} error={formatApiError(error)}>
