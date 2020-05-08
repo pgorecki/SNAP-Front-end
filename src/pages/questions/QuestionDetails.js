@@ -1,70 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Form,
+  Grid,
   Header,
-  Segment,
-  Input,
+  Select,
   TextArea,
   Checkbox,
-  Select,
   Button,
-  Grid,
+  Segment,
 } from 'semantic-ui-react';
-import useFetchData from '../../hooks/useFetchData';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import {
+  FormInput,
+  FormTextArea,
+  FormSelect,
+  FormCheckbox,
+  FormErrors,
+} from '../../components/FormFields';
+import useResource from '../../hooks/useResource';
 import useUrlParams from '../../hooks/useUrlParams';
-import { formatApiError } from '../../utils/apiUtils';
+import { formatApiError, apiErrorToFormError } from '../../utils/apiUtils';
 import DetailsPage from '../DetailsPage';
 import Section from '../surveys/Section';
-
-function useQuestionForm(initialState = {}) {
-  const [state, setState] = useState(initialState);
-  const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    setState(initialState);
-  }, [initialState]);
-
-  return {
-    values: state,
-    getValue(name) {
-      return state[name];
-    },
-    setValue(name, value) {
-      console.log('set form value', name, value);
-      setState({
-        ...state,
-        [name]: value,
-      });
-    },
-    getError(name) {
-      return errors[name];
-    },
-    onChange(event, field) {
-      setState({
-        ...state,
-        [field.name]: field.value,
-      });
-    },
-    onChecked(event, field) {
-      setState({
-        ...state,
-        [field.name]: field.checked,
-      });
-    },
-    getArray(name) {
-      if (Array.isArray(state[name])) {
-        return state[name].join('\n');
-      }
-    },
-    setArray(name, textString) {
-      const elements = textString.split('\n');
-      setState({
-        ...state,
-        [name]: elements,
-      });
-    },
-  };
-}
 
 const questionCategories = [
   { value: 'text', text: 'Text' },
@@ -73,110 +31,103 @@ const questionCategories = [
 
 export default function QuestionDetails() {
   const [urlParams] = useUrlParams();
-  const [data, error, loading] = useFetchData(`/questions/${urlParams.id}`, {});
-  const form = useQuestionForm(data);
-  console.log('f', form.values);
-  return (
-    <DetailsPage loading={loading} error={formatApiError(error)}>
-      <Header>Edit {form.values.title}</Header>
-      <Grid>
-        <Grid.Column>aa</Grid.Column>
-        <Grid.Column>bb</Grid.Column>
-      </Grid>
-      <Segment color="blue">
-        <Form>
-          <Section
-            item={{
-              title: 'Question preview',
-              items: [
-                {
-                  type: 'question',
-                  id: data.id,
-                  title: form.values.title,
-                  category: form.values.category,
-                  options: form.values.options,
-                  text: form.values.description,
-                  refusable: true,
-                },
-              ],
-            }}
-            formState={{ props: {}, values: {} }}
-            onValueChange={(a, b, c) => {
-              console.log(a, b, c);
-            }}
-            onPropsChange={(a, b, c) => {
-              console.log(a, b, c);
-            }}
-          />
-        </Form>
-      </Segment>
+  const { data, error, loading, save } = useResource(
+    `/questions/${urlParams.id}/`,
+    {}
+  );
 
-      <Form>
-        <Form.Field>
-          <label>Title</label>
-          <Input
-            name="title"
-            value={form.values.title}
-            onChange={form.onChange}
-          />
-        </Form.Field>
-        <Form.Field>
-          <label>Description</label>
-          <TextArea
-            name="description"
-            value={form.values.description}
-            onChange={form.onChange}
-          />
-        </Form.Field>
-        <Form.Field>
-          <label>Category</label>
-          <Select
-            name="category"
-            placeholder="Select question category"
-            options={questionCategories}
-            onChange={form.onChange}
-          />
-        </Form.Field>
-        {['choice'].includes(form.values.category) && (
-          <>
-            <Form.Field>
-              <label>Options</label>
-              <TextArea
-                name="options"
-                value={form.getArray('options')}
-                onChange={(event, { value }) => form.setArray('options', value)}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Checkbox
-                name="other"
-                label="Other"
-                checked={form.getValue('other')}
-                onChange={form.onChecked}
-              />
-            </Form.Field>
-          </>
-        )}
-        <Form.Field>
-          <Checkbox
-            name="refusable"
-            label="Refusable?"
-            checked={form.getValue('refusable')}
-            onChange={form.onChecked}
-          />
-        </Form.Field>
-        <Form.Field>
-          <Checkbox
-            name="is_public"
-            label="Public"
-            checked={form.getValue('is_public')}
-            onChange={form.onChecked}
-          />
-        </Form.Field>
-        <Button primary onClick={() => console.log(form.values)}>
-          Submit
-        </Button>
-      </Form>
-    </DetailsPage>
+  return (
+    <Formik
+      enableReinitialize
+      initialValues={data}
+      onSubmit={async (values, actions) => {
+        try {
+          await save(values);
+        } catch (err) {
+          actions.setErrors(apiErrorToFormError(err));
+        }
+        actions.setSubmitting(false);
+      }}
+    >
+      {(form) => (
+        <DetailsPage loading={loading} error={formatApiError(error)}>
+          <Header>Edit {form.values.title}</Header>
+          <Grid>
+            <Grid.Column computer={8} mobile={16}>
+              <Form error onSubmit={form.handleSubmit}>
+                <FormInput label="Title" name="title" form={form} />
+                <FormTextArea
+                  label="Description"
+                  name="description"
+                  form={form}
+                />
+                <FormSelect
+                  label="Category"
+                  name="category"
+                  placeholder="Select question category"
+                  options={questionCategories}
+                  form={form}
+                />
+                {['choice'].includes(form.values.category) && (
+                  <>
+                    <FormTextArea
+                      label="Options"
+                      name="options"
+                      value={
+                        console.log(form.values['options']) ||
+                        Array.isArray(form.values['options'])
+                          ? form.values['options'].join('\n')
+                          : form.values['options']
+                      }
+                      onChange={(event, { value }) =>
+                        form.setFieldValue('options', value.split('\n'))
+                      }
+                      form={form}
+                    />
+                    <FormCheckbox label="Other" name="other" form={form} />
+                  </>
+                )}
+                <FormCheckbox label="Refusable" name="refusable" form={form} />
+                <FormCheckbox label="Public" name="is_public" form={form} />
+                <FormErrors form={form} />
+                <Button primary type="submit" disabled={form.isSubmitting}>
+                  Submit
+                </Button>
+              </Form>
+            </Grid.Column>
+            <Grid.Column computer={8} mobile={16}>
+              <Segment color="blue">
+                <Form>
+                  <Section
+                    item={{
+                      title: 'Question preview',
+                      items: [
+                        {
+                          type: 'question',
+                          id: data.id,
+                          title: form.values.title,
+                          category: form.values.category,
+                          options: form.values.options,
+                          other: form.values.other,
+                          text: form.values.description,
+                          refusable: form.values.refusable,
+                        },
+                      ],
+                    }}
+                    formState={{ props: {}, values: {} }}
+                    onValueChange={(a, b, c) => {
+                      console.log(a, b, c);
+                    }}
+                    onPropsChange={(a, b, c) => {
+                      console.log(a, b, c);
+                    }}
+                  />
+                </Form>
+              </Segment>
+            </Grid.Column>
+          </Grid>
+        </DetailsPage>
+      )}
+    </Formik>
   );
 }
