@@ -53,7 +53,7 @@ export default function SurveyList() {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink to={`/surveys/${row.original.id}/edit`} />
+            <EditActionLink to={`/surveys/${row.original.id}/edit`} disabled />
             <PrimaryActionLink
               icon="table"
               label="Builder"

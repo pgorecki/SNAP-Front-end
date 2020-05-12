@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import useApiClient from './useApiClient';
 
-export default function useResource(url, initialData = null) {
+export default function useResource(url, initialData = {}) {
   const [apiClient] = useApiClient();
   const [data, setData] = useState(initialData);
   const [error, setError] = useState(null);
@@ -33,6 +33,7 @@ export default function useResource(url, initialData = null) {
         const result = await request;
         setData(result.data);
         setError(false);
+        return result.data;
       } catch (e) {
         throw e;
       } finally {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 // import logo from './logo.svg';
 import './App.css';
 import DashboardPage from './pages/DashboardPage';
@@ -23,6 +24,7 @@ import QuestionDetails from './pages/questions/QuestionDetails';
 import SurveyList from './pages/surveys/SurveyList';
 import SurveyDetails from './pages/surveys/SurveyDetails';
 import AppStore from './AppStore';
+import 'react-toastify/dist/ReactToastify.css';
 
 const navigationMenu = [
   {
@@ -92,7 +94,6 @@ const navigationMenu = [
 
 function App() {
   // const [visible, setVisible] = useState(true);
-
   return (
     <AppStore>
       <Router>
@@ -127,6 +128,7 @@ function App() {
           </Route>
         </Switch>
       </Router>
+      <ToastContainer />
     </AppStore>
   );
 }

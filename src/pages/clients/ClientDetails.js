@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid } from 'semantic-ui-react';
+import { Grid, Button } from 'semantic-ui-react';
 import useResource from '../../hooks/useResource';
 import useUrlParams from '../../hooks/useUrlParams';
 import { formatApiError } from '../../utils/apiUtils';
@@ -7,13 +7,11 @@ import { fullName } from '../../utils/modelUtils';
 import DetailsPage from '../DetailsPage';
 import { ClientAvatar, ClientField } from './components';
 import { formatDate } from '../../utils/typeUtils';
+import { NavLink } from 'react-router-dom';
 
 export default function ClientDetails() {
   const [urlParams] = useUrlParams();
-  const { data, error, loading, save } = useResource(
-    `/clients/${urlParams.id}/`,
-    {}
-  );
+  const { data, error, loading } = useResource(`/clients/${urlParams.id}/`);
 
   const {
     first_name: firstName,
@@ -44,6 +42,10 @@ export default function ClientDetails() {
           <ClientField label="Date of Birth">{formatDate(dob)}</ClientField>
           <ClientField label="SSN">{ssn || 'n/a'}</ClientField>
         </Grid.Column>
+
+        <Button as={NavLink} to={`/clients/${data.id}/edit`} primary>
+          Edit
+        </Button>
       </Grid>
     </DetailsPage>
   );
