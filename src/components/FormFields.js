@@ -1,10 +1,12 @@
 import React from 'react';
 import { Form, Message, Checkbox } from 'semantic-ui-react';
+import SemanticDatepicker from 'react-semantic-ui-datepickers';
+import moment from 'moment';
 
 export const FormInput = ({ form, name, ...props }) => (
   <Form.Input
     name={name}
-    value={form.values[name]}
+    value={form.values[name] || ''}
     onChange={form.handleChange}
     onBlur={form.handleBlur}
     error={
@@ -20,7 +22,7 @@ export const FormInput = ({ form, name, ...props }) => (
 export const FormTextArea = ({ form, name, ...props }) => (
   <Form.TextArea
     name={name}
-    value={form.values[name]}
+    value={form.values[name] || ''}
     onChange={(event) => form.handleChange(event)}
     onBlur={form.handleBlur}
     error={
@@ -53,6 +55,29 @@ export const FormCheckbox = ({ form, name, ...props }) => (
     />
   </Form.Field>
 );
+
+export const FormDatePicker = ({ form, label, name, required, ...props }) => {
+  let value = form.values[name];
+
+  if (typeof value === 'string') {
+    value = moment(value).toDate();
+  }
+
+  return (
+    <Form.Field required>
+      <label>{label}</label>
+      <SemanticDatepicker
+        value={value}
+        onChange={(event, { value }) =>
+          console.log(value) ||
+          form.setFieldValue(name, moment(value).format('YYYY-MM-DD'))
+        }
+        onBlur={() => form.setFieldTouched(name)}
+        format="MM-DD-YYYY"
+      />
+    </Form.Field>
+  );
+};
 
 export const FormErrors = ({ form }) => {
   const keys = Object.keys(form.errors || {});

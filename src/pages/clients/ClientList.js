@@ -3,36 +3,43 @@ import { NavLink } from 'react-router-dom';
 import { Button, Icon, Grid, Header, Label } from 'semantic-ui-react';
 import useFetchData from '../../hooks/useFetchData';
 import ControlledTable from '../../components/ControlledTable';
+import ListPage from '../ListPage';
 import { formatDateTime } from '../../utils/typeUtils';
 import {
   EditActionLink,
   DeleteActionButton,
   PrimaryActionLink,
 } from '../../components/tableComponents';
-import { formatOwner } from '../../utils/modelUtils';
-import ListPage from '../ListPage';
 import { formatApiError } from '../../utils/apiUtils';
+import { formatOwner } from '../../utils/modelUtils';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
-export default function QuestionList() {
-  const [data, error, loading, fetchData] = useFetchData('/questions/');
-  // const [, queryParams] = useUrlParams();
-  console.log(data, loading);
+export default function ClientList() {
+  const [data, error, loading, fetchData] = useFetchData('/clients/');
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Title',
-        accessor: 'title',
+        Header: 'First Name',
+        accessor: 'first_name',
+        Cell: ({ value, row }) => {
+          return <NavLink to={`/clients/${row.original.id}`}>{value}</NavLink>;
+        },
+      },
+      {
+        Header: 'Middle Name',
+        accessor: 'middle_name',
         Cell: ({ value, row }) => (
-          <NavLink to={`/questions/${row.original.id}`}>{value}</NavLink>
+          <NavLink to={`/clients/${row.original.id}`}>{value}</NavLink>
         ),
       },
       {
-        Header: 'Access',
-        accessor: 'is_public',
-        Cell: ({ value }) => <Label>{value ? 'Public' : 'Private'}</Label>,
+        Header: 'Last Name',
+        accessor: 'last_name',
+        Cell: ({ value, row }) => (
+          <NavLink to={`/clients/${row.original.id}`}>{value}</NavLink>
+        ),
       },
       {
         Header: 'Date Created',
@@ -54,8 +61,7 @@ export default function QuestionList() {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink to={`/questions/${row.original.id}/edit`} />
-            <DeleteActionButton onClick={() => alert('Not yet implemented')} />
+            <EditActionLink to={`/clients/${row.original.id}/edit`} exact />
           </>
         ),
       },
@@ -64,9 +70,10 @@ export default function QuestionList() {
   );
 
   return (
-    <ListPage title="Questions" loading={loading} error={formatApiError(error)}>
-      <Button primary as={NavLink} exact to={'/questions/new'} disabled>
-        New Question
+    <ListPage loading={loading} error={formatApiError(error)}>
+      <Header>Clients</Header>
+      <Button primary as={NavLink} exact to={'/clients/new'}>
+        New Client
       </Button>
       <ControlledTable
         columns={columns}

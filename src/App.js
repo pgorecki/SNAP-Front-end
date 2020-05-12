@@ -14,6 +14,10 @@ import Error404 from './pages/Error404';
 import PrivateRoute from './router/PrivateRoute';
 import HomePage from './pages/HomePage';
 import PublicLayout from './pages/PublicLayout';
+import ClientList from './pages/clients/ClientList';
+import ClientDetails from './pages/clients/ClientDetails';
+import ClientNew from './pages/clients/ClientNew';
+import ClientEdit from './pages/clients/ClientEdit';
 import QuestionList from './pages/questions/QuestionList';
 import QuestionDetails from './pages/questions/QuestionDetails';
 import SurveyList from './pages/surveys/SurveyList';
@@ -34,10 +38,22 @@ const navigationMenu = [
     page: AboutPage,
   },
   {
+    path: '/clients/new',
+    page: ClientNew,
+  },
+  {
+    path: '/clients/:id/edit',
+    page: ClientEdit,
+  },
+  {
+    path: '/clients/:id',
+    page: ClientDetails,
+  },
+  {
     name: 'Clients',
     path: '/clients',
     iconName: 'address card outline',
-    page: 'TODO',
+    page: ClientList,
   },
   {
     path: '/surveys/:id',

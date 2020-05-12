@@ -10,6 +10,8 @@ import {
   PrimaryActionLink,
 } from '../../components/tableComponents';
 import { formatOwner } from '../../utils/modelUtils';
+import ListPage from '../ListPage';
+import { formatApiError } from '../../utils/apiUtils';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
@@ -56,8 +58,12 @@ export default function SurveyList() {
               icon="table"
               label="Builder"
               to={`/surveys/${row.original.id}/builder`}
+              disabled
             />
-            <DeleteActionButton onClick={() => alert('Not yet implemented')} />
+            <DeleteActionButton
+              onClick={() => alert('Not yet implemented')}
+              disabled
+            />
           </>
         ),
       },
@@ -65,41 +71,17 @@ export default function SurveyList() {
     []
   );
 
-  function renderLoading() {
-    return <p>Loading...</p>;
-  }
-
-  function renderError() {
-    return <p>Error</p>;
-  }
-
-  function renderData() {
-    return (
+  return (
+    <ListPage title="Surveys" loading={loading} error={formatApiError(error)}>
+      <Button primary as={NavLink} exact to={'/surveys/new'} disabled>
+        New Survey
+      </Button>
       <ControlledTable
         columns={columns}
         data={data}
         loading={loading}
         fetchData={fetchData}
       />
-    );
-  }
-
-  return (
-    <>
-      <Grid
-        style={{
-          background: '#fff',
-          margin: 0,
-          paddingTop: 30,
-        }}
-      >
-        <Header>Surveys</Header>
-        {loading
-          ? renderLoading()
-          : error
-          ? renderError()
-          : data && renderData()}
-      </Grid>
-    </>
+    </ListPage>
   );
 }

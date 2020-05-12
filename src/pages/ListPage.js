@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Header, Loader, Message } from 'semantic-ui-react';
 
-export default function DetailsPage({ title, loading, error, children }) {
+export default function ListPage({ title, loading, error, children }) {
   function renderLoading() {
     return <Loader active inline="centered" />;
   }

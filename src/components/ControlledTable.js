@@ -18,11 +18,10 @@ export default function ControlledTable({ columns, data, loading, fetchData }) {
     prepareRow,
   } = useTable({
     columns,
-    data: data.results || [],
+    data: (data && data.results) || [],
     initialState: { pageIndex: 0 },
     manualPagination: true,
   });
-  console.log(data);
   return (
     <Table celled {...getTableProps()}>
       <Table.Header>
@@ -57,14 +56,14 @@ export default function ControlledTable({ columns, data, loading, fetchData }) {
         <Table.Row>
           <Table.HeaderCell colSpan={columns.length}>
             <Menu floated="right" pagination>
-              <Menu.Item as="a" icon disabled={!data.previous}>
+              <Menu.Item as="a" icon disabled={!(data && data.previous)}>
                 <Icon name="chevron left" />
               </Menu.Item>
               {/* <Menu.Item as="a">1</Menu.Item>
               <Menu.Item as="a">2</Menu.Item>
               <Menu.Item as="a">3</Menu.Item>
               <Menu.Item as="a">4</Menu.Item> */}
-              <Menu.Item as="a" icon disabled={!data.next}>
+              <Menu.Item as="a" icon disabled={!(data && data.next)}>
                 <Icon name="chevron right" />
               </Menu.Item>
             </Menu>
@@ -77,11 +76,14 @@ export default function ControlledTable({ columns, data, loading, fetchData }) {
                 background: 'transparent',
               }}
             >
-              <div className="item">
-                {(data.page_number - 1) * data.page_size + 1}-
-                {(data.page_number - 1) * data.page_size + data.results.length}{' '}
-                of {data.count}
-              </div>
+              {data && data.count > 0 && (
+                <div className="item">
+                  {(data.page_number - 1) * data.page_size + 1}-
+                  {(data.page_number - 1) * data.page_size +
+                    data.results.length}{' '}
+                  of {data.count}
+                </div>
+              )}
             </div>
           </Table.HeaderCell>
         </Table.Row>

@@ -50,8 +50,11 @@ export default function QuestionDetails() {
       }}
     >
       {(form) => (
-        <DetailsPage loading={loading} error={formatApiError(error)}>
-          <Header>Edit {form.values.title}</Header>
+        <DetailsPage
+          title={`Edit ${form.values.title}`}
+          loading={loading}
+          error={formatApiError(error)}
+        >
           <Grid>
             <Grid.Column computer={8} mobile={16}>
               <Form error onSubmit={form.handleSubmit}>

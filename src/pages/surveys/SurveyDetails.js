@@ -11,8 +11,11 @@ export default function SurveyDetails() {
   const [data, error, loading] = useFetchData(`/surveys/${urlParams.id}`, {});
   console.log(data);
   return (
-    <DetailsPage loading={loading} error={formatApiError(error)}>
-      <Header>{data.name}</Header>
+    <DetailsPage
+      title={data.name}
+      loading={loading}
+      error={formatApiError(error)}
+    >
       <Survey definition={data.definition} debugMode />
     </DetailsPage>
   );
