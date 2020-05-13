@@ -1,5 +1,4 @@
 export function formatOwner(owner) {
-  console.log(owner);
   return (
     [owner.first_name, owner.last_name]
       .map((x) => x.trim())
@@ -22,5 +21,17 @@ export function fullName(user) {
   if (user.lastName) {
     parts.push(user.lastName);
   }
+  return parts.join(' ').trim();
+}
+
+export function clientFullName(client) {
+  if (!client) {
+    return undefined;
+  }
+  const parts = [
+    client.first_name,
+    client.middle_name,
+    client.last_name,
+  ].filter((x) => !!x);
   return parts.join(' ').trim();
 }

@@ -27,7 +27,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ssh": "ssh -i ~/.ssh/snap.pem ubuntu@gsnap.ctagroup.org",
-    "deploy": "ssh -i ~/.ssh/snap.pem ubuntu@gsnap.ctagroup.org 'cd ~/snap-src && ls && ./deploy_frontend.sh'"
+    "deploy": "ssh -i ~/.ssh/snap.pem ubuntu@gsnap.ctagroup.org 'source ~/.nvm/nvm.sh && cd ~/snap-src && ./deploy_frontend.sh'"
   },
   "eslintConfig": {
     "extends": "react-app"

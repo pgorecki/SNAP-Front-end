@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Icon, Grid, Header, Label } from 'semantic-ui-react';
+import { Button, Icon, Grid, Search, Header, Label } from 'semantic-ui-react';
 import useFetchData from '../../hooks/useFetchData';
 import ControlledTable from '../../components/ControlledTable';
 import ListPage from '../ListPage';
@@ -12,6 +12,7 @@ import {
 } from '../../components/tableComponents';
 import { formatApiError } from '../../utils/apiUtils';
 import { formatOwner } from '../../utils/modelUtils';
+import { ClientSearch } from './components';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
@@ -72,6 +73,12 @@ export default function ClientList() {
   return (
     <ListPage loading={loading} error={formatApiError(error)}>
       <Header>Clients</Header>
+      <Grid>
+        <Grid.Column width={6}>
+          <ClientSearch />
+        </Grid.Column>
+      </Grid>
+
       <Button primary as={NavLink} exact to={'/clients/new'}>
         New Client
       </Button>
