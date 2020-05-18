@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useApiClient from './useApiClient';
 
 function useFetchData(url, initialData = null) {
@@ -7,10 +7,18 @@ function useFetchData(url, initialData = null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  // function init() {
+  //   setData(initialData);
+  //   setLoading(true);
+  //   setLoading(false);
+  // }
+
+  async function fetchData(query) {
+    console.log('ff', query, url + query);
+    // init();
     setLoading(true);
     try {
-      const result = await apiClient.get(url);
+      const result = await apiClient.get(url + query);
       setData(result.data);
       setError(false);
     } catch (e) {
@@ -18,11 +26,11 @@ function useFetchData(url, initialData = null) {
       setData(false);
     }
     setLoading(false);
-  }, [apiClient, url]);
+  }
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData(url);
+  }, [apiClient, url]);
 
   return [data, error, loading, fetchData];
 }

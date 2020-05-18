@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Avatar from 'react-avatar';
 import { Search, List } from 'semantic-ui-react';
 import { fullName, clientFullName } from '../../utils/modelUtils';
-import useFetchData from '../../hooks/useFetchData';
+import useSearchClient from '../../hooks/useSearchClient';
 import useDebouncedCallback from '../../hooks/useDebouncedCallback';
 import { NavLink } from 'react-router-dom';
 
@@ -39,29 +39,30 @@ export function ClientAvatar({ client, ...props }) {
 }
 
 export function ClientSearch({ ...props }) {
-  const [data, error, loading, fetchData] = useFetchData('/clients/', {
-    results: [],
-  });
   const [searchQuery, setSearchQuery] = useState('');
+  const [data, error, loading, fetchData] = useSearchClient(
+    '/clients/search/?q=',
+    {
+      results: [],
+    }
+  );
   const searchClient = useDebouncedCallback((query) => {
-    fetchData();
+    fetchData(query);
   }, 500);
 
   const handleSearchChange = (e, { value }) => {
     setSearchQuery(value);
-    searchClient();
+    searchClient(value);
   };
 
   const resultRenderer = ({ client }) => (
-    <List>
+    <List as={NavLink} to={`clients/${client.id}`}>
       <List.Item>
         <List.Icon verticalAlign="middle">
           <ClientAvatar client={client} size={48} />
         </List.Icon>
         <List.Content>
-          <List.Header as={NavLink} to={`clients/${client.id}`}>
-            {clientFullName(client)}
-          </List.Header>
+          <List.Header>{clientFullName(client)}</List.Header>
           <List.Description>Agency 1</List.Description>
         </List.Content>
       </List.Item>
