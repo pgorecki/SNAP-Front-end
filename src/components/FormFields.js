@@ -1,4 +1,5 @@
 import React from 'react';
+import { Field } from 'formik';
 import { Form, Message, Checkbox } from 'semantic-ui-react';
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import moment from 'moment';
@@ -19,20 +20,24 @@ export const FormInput = ({ form, name, ...props }) => (
   />
 );
 
-export const FormTextArea = ({ form, name, ...props }) => (
-  <Form.TextArea
-    name={name}
-    value={form.values[name] || ''}
-    onChange={(event) => form.handleChange(event)}
-    onBlur={form.handleBlur}
-    error={
-      !!form.errors[name] && {
-        content: form.errors[name],
-        pointing: 'above',
-      }
-    }
-    {...props}
-  />
+export const FormTextArea = ({ form, name, validate, ...props }) => (
+  <Field name={name} validate={validate}>
+    {() => (
+      <Form.TextArea
+        name={name}
+        value={form.values[name] || ''}
+        onChange={form.handleChange}
+        onBlur={form.handleBlur}
+        error={
+          !!form.errors[name] && {
+            content: form.errors[name],
+            pointing: 'above',
+          }
+        }
+        {...props}
+      />
+    )}
+  </Field>
 );
 
 export const FormSelect = ({ form, name, ...props }) => (

@@ -53,7 +53,7 @@ export default function SurveyList() {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink to={`/surveys/${row.original.id}/edit`} disabled />
+            <EditActionLink to={`/surveys/${row.original.id}/edit`} />
             <PrimaryActionLink
               icon="table"
               label="Builder"
@@ -73,7 +73,7 @@ export default function SurveyList() {
 
   return (
     <ListPage title="Surveys" loading={loading} error={formatApiError(error)}>
-      <Button primary as={NavLink} exact to={'/surveys/new'} disabled>
+      <Button primary as={NavLink} exact to="/surveys/new">
         New Survey
       </Button>
       <ControlledTable

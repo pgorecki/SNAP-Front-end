@@ -23,6 +23,8 @@ import QuestionList from './pages/questions/QuestionList';
 import QuestionDetails from './pages/questions/QuestionDetails';
 import SurveyList from './pages/surveys/SurveyList';
 import SurveyDetails from './pages/surveys/SurveyDetails';
+import SurveyEdit from './pages/surveys/SurveyEdit';
+import SurveyNew from './pages/surveys/SurveyNew';
 import ResponseList from './pages/responses/ResponseList';
 import AppStore from './AppStore';
 import 'react-toastify/dist/ReactToastify.css';
@@ -57,6 +59,14 @@ const navigationMenu = [
     path: '/clients',
     iconName: 'address card outline',
     page: ClientList,
+  },
+  {
+    path: '/surveys/:id/edit',
+    page: SurveyEdit,
+  },
+  {
+    path: '/surveys/new',
+    page: SurveyNew,
   },
   {
     path: '/surveys/:id',
