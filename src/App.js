@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 // import logo from './logo.svg';
 import './App.css';
-import DashboardPage from './pages/DashboardPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
 import AboutPage from './pages/AboutPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AppSidebar from './components/AppSidebar';
@@ -23,6 +23,7 @@ import QuestionList from './pages/questions/QuestionList';
 import QuestionDetails from './pages/questions/QuestionDetails';
 import SurveyList from './pages/surveys/SurveyList';
 import SurveyDetails from './pages/surveys/SurveyDetails';
+import ResponseList from './pages/responses/ResponseList';
 import AppStore from './AppStore';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -33,12 +34,12 @@ const navigationMenu = [
     iconName: 'dashboard',
     page: DashboardPage,
   },
-  {
-    name: 'Search',
-    path: '/search',
-    iconName: 'search',
-    page: AboutPage,
-  },
+  // {
+  //   name: 'Search',
+  //   path: '/search',
+  //   iconName: 'search',
+  //   page: AboutPage,
+  // },
   {
     path: '/clients/new',
     page: ClientNew,
@@ -81,7 +82,7 @@ const navigationMenu = [
     name: 'Responses',
     path: '/responses',
     iconName: 'comment outline',
-    page: 'TODO',
+    page: ResponseList,
   },
 
   {

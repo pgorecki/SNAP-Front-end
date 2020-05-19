@@ -34,6 +34,7 @@ export default function QuestionDetails() {
       initialValues={data}
       onSubmit={async (values, actions) => {
         try {
+          console.log('saving', values);
           await save(values);
           history.push('/questions');
           toaster.success('Question updated');
@@ -65,13 +66,12 @@ export default function QuestionDetails() {
                   options={questionCategories}
                   form={form}
                 />
-                {['choice'].includes(form.values.category) && (
+                {['choice', 'select'].includes(form.values.category) && (
                   <>
                     <FormTextArea
                       label="Options"
                       name="options"
                       value={
-                        console.log(form.values['options']) ||
                         Array.isArray(form.values['options'])
                           ? form.values['options'].join('\n')
                           : form.values['options']
