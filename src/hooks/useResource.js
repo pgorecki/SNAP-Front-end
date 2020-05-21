@@ -14,7 +14,7 @@ export default function useResource(url, initialData = {}) {
     try {
       const result = await apiClient.get(url);
       setData(result.data);
-      setError(false);
+      setError(null);
     } catch (e) {
       setError(e.response);
       setData(false);
@@ -32,7 +32,7 @@ export default function useResource(url, initialData = {}) {
           : apiClient.post(url, payload);
         const result = await request;
         setData(result.data);
-        setError(false);
+        setError(null);
         return result.data;
       } catch (e) {
         throw e;
@@ -44,7 +44,9 @@ export default function useResource(url, initialData = {}) {
   );
 
   useEffect(() => {
-    load();
+    if (url) {
+      load();
+    }
   }, [url, load]);
 
   return { data, error, load, loading, save, saving };

@@ -26,6 +26,7 @@ import SurveyDetails from './pages/surveys/SurveyDetails';
 import SurveyEdit from './pages/surveys/SurveyEdit';
 import SurveyNew from './pages/surveys/SurveyNew';
 import ResponseList from './pages/responses/ResponseList';
+import ResponseNew from './pages/responses/ResponseNew';
 import AppStore from './AppStore';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -89,12 +90,15 @@ const navigationMenu = [
     page: QuestionList,
   },
   {
+    path: '/responses/new',
+    page: ResponseNew,
+  },
+  {
     name: 'Responses',
     path: '/responses',
     iconName: 'comment outline',
     page: ResponseList,
   },
-
   {
     name: 'Account',
     path: '/account',

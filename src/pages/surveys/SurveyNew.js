@@ -1,4 +1,5 @@
 import React from 'react';
+import yaml from 'js-yaml';
 import { useHistory } from 'react-router-dom';
 import { Grid } from 'semantic-ui-react';
 import { Formik, Field } from 'formik';
@@ -18,7 +19,10 @@ export default function ClientNew() {
       initialValues={data}
       onSubmit={async (values, actions) => {
         try {
-          const result = await save(values);
+          const result = await save({
+            ...values,
+            definition: yaml.safeLoad(values.definition),
+          });
           history.push(`/surveys/${result.id}`);
           toaster.success('Survey created');
         } catch (err) {

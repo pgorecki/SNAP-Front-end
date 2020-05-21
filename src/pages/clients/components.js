@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Avatar from 'react-avatar';
 import { Search, List } from 'semantic-ui-react';
-import { fullName, clientFullName } from '../../utils/modelUtils';
+import { clientFullName } from '../../utils/modelUtils';
+import ClientAvatar from '../../components/ClientAvatar';
 import useSearchClient from '../../hooks/useSearchClient';
 import useDebouncedCallback from '../../hooks/useDebouncedCallback';
 import { NavLink } from 'react-router-dom';
@@ -14,27 +14,6 @@ export function ClientField({ label, children }) {
         <strong style={{ fontSize: '1.15em' }}>{children}</strong>
       </p>
     </>
-  );
-}
-
-export function ClientAvatar({ client, ...props }) {
-  const {
-    first_name: firstName,
-    middle_name: middleName,
-    last_name: lastName,
-  } = client;
-
-  const clientFullName = fullName({ firstName, middleName, lastName });
-
-  const maxInitials = [firstName, middleName, lastName].filter((x) => !!x)
-    .length;
-
-  return (
-    <Avatar
-      name={`${clientFullName} ${client.id}`}
-      maxInitials={maxInitials}
-      {...props}
-    />
   );
 }
 

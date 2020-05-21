@@ -1,13 +1,15 @@
 import React from 'react';
-import { Grid, Button } from 'semantic-ui-react';
+import { Grid, Tab, Button } from 'semantic-ui-react';
 import useResource from '../../hooks/useResource';
 import useUrlParams from '../../hooks/useUrlParams';
 import { formatApiError } from '../../utils/apiUtils';
 import { fullName } from '../../utils/modelUtils';
 import DetailsPage from '../DetailsPage';
-import { ClientAvatar, ClientField } from './components';
+import { ClientField } from './components';
+import ClientAvatar from '../../components/ClientAvatar';
 import { formatDate } from '../../utils/typeUtils';
 import { NavLink } from 'react-router-dom';
+import ResponsesTab from './ResponsesTab';
 
 export default function ClientDetails() {
   const [urlParams] = useUrlParams();
@@ -21,7 +23,44 @@ export default function ClientDetails() {
     ssn,
   } = data;
 
+  console.log(data);
+
   const clientFullName = fullName({ firstName, middleName, lastName });
+
+  const tabPanes = [
+    {
+      menuItem: 'Overview',
+      render: () => <Tab.Pane>TODO: Overview</Tab.Pane>,
+    },
+    {
+      menuItem: 'History',
+      render: () => <Tab.Pane>TODO: History</Tab.Pane>,
+    },
+    {
+      menuItem: 'ROIs',
+      render: () => <Tab.Pane>TODO: ROIs</Tab.Pane>,
+    },
+    {
+      menuItem: 'Referrals',
+      render: () => <Tab.Pane>TODO: Referrals</Tab.Pane>,
+    },
+    {
+      menuItem: 'Responses',
+      render: () => (
+        <Tab.Pane>
+          <ResponsesTab client={data} />
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: 'Case Notes',
+      render: () => <Tab.Pane>TODO: CaseNotes</Tab.Pane>,
+    },
+    {
+      menuItem: 'Tags',
+      render: () => <Tab.Pane>TODO: Tags</Tab.Pane>,
+    },
+  ];
 
   return (
     <DetailsPage
@@ -41,6 +80,10 @@ export default function ClientDetails() {
         <Grid.Column computer={7} mobile={16}>
           <ClientField label="Date of Birth">{formatDate(dob)}</ClientField>
           <ClientField label="SSN">{ssn || 'n/a'}</ClientField>
+        </Grid.Column>
+
+        <Grid.Column computer={16} mobile={16}>
+          <Tab panes={tabPanes} activeIndex={4} renderActiveOnly />
         </Grid.Column>
 
         <Button as={NavLink} to={`/clients/${data.id}/edit`} primary>

@@ -12,11 +12,11 @@ export default function SurveyDetails() {
   console.log(data);
   return (
     <DetailsPage
-      title={data.name}
+      title={`Preview survey ${data.name}`}
       loading={loading}
       error={formatApiError(error)}
     >
-      <Survey definition={data.definition} debugMode />
+      <Survey survey={data} debugMode />
     </DetailsPage>
   );
 }

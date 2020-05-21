@@ -1,20 +1,16 @@
 import React from 'react';
-import { Button, Message, Form, Table } from 'semantic-ui-react';
+import { Button, Message, Form, Table, Label } from 'semantic-ui-react';
 import {
   computeFormState,
   itemsToArray,
   evaluateOperand,
 } from './computations';
 
-import { fullName } from '../../utils/modelUtils';
+import { clientFullName } from '../../utils/modelUtils';
 import Section from './Section';
-// import { ResponseStatus } from '/imports/api/responses/responses';
-// import Alert from '/imports/ui/alert';
-// import { fullName } from '/imports/api/utils';
-// import { logger } from '/imports/utils/logger';
-// import { RecentClients } from '/imports/api/recent-clients';
 
 const ResponseStatus = {
+  COMPLETED: 'completed',
   PAUSED: 'paused',
 };
 
@@ -32,13 +28,17 @@ export default class Survey extends React.Component {
   constructor(props) {
     super(props);
     const {
-      definition = {},
+      survey = {},
       client,
       user,
       project,
       enrollmentInfo,
       initialValues,
     } = props;
+    this.definition = {
+      ...survey.definition,
+      title: survey.name,
+    };
     const precomputedInitialValues = initialValues || {};
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handlePropsChange = this.handlePropsChange.bind(this);
@@ -64,7 +64,7 @@ export default class Survey extends React.Component {
     }, {});
 
     this.state = {
-      ...computeFormState(definition, initial, {}, otherData),
+      ...computeFormState(this.definition, initial, {}, otherData),
       errors: {},
       showDebugWindow: false,
     };
@@ -96,7 +96,7 @@ export default class Survey extends React.Component {
     }
 
     const formState = computeFormState(
-      this.props.definition,
+      this.definition,
       newValues,
       this.state.props,
       { client: this.props.client }
@@ -122,7 +122,7 @@ export default class Survey extends React.Component {
     }
 
     const formState = computeFormState(
-      this.props.definition,
+      this.definition,
       this.state.values,
       props,
       { client: this.props.client }
@@ -130,144 +130,15 @@ export default class Survey extends React.Component {
     this.setState(formState);
   }
 
-  handleSubmit(uploadSurvey, uploadClient) {
-    // let clientId;
-    // let clientSchema;
-    // if (this.props.response && this.props.response.clientDetails) {
-    //   clientId = this.props.response.clientDetails.clientId;
-    //   clientSchema = this.props.response.clientDetails.clientSchema;
-    // } else {
-    //   clientId = this.props.client._id;
-    //   clientSchema = this.props.client.schema;
-    // }
-    // const surveyType = this.props.definition.type;
-    // const doc = {
-    //   clientId,
-    //   clientSchema,
-    //   surveyType,
-    //   status: ResponseStatus.PAUSED,
-    //   surveyId: this.props.surveyId,
-    //   values: this.state.values,
-    // };
-    // if (this.props.enrollmentInfo)
-    //   doc.enrollmentInfo = this.props.enrollmentInfo;
-    // // const isEnrollmentSurvey = this.props.isEnrollment;
-    // const history = [];
-    // let newlyCreatedResponseId = null;
-    // this.setState({ submitting: true });
-    // new Promise((resolve, reject) => {
-    //   if (this.props.response) {
-    //     const responseId = this.props.response._id;
-    //     Meteor.call('responses.update', responseId, doc, (err) => {
-    //       if (err) {
-    //         history.push(`Failed to update response: ${err}`);
-    //         reject(err);
-    //       } else {
-    //         history.push('Response updated');
-    //         resolve(responseId);
-    //       }
-    //     });
-    //   } else {
-    //     Meteor.call('responses.create', doc, (err, newResponseId) => {
-    //       if (err) {
-    //         history.push(`Failed to create response: ${err}`);
-    //         reject(err);
-    //       } else {
-    //         newlyCreatedResponseId = newResponseId;
-    //         history.push(`Response created: ${newResponseId}`);
-    //         resolve(newResponseId);
-    //       }
-    //     });
-    //   }
-    // })
-    //   .then((responseId) => {
-    //     if (uploadClient) {
-    //       return new Promise((resolve, reject) => {
-    //         Meteor.call(
-    //           'uploadPendingClientToHmis',
-    //           clientId,
-    //           (err, hmisClient) => {
-    //             if (err) {
-    //               history.push(`Failed to upload client: ${err}`);
-    //               reject(err);
-    //             } else {
-    //               RecentClients.remove(clientId);
-    //               RecentClients.upsert(hmisClient);
-    //               history.push(
-    //                 `Client uploaded as ${JSON.stringify(hmisClient)}`
-    //               );
-    //               resolve(responseId);
-    //             }
-    //           }
-    //         );
-    //       });
-    //     }
-    //     return responseId;
-    //   })
-    //   .then(
-    //     (responseId) =>
-    //       new Promise((resolve) => {
-    //         Meteor.call('responses.sendEmails', responseId, () => {
-    //           resolve(responseId);
-    //         });
-    //       })
-    //   )
-    //   .then((responseId) => {
-    //     if (uploadSurvey) {
-    //       return new Promise((resolve, reject) => {
-    //         Meteor.call(
-    //           'responses.uploadToHmis',
-    //           responseId,
-    //           (err, invalidResponses) => {
-    //             if (err) {
-    //               history.push(`Failed to upload response: ${err}`);
-    //               reject(err);
-    //             } else {
-    //               history.push('Response uploaded');
-    //               resolve(invalidResponses);
-    //             }
-    //           }
-    //         );
-    //       });
-    //     }
-    //     history.push('Response not uploaded');
-    //     return null;
-    //   })
-    //   .then((invalidResponses) => {
-    //     if (invalidResponses === null) {
-    //       Alert.success('Response paused');
-    //     } else if (invalidResponses.length > 0) {
-    //       const list = invalidResponses.map((r) => r.id).join(', ');
-    //       Alert.warning(
-    //         `Success but ${invalidResponses.length} questions not uploaded: ${list}`
-    //       );
-    //     } else {
-    //       Alert.success('Success. Response uploaded');
-    //     }
-    //     // TODO: upload enrollment if any:
-    //     if (Roles.userIsInRole(Meteor.userId(), 'External Surveyor')) {
-    //       Router.go('dashboard');
-    //     } else {
-    //       Router.go('adminDashboardresponsesView', {}, Router.current().params);
-    //     }
-    //     this.setState({ submitting: false });
-    //   })
-    //   .catch((err) => {
-    //     const correlationId = newlyCreatedResponseId || this.props.response._id;
-    //     const surveyId = this.props.response.surveyId;
-    //     this.setState({ submitting: false });
-    //     history.unshift('Failed to upload the response. Details:');
-    //     history.push(`ResponseId: ${correlationId}`);
-    //     Alert.error(err, history.join('<br>'));
-    //     alert(history.join('\n')); // eslint-disable-line no-alert
-    //     logger.error(history);
-    //     if (newlyCreatedResponseId) {
-    //       Router.go('adminDashboardresponsesEdit', {
-    //         _id: newlyCreatedResponseId,
-    //         surveyId,
-    //       });
-    //     }
-    //   });
+  async handleSubmit(status) {
+    this.setState({ submitting: true });
+    try {
+      await this.props.onSubmit(this.state.values, status);
+    } catch (err) {
+      console.error(err);
+      alert(`${err}`);
+    }
+    this.setState({ submitting: false });
   }
 
   handleToggleDebugWindow() {
@@ -331,42 +202,27 @@ export default class Survey extends React.Component {
   }
 
   renderSubmitButtons(canSubmit) {
-    const submissionId =
-      this.props.response && this.props.response.submissionId;
+    const responseId = this.props.response && this.props.response.id;
     const client = this.props.client;
     const hasErrors = Object.keys(this.state.errors).length > 0;
     const disabled =
       !client || this.state.submitting || hasErrors || !canSubmit; // || status === ResponseStatus.COMPLETED;
-    const uploadClient = client && !client.schema;
-
-    let uploadButtonText = 'Upload client and survey';
-    if (!uploadClient) {
-      uploadButtonText = submissionId ? 'Re-Upload survey' : 'Upload survey';
-    }
 
     return (
       <div>
-        {submissionId && (
-          <div className="alert alert-warning" role="alert">
-            Response already uploaded to HMIS (submissionId: {submissionId})
-          </div>
-        )}
         <div>
           <Button
-            className="btn btn-success"
-            type="button"
             disabled={disabled}
-            onClick={() => this.handleSubmit(true, uploadClient)}
+            primary
+            onClick={() => this.handleSubmit(ResponseStatus.COMPLETED)}
           >
-            {uploadButtonText}
+            {responseId ? 'Update response' : 'Submit Response'}
           </Button>{' '}
           <Button
-            className="btn btn-default"
-            type="button"
             disabled={disabled}
-            onClick={() => this.handleSubmit(false, false)}
+            onClick={() => this.handleSubmit(ResponseStatus.PAUSED)}
           >
-            Pause Survey
+            Pause Response
           </Button>
         </div>
         {hasErrors && <div className="error-message">Survey has errors</div>}
@@ -375,14 +231,14 @@ export default class Survey extends React.Component {
   }
 
   render() {
-    if (!this.props.definition) {
+    if (!this.definition) {
       return <Message error>No survey definition</Message>;
     }
-    const root = this.props.definition;
+    const root = this.definition;
     const formState = this.state;
     const client = this.props.client || {};
     const status = this.props.response ? this.props.response.status : 'new';
-    const clientName = fullName(client) || client._id || 'n/a';
+    const clientName = clientFullName(client) || client.id || 'n/a';
 
     const requiredQuestions = getRequiredQuestions(root, formState);
     const emptyRequiredQuestions = requiredQuestions.filter((q) => !q.value);
@@ -398,7 +254,7 @@ export default class Survey extends React.Component {
           <strong>Client:</strong> {clientName}
         </p>
         <p>
-          <strong>Response status:</strong> {status}
+          <strong>Response status:</strong> <Label>{status}</Label>
         </p>
         <Section
           item={root}
@@ -414,7 +270,10 @@ export default class Survey extends React.Component {
               ', '
             )}`
           : null}
-        {this.props.debugMode && this.renderDebugWindow()}
+
+        {this.props.debugMode && (
+          <div style={{ marginTop: '1em' }}>{this.renderDebugWindow()}</div>
+        )}
       </Form>
     );
   }
