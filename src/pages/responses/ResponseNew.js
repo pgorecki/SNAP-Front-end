@@ -10,6 +10,7 @@ import DetailsPage from '../DetailsPage';
 import toaster from '../../components/toaster';
 import useUrlParams from '../../hooks/useUrlParams';
 import Survey from '../surveys/Survey';
+import { findItem } from './../surveys/computations';
 
 export default function ResponseNew() {
   const history = useHistory();
@@ -46,8 +47,31 @@ export default function ResponseNew() {
               middleName: client.data.middle_name,
               lastName: client.data.last_name,
             }}
-            onSubmit={(values, status) => {
-              console.log(values, status);
+            onSubmit={async (values, status) => {
+              const answers = Object.keys(values)
+                .map((id) => {
+                  const item = findItem(id, survey.data.definition);
+                  return {
+                    question: item.questionId,
+                    value: values[id],
+                  };
+                })
+                .filter((x) => !!x.question);
+              const payload = {
+                survey: survey.data.id,
+                respondent: {
+                  id: client.data.id,
+                  type: 'Client',
+                },
+                answers,
+              };
+              try {
+                await response.save(payload);
+                toaster.success('Response created');
+              } catch (err) {
+                const formError = apiErrorToFormError(err);
+                toaster.error(JSON.stringify(formError));
+              }
             }}
             debugMode
           />
