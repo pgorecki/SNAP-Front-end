@@ -13,36 +13,32 @@ import {
 import { formatApiError } from '../../utils/apiUtils';
 import { formatOwner } from '../../utils/modelUtils';
 import { ClientSearch } from '../clients/components';
+import { clientFullName } from '../../utils/modelUtils';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
 export default function ResponseList() {
   const [data, error, loading, fetchData] = useFetchData('/responses/');
 
-  console.log(data);
-
   const columns = React.useMemo(
     () => [
       {
-        Header: 'First Name',
-        accessor: 'first_name',
+        Header: 'Survey',
+        accessor: 'survey',
         Cell: ({ value, row }) => {
-          return <NavLink to={`/clients/${row.original.id}`}>{value}</NavLink>;
+          return <NavLink to={`/responses/${value.id}`}>{value.name}</NavLink>;
         },
       },
       {
-        Header: 'Middle Name',
-        accessor: 'middle_name',
-        Cell: ({ value, row }) => (
-          <NavLink to={`/clients/${row.original.id}`}>{value}</NavLink>
-        ),
-      },
-      {
-        Header: 'Last Name',
-        accessor: 'last_name',
-        Cell: ({ value, row }) => (
-          <NavLink to={`/clients/${row.original.id}`}>{value}</NavLink>
-        ),
+        Header: 'Client',
+        accessor: 'respondent',
+        Cell: ({ value, row }) => {
+          return (
+            <NavLink to={`/clients/${value.id}`}>
+              {clientFullName(value)}
+            </NavLink>
+          );
+        },
       },
       {
         Header: 'Date Created',
@@ -81,9 +77,9 @@ export default function ResponseList() {
         </Grid.Column>
       </Grid>
 
-      <Button primary as={NavLink} exact to={'/responses/new'}>
+      {/* <Button primary as={NavLink} exact to={'/responses/new'}>
         New Response
-      </Button>
+      </Button> */}
       <ControlledTable
         columns={columns}
         data={data}

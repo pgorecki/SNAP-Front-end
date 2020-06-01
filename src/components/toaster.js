@@ -6,6 +6,11 @@ const toaster = {
       position: toast.POSITION.BOTTOM_RIGHT,
     });
   },
+  error(message) {
+    toast.error(message, {
+      position: toast.POSITION.BOTTOM_RIGHT,
+    });
+  },
 };
 
 export default toaster;

@@ -20,7 +20,7 @@ export function ClientField({ label, children }) {
 export function ClientSearch({ ...props }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [data, error, loading, fetchData] = useSearchClient(
-    '/clients/search/?q=',
+    '/clients/?search=',
     {
       results: [],
     }
@@ -53,7 +53,9 @@ export function ClientSearch({ ...props }) {
       loading={loading}
       // onResultSelect={(a, b, c) => console.log(a, b, c)}
       onSearchChange={handleSearchChange}
-      results={data.results.map((client) => ({ title: client.id, client }))}
+      results={
+        data ? data.results.map((client) => ({ title: client.id, client })) : []
+      }
       value={searchQuery}
       resultRenderer={resultRenderer}
       {...props}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import { Grid } from 'semantic-ui-react';
@@ -10,11 +10,11 @@ import DetailsPage from '../DetailsPage';
 import toaster from '../../components/toaster';
 import useUrlParams from '../../hooks/useUrlParams';
 import Survey from '../surveys/Survey';
+import { findItem } from '../surveys/computations';
 
 export default function ResponseNew() {
   const history = useHistory();
   const [urlParams, queryParams, hash] = useUrlParams();
-
   const client = useResource(
     queryParams.clientId && `/clients/${queryParams.clientId}/`,
     {}
@@ -23,8 +23,8 @@ export default function ResponseNew() {
     queryParams.clientId && `/surveys/${queryParams.surveyId}/`,
     {}
   );
-
   const response = useNewResource('/responses/', {});
+  const [submissionErrors, setSubmissionErrors] = useState([]);
 
   const error = client.error || survey.error;
   const loading = client.loading || survey.loading;
@@ -46,8 +46,31 @@ export default function ResponseNew() {
               middleName: client.data.middle_name,
               lastName: client.data.last_name,
             }}
-            onSubmit={(values, status) => {
-              console.log(values, status);
+            errors={submissionErrors}
+            onSubmit={async (values, status) => {
+              setSubmissionErrors([]);
+              const answers = Object.keys(values).map((id) => {
+                const item = findItem(id, survey.data.definition);
+                return {
+                  question: item && item.questionId,
+                  value: values[id],
+                };
+              });
+              const data = {
+                survey: survey.data.id,
+                respondent: {
+                  id: client.data.id,
+                  type: 'Client',
+                },
+                answers,
+              };
+              try {
+                await response.save(data);
+                toaster.success('Response created');
+              } catch (err) {
+                const apiError = formatApiError(err.response);
+                toaster.error(apiError);
+              }
             }}
             debugMode
           />

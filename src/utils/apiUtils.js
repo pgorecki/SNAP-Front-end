@@ -1,5 +1,8 @@
-export function formatApiError(error) {
-  return error && `(${error.status}) ${error.data.detail}`;
+export function formatApiError(response) {
+  // pass error.response from API exception
+  if (!response) return null;
+  const detail = response.data.detail || JSON.stringify(response.data);
+  return `(${response.status}) ${detail}`;
 }
 
 export function apiErrorToFormError(error) {

@@ -48,7 +48,9 @@ function SurveySelect({ client }) {
 }
 
 export default function ResponsesTab({ client }) {
-  const responsesIndex = usePaginatedResourceIndex(`/responses/${client.id}`);
+  const responsesIndex = usePaginatedResourceIndex(
+    `/responses/?client=${client.id}`
+  );
 
   const columns = React.useMemo(
     () => [
