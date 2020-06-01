@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 // import logo from './logo.svg';
 import './App.css';
 import DashboardPage from './pages/dashboard/DashboardPage';
@@ -26,7 +26,9 @@ import SurveyDetails from './pages/surveys/SurveyDetails';
 import SurveyEdit from './pages/surveys/SurveyEdit';
 import SurveyNew from './pages/surveys/SurveyNew';
 import ResponseList from './pages/responses/ResponseList';
+import ResponseDetails from './pages/responses/ResponseDetails';
 import ResponseNew from './pages/responses/ResponseNew';
+import ResponseEdit from './pages/responses/ResponseEdit';
 import AppStore from './AppStore';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -92,6 +94,14 @@ const navigationMenu = [
   {
     path: '/responses/new',
     page: ResponseNew,
+  },
+  {
+    path: '/responses/:id/edit',
+    page: ResponseEdit,
+  },
+  {
+    path: '/responses/:id',
+    page: ResponseDetails,
   },
   {
     name: 'Responses',

@@ -237,7 +237,9 @@ export default class Survey extends React.Component {
     const root = this.definition;
     const formState = this.state;
     const client = this.props.client || {};
-    const status = this.props.response ? this.props.response.status : 'new';
+    const status = this.props.response
+      ? /*this.props.response.status*/ 'completed'
+      : 'new';
     const clientName = clientFullName(client) || client.id || 'n/a';
 
     const requiredQuestions = getRequiredQuestions(root, formState);

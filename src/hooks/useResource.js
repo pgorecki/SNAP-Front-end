@@ -5,7 +5,7 @@ export default function useResource(url, initialData = {}) {
   const [apiClient] = useApiClient();
   const [data, setData] = useState(initialData);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
