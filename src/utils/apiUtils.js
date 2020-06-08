@@ -1,3 +1,5 @@
+import { itemsToArray } from '../pages/surveys/computations.js';
+
 export function formatApiError(response) {
   // pass error.response from API exception
   if (!response) return null;
@@ -23,4 +25,14 @@ export function apiErrorToFormError(error) {
     };
   }
   return data;
+}
+
+export function getSurveyValuesFromResponse(response, survey) {
+  const items = itemsToArray(survey.definition);
+  return response.answers.reduce((all, ans) => {
+    console.log(ans.question.id, items);
+    const questionItem =
+      items.find((i) => ans.question.id === i.questionId) || {};
+    return { ...all, [questionItem.id]: ans.value };
+  }, {});
 }

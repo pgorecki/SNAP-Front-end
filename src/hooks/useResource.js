@@ -27,9 +27,7 @@ export default function useResource(url, initialData = {}) {
       console.log('saving', payload);
       setSaving(true);
       try {
-        const request = payload.id
-          ? apiClient.put(url, payload)
-          : apiClient.post(url, payload);
+        const request = apiClient.put(url, payload);
         const result = await request;
         setData(result.data);
         setError(null);

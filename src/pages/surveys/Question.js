@@ -334,6 +334,7 @@ export default class Question extends Item {
         children={
           <InputMask
             mask={mask}
+            value={value === undefined ? '' : value}
             onChange={(event) => this.handleChange(event.target.value)}
           />
         }

@@ -26,7 +26,9 @@ export default function ResponseList() {
         Header: 'Survey',
         accessor: 'survey',
         Cell: ({ value, row }) => {
-          return <NavLink to={`/responses/${value.id}`}>{value.name}</NavLink>;
+          return (
+            <NavLink to={`/responses/${row.original.id}`}>{value.name}</NavLink>
+          );
         },
       },
       {
@@ -38,6 +40,13 @@ export default function ResponseList() {
               {clientFullName(value)}
             </NavLink>
           );
+        },
+      },
+      {
+        Header: 'Answers',
+        accessor: 'answers',
+        Cell: ({ value, row }) => {
+          return value.length;
         },
       },
       {
@@ -71,15 +80,6 @@ export default function ResponseList() {
   return (
     <ListPage loading={loading} error={formatApiError(error)}>
       <Header>Responses</Header>
-      <Grid>
-        <Grid.Column width={6}>
-          <ClientSearch />
-        </Grid.Column>
-      </Grid>
-
-      {/* <Button primary as={NavLink} exact to={'/responses/new'}>
-        New Response
-      </Button> */}
       <ControlledTable
         columns={columns}
         data={data}

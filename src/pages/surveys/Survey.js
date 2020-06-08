@@ -8,6 +8,7 @@ import {
 
 import { clientFullName } from '../../utils/modelUtils';
 import Section from './Section';
+import { NavLink } from 'react-router-dom';
 
 const ResponseStatus = {
   COMPLETED: 'completed',
@@ -62,7 +63,6 @@ export default class Survey extends React.Component {
         [key]: evaluateOperand(v, initialState),
       };
     }, {});
-
     this.state = {
       ...computeFormState(this.definition, initial, {}, otherData),
       errors: {},
@@ -136,7 +136,6 @@ export default class Survey extends React.Component {
       await this.props.onSubmit(this.state.values, status);
     } catch (err) {
       console.error(err);
-      alert(`${err}`);
     }
     this.setState({ submitting: false });
   }
@@ -208,6 +207,16 @@ export default class Survey extends React.Component {
     const disabled =
       !client || this.state.submitting || hasErrors || !canSubmit; // || status === ResponseStatus.COMPLETED;
 
+    if (this.props.mode === 'preview') {
+      return (
+        <>
+          <Button as={NavLink} to={`/responses/${responseId}/edit`}>
+            Edit
+          </Button>
+        </>
+      );
+    }
+
     return (
       <div>
         <div>
@@ -218,12 +227,12 @@ export default class Survey extends React.Component {
           >
             {responseId ? 'Update response' : 'Submit Response'}
           </Button>{' '}
-          <Button
+          {/* <Button
             disabled={disabled}
             onClick={() => this.handleSubmit(ResponseStatus.PAUSED)}
           >
             Pause Response
-          </Button>
+          </Button> */}
         </div>
         {hasErrors && <div className="error-message">Survey has errors</div>}
       </div>
@@ -261,7 +270,9 @@ export default class Survey extends React.Component {
         <Section
           item={root}
           formState={formState}
-          onValueChange={this.handleValueChange}
+          onValueChange={
+            this.props.mode === 'preview' ? () => {} : this.handleValueChange
+          }
           onPropsChange={this.handlePropsChange}
           level={1}
           debugMode={this.props.debugMode}
