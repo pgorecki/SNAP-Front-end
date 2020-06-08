@@ -1,9 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Icon, Grid, Header, Label } from 'semantic-ui-react';
+import { Button, Label, Modal } from 'semantic-ui-react';
 import useFetchData from '../../hooks/useFetchData';
+import useApiClient from '../../hooks/useApiClient';
 import ControlledTable from '../../components/ControlledTable';
 import { formatDateTime } from '../../utils/typeUtils';
+import toaster from '../../components/toaster';
 import {
   EditActionLink,
   DeleteActionButton,
@@ -13,10 +15,9 @@ import { formatOwner } from '../../utils/modelUtils';
 import ListPage from '../ListPage';
 import { formatApiError } from '../../utils/apiUtils';
 
-// import useUrlParams from '../../hooks/useUrlParams';
-
 export default function SurveyList() {
   const [data, error, loading, fetchData] = useFetchData('/surveys/');
+  const [apiClient] = useApiClient();
   // const [, queryParams] = useUrlParams();
 
   const columns = React.useMemo(
@@ -60,10 +61,37 @@ export default function SurveyList() {
               to={`/surveys/${row.original.id}/builder`}
               disabled
             />
-            <DeleteActionButton
-              onClick={() => alert('Not yet implemented')}
-              disabled
-            />
+            <Modal trigger={<DeleteActionButton />} closeIcon>
+              <Modal.Header>Are you sure?</Modal.Header>
+              <Modal.Content>
+                <Modal.Description>
+                  <p>
+                    Are you sure you want to delete survey{' '}
+                    <strong>{row.original.name}</strong>?
+                  </p>
+                </Modal.Description>
+              </Modal.Content>
+              <Modal.Actions>
+                <Button
+                  negative
+                  onClick={async () => {
+                    try {
+                      console.log('a');
+                      await apiClient.delete(`/surveys/${row.original.id}/`);
+                      console.log('b');
+                      await fetchData();
+                      console.log('c');
+                    } catch (err) {
+                      console.log('d');
+                      const apiError = formatApiError(err.response);
+                      toaster.error(apiError);
+                    }
+                  }}
+                >
+                  Delete Survey
+                </Button>
+              </Modal.Actions>
+            </Modal>
           </>
         ),
       },
