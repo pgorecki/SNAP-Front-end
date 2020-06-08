@@ -85,10 +85,7 @@ export default function ResponsesTab({ client }) {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink
-              to={`/responses/${row.original.id}/edit`}
-              disabled
-            />
+            <EditActionLink to={`/responses/${row.original.id}/edit`} />
           </>
         ),
       },

@@ -16,6 +16,7 @@ import Survey from '../surveys/Survey';
 import { findItem } from '../surveys/computations';
 
 export default function ResponseEdit() {
+  const history = useHistory();
   const [urlParams] = useUrlParams();
   const response = useResource(`/responses/${urlParams.id}/`);
   const [submissionErrors, setSubmissionErrors] = useState([]);
@@ -72,6 +73,7 @@ export default function ResponseEdit() {
                 try {
                   await response.save(data);
                   toaster.success('Response updated');
+                  history.goBack();
                 } catch (err) {
                   const apiError = formatApiError(err.response);
                   toaster.error(apiError);
