@@ -59,7 +59,6 @@ export default function SurveyList() {
               icon="table"
               label="Builder"
               to={`/surveys/${row.original.id}/builder`}
-              disabled
             />
             <Modal trigger={<DeleteActionButton />} closeIcon>
               <Modal.Header>Are you sure?</Modal.Header>
@@ -96,7 +95,7 @@ export default function SurveyList() {
         ),
       },
     ],
-    []
+    [apiClient, fetchData]
   );
 
   return (

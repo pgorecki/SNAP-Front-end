@@ -24,6 +24,7 @@ import QuestionDetails from './pages/questions/QuestionDetails';
 import SurveyList from './pages/surveys/SurveyList';
 import SurveyDetails from './pages/surveys/SurveyDetails';
 import SurveyEdit from './pages/surveys/SurveyEdit';
+import SurveyBuilder from './pages/surveys/SurveyBuilder';
 import SurveyNew from './pages/surveys/SurveyNew';
 import ResponseList from './pages/responses/ResponseList';
 import ResponseDetails from './pages/responses/ResponseDetails';
@@ -62,6 +63,10 @@ const navigationMenu = [
     path: '/clients',
     iconName: 'address card outline',
     page: ClientList,
+  },
+  {
+    path: '/surveys/:id/builder',
+    page: SurveyBuilder,
   },
   {
     path: '/surveys/:id/edit',

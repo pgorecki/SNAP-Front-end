@@ -13,3 +13,17 @@ export function createGeocodeUrl(location) {
   const baseUrl = `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&countrycode=us`;
   return `${baseUrl}&q=${encodeURIComponent(location)}`;
 }
+
+export function trimText(str = '', maxLen = 50) {
+  if (str.length > maxLen) {
+    return `${str.substring(0, maxLen - 3)}...`;
+  }
+  return str;
+}
+
+export function stringContains(str, query = '') {
+  if (!str) return false;
+  const strLower = str.toLowerCase();
+  const queryLower = query.toLowerCase();
+  return strLower.indexOf(queryLower) !== -1;
+}
