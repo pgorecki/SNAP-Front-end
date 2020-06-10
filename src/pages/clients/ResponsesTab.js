@@ -66,6 +66,13 @@ export default function ResponsesTab({ client }) {
         },
       },
       {
+        Header: 'Answers',
+        accessor: 'answers',
+        Cell: ({ value, row }) => {
+          return value.length;
+        },
+      },
+      {
         Header: 'Date Created',
         accessor: 'created_at',
         Cell: ({ value }) => formatDateTime(value, true),

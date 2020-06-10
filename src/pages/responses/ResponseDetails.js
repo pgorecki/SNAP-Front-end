@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import { Grid, Message, Icon } from 'semantic-ui-react';
 import { Formik } from 'formik';
+import SurveyWarnings from 'components/SurveyWarnings';
 import useNewResource from '../../hooks/useNewResource';
 import useResource from '../../hooks/useResource';
 import {
@@ -14,31 +15,6 @@ import toaster from '../../components/toaster';
 import useUrlParams from '../../hooks/useUrlParams';
 import Survey from '../surveys/Survey';
 import { findItem, itemsToArray } from '../surveys/computations';
-
-function SurveyWarnings({ survey, response }) {
-  const warnings = [];
-  if (survey.modified_at > response.modified_at) {
-    warnings.push('Survey was modified after response was submitted');
-  }
-
-  // TODO: there is answer to a question which is not in the survey
-  // TODO: invalid questionId (i.e. someone revoked public access to a question used in the survey)
-
-  return warnings.length ? (
-    <Message
-      warning
-      icon="bell"
-      header="There are some problems"
-      content={
-        <Message.List>
-          {warnings.map((w) => (
-            <Message.Item>{w}</Message.Item>
-          ))}
-        </Message.List>
-      }
-    ></Message>
-  ) : null;
-}
 
 export default function ResponseDetails() {
   const [urlParams] = useUrlParams();

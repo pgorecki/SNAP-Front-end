@@ -55,13 +55,15 @@ export default function ResponseEdit() {
               initialValues={initialValues}
               onSubmit={async (values, status) => {
                 setSubmissionErrors([]);
-                const answers = Object.keys(values).map((id) => {
-                  const item = findItem(id, survey.definition);
-                  return {
-                    question: item && item.questionId,
-                    value: values[id],
-                  };
-                });
+                const answers = Object.keys(values)
+                  .map((id) => {
+                    const item = findItem(id, survey.definition);
+                    return {
+                      question: item && item.questionId,
+                      value: values[id],
+                    };
+                  })
+                  .filter((answer) => !!answer.question);
                 const data = {
                   survey: survey.id,
                   respondent: {

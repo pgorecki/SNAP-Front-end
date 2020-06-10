@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import { Grid } from 'semantic-ui-react';
 import { Formik } from 'formik';
+import SurveyWarnings from 'components/SurveyWarnings';
 import useNewResource from '../../hooks/useNewResource';
 import useResource from '../../hooks/useResource';
 import { formatApiError, apiErrorToFormError } from '../../utils/apiUtils';
@@ -37,6 +38,7 @@ export default function ResponseNew() {
     >
       <Grid>
         <Grid.Column computer={8} mobile={16}>
+          <SurveyWarnings survey={survey.data} response={response.data} />
           <Survey
             survey={survey.data}
             client={{
@@ -49,13 +51,15 @@ export default function ResponseNew() {
             errors={submissionErrors}
             onSubmit={async (values, status) => {
               setSubmissionErrors([]);
-              const answers = Object.keys(values).map((id) => {
-                const item = findItem(id, survey.data.definition);
-                return {
-                  question: item && item.questionId,
-                  value: values[id],
-                };
-              });
+              const answers = Object.keys(values)
+                .map((id) => {
+                  const item = findItem(id, survey.data.definition);
+                  return {
+                    question: item && item.questionId,
+                    value: values[id],
+                  };
+                })
+                .filter((answer) => !!answer.question);
               const data = {
                 survey: survey.data.id,
                 respondent: {
@@ -67,6 +71,7 @@ export default function ResponseNew() {
               try {
                 await response.save(data);
                 toaster.success('Response created');
+                history.goBack();
               } catch (err) {
                 const apiError = formatApiError(err.response);
                 toaster.error(apiError);
