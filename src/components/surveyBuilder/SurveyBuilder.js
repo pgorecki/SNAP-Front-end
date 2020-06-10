@@ -494,7 +494,7 @@ export default class SurveyBuilder extends React.Component {
 
   render() {
     const externalNodeType = 'yourNodeType';
-    const isNewSurvey = !this.props.survey._id;
+    const isNewSurvey = !this.props.survey.id;
     return (
       <div>
         <div>
@@ -523,6 +523,7 @@ export default class SurveyBuilder extends React.Component {
 
         <div className="survey-builder">
           <div className="tree-view">
+            TREE {console.log(this.state)}
             <SortableTree
               treeData={this.state.treeData}
               onChange={this.handleTreeChange}

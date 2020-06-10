@@ -1,7 +1,7 @@
 import React from 'react';
 import SimpleSchema from 'simpl-schema';
-import AutoForm from 'uniforms-bootstrap3/AutoForm';
-import AutoField from 'uniforms-bootstrap3/AutoField';
+import { AutoForm, AutoField } from 'uniforms-semantic';
+import SimpleSchemaBridge from 'uniforms-bridge-simple-schema-2';
 import VariableField from './formFields/VariableField';
 import { handleFormTransform } from './helpers';
 
@@ -64,17 +64,17 @@ export default class FormInspector extends React.Component {
     return (
       <div className="item-inspector">
         <h3>Form Inspector</h3>
-        {/* <AutoForm
-          schema={schema}
+        <AutoForm
+          schema={new SimpleSchemaBridge(schema)}
           model={model}
           onChange={this.handleChange}
           modelTransform={this.handleTransform}
         >
-          <AutoField
+          {/* <AutoField
             name="variables"
             itemProps={{ component: VariableField }}
-          />
-        </AutoForm> */}
+          /> */}
+        </AutoForm>
       </div>
     );
   }
