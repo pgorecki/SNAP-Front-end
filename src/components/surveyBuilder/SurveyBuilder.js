@@ -476,7 +476,7 @@ export default class SurveyBuilder extends React.Component {
     const externalNodeType = 'yourNodeType';
     const isNewSurvey = !this.props.survey.id;
     return (
-      <div class="survey-builder-wrapper">
+      <div className="survey-builder-wrapper">
         <div>
           <Button onClick={this.addSectionToDefinition}>
             <Icon name="plus" /> Section
