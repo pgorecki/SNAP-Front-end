@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import SortableTree from 'react-sortable-tree';
+import { Button, Dropdown, Icon } from 'semantic-ui-react';
 import { trimText } from 'utils/other';
 import {
   findItem,
@@ -11,6 +12,9 @@ import toaster from 'components/toaster';
 import FormInspector from './FormInspector.js';
 import ItemInspector from './ItemInspector.js';
 import QuestionModal from './QuestionModal';
+
+import 'react-sortable-tree/style.css';
+import './surveyBuilder.css';
 
 function generateItemId(type, definition) {
   let counter = 1;
@@ -187,51 +191,27 @@ export default class SurveyBuilder extends React.Component {
     return {
       buttons: [
         hasWarning && <p>Warning</p>,
-        <div className="btn-group">
-          <button
-            type="button"
-            className={`btn ${buttonClass} dropdown-toggle`}
+        <Button.Group>
+          <Button
             disabled={isSelected}
-            onClick={() => {
-              this.setState({ inspectedItem: node.definition });
-            }}
+            onClick={() => this.setState({ inspectedItem: node.definition })}
           >
             Inspect
-          </button>
-          <button
-            type="button"
-            className={`btn ${buttonClass} dropdown-toggle`}
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <span className="caret"></span>
-            <span className="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul className="dropdown-menu">
-            <li>
-              <a
-                href="#"
-                onClick={() => {
-                  this.handleItemClone(node.definition.id);
-                }}
-              >
-                Clone
-              </a>
-            </li>
-            <li role="separator" className="divider"></li>
-            <li>
-              <a
-                href="#"
-                onClick={() => {
-                  this.handleItemDelete(node.definition.id);
-                }}
-              >
-                Delete
-              </a>
-            </li>
-          </ul>
-        </div>,
+          </Button>
+          <Dropdown className="button icon" trigger={<React.Fragment />}>
+            <Dropdown.Menu>
+              <Dropdown.Item
+                text="Clone"
+                onClick={() => this.handleItemClone(node.definition.id)}
+              />
+              <Dropdown.Divider />
+              <Dropdown.Item
+                text="Delete"
+                onClick={() => this.handleItemDelete(node.definition.id)}
+              />
+            </Dropdown.Menu>
+          </Dropdown>
+        </Button.Group>,
       ],
     };
   }
@@ -496,34 +476,30 @@ export default class SurveyBuilder extends React.Component {
     const externalNodeType = 'yourNodeType';
     const isNewSurvey = !this.props.survey.id;
     return (
-      <div>
+      <div class="survey-builder-wrapper">
         <div>
-          <button
-            className="btn btn-default"
-            onClick={this.addSectionToDefinition}
-          >
-            Add Section
-          </button>
-          <button className="btn btn-default" onClick={this.openQuestionModal}>
-            Add Question
-          </button>
-          <button
+          <Button onClick={this.addSectionToDefinition}>
+            <Icon name="plus" /> Section
+          </Button>
+          <Button className="btn btn-default" onClick={this.openQuestionModal}>
+            <Icon name="plus" /> Question
+          </Button>
+          <Button
             className="btn btn-default"
             onClick={this.addTextToDefinition}
           >
-            Add Text
-          </button>
-          <button
+            <Icon name="plus" /> Text
+          </Button>
+          <Button
             className="btn btn-default"
             onClick={this.addScoreToDefinition}
           >
-            Add Score
-          </button>
+            <Icon name="plus" /> Score
+          </Button>
         </div>
 
         <div className="survey-builder">
           <div className="tree-view">
-            TREE {console.log(this.state)}
             <SortableTree
               treeData={this.state.treeData}
               onChange={this.handleTreeChange}

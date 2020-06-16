@@ -1,0 +1,77 @@
+.survey-builder-wrapper .survey-builder {
+  display: flex;
+  min-height: 800px;
+  height: 100%;
+}
+.survey-builder-wrapper .survey-builder .tree-view {
+  margin-top: 10px;
+  margin-right: 5px;
+  border: 1px solid gray;
+  flex: 1;
+  background: white;
+}
+.survey-builder-wrapper .survey-builder .item-inspector {
+  margin-top: 10px;
+  padding: 10px;
+  margin-left: 5px;
+  flex: 1;
+  border: 1px solid gray;
+  background: white;
+}
+.survey-builder-wrapper .survey-builder .item-inspector .control-label {
+  font-weight: bold;
+}
+.survey-builder-wrapper .inline.field {
+  display: inline-block;
+}
+.survey-builder-wrapper .rule-field .debug {
+  font-family: monospace;
+  font-size: 75%;
+  margin-bottom: 10px;
+}
+.survey-builder-wrapper .rule-field .action-field-group .inline,
+.survey-builder-wrapper .rule-field .condition-field-group .inline {
+  display: inline-block;
+  max-width: 200px;
+}
+.survey-builder-wrapper .rule-field .action-field-group .inline .field-prefix,
+.survey-builder-wrapper
+  .rule-field
+  .condition-field-group
+  .inline
+  .field-prefix {
+  display: inline-block;
+  margin: 4px;
+}
+.survey-builder-wrapper .rule-field .action-field-group .inline .field,
+.survey-builder-wrapper .rule-field .condition-field-group .inline .field {
+  display: inline-block;
+}
+.questions-list {
+  height: 50vh;
+  width: 80vh;
+  list-style: none;
+  padding: 0;
+  overflow: scroll;
+}
+.questions-list .question {
+  clear: both;
+  margin: 10px 0;
+}
+.questions-list .question .pick-question {
+  margin: 4px;
+  float: left;
+  position: relative;
+  top: -5px;
+}
+.questions-list .question .question-text {
+  font-size: 14px;
+  margin-left: 10px;
+}
+.question-search {
+  width: 50vh;
+  position: relative;
+  margin-left: 10px;
+  font-size: 14px;
+  padding: 4px;
+}
