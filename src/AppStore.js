@@ -4,13 +4,13 @@ const initialState = {
   user: null,
   isLoggedIn: false,
   theme: {
-    appBarColor: "#0067B1",
+    appBarColor: '#0067B1',
     menuWidth: 10,
-  }
+  },
 };
 
 function reducer(state, action) {
-  console.log(state, action);
+  console.log('reducer', state, action);
   switch (action.type) {
     case 'SET_USER':
       return {
@@ -23,9 +23,9 @@ function reducer(state, action) {
         ...state,
         user: null,
         isLoggedIn: false,
-      }
+      };
     default:
-      console.warn(`Unknown action: ${action.type}`);
+      console.warn(`Unknown action: ${action.type}`, action);
       return state;
   }
 }

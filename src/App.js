@@ -13,6 +13,7 @@ import AppContent from './components/AppContent';
 import LoginPage from './pages/LoginPage';
 import Error404 from './pages/Error404';
 import PrivateRoute from './router/PrivateRoute';
+import PublicRoute from './router/PublicRoute';
 import HomePage from './pages/HomePage';
 import PublicLayout from './pages/PublicLayout';
 import ClientList from './pages/clients/ClientList';
@@ -134,20 +135,20 @@ function App() {
             </PrivateRoute>
           ))}
 
-          <Route path="/" exact>
+          <PublicRoute path="/" exact>
             <PublicLayout>
               <HomePage />
             </PublicLayout>
-          </Route>
+          </PublicRoute>
           <Route path="/about">
             <PublicLayout>
               <AboutPage />
             </PublicLayout>
           </Route>
 
-          <Route path="/login">
+          <PublicRoute path="/login">
             <LoginPage />
-          </Route>
+          </PublicRoute>
           <Route path="*" exact>
             <Error404 />
           </Route>

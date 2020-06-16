@@ -39,7 +39,7 @@ export default function AppTopbar({ menuWidth }) {
             </Dropdown.Item>
             <Dropdown.Item
               onClick={async () => {
-                dispatch({ action: 'LOGOUT_USER' });
+                dispatch({ type: 'LOGOUT_USER' });
                 localStorage.setItem('user', null);
                 history.push('/');
               }}

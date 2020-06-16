@@ -65,7 +65,6 @@ export default function LoginPage() {
                 if (user) {
                   dispatch({ type: 'SET_USER', data: user });
                   localStorage.setItem('user', JSON.stringify(user));
-                  history.push('/dashboard');
                 }
               }}
             >
