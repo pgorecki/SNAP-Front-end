@@ -65,7 +65,7 @@ export default function QuestionList() {
 
   return (
     <ListPage title="Questions" loading={loading} error={formatApiError(error)}>
-      <Button primary as={NavLink} exact to={'/questions/new'} disabled>
+      <Button primary as={NavLink} exact to={'/questions/new'}>
         New Question
       </Button>
       <ControlledTable

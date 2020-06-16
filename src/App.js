@@ -21,7 +21,8 @@ import ClientDetails from './pages/clients/ClientDetails';
 import ClientNew from './pages/clients/ClientNew';
 import ClientEdit from './pages/clients/ClientEdit';
 import QuestionList from './pages/questions/QuestionList';
-import QuestionDetails from './pages/questions/QuestionDetails';
+import QuestionNew from './pages/questions/QuestionNew';
+import QuestionEdit from './pages/questions/QuestionEdit';
 import SurveyList from './pages/surveys/SurveyList';
 import SurveyDetails from './pages/surveys/SurveyDetails';
 import SurveyEdit from './pages/surveys/SurveyEdit';
@@ -83,8 +84,12 @@ const navigationMenu = [
     page: SurveyList,
   },
   {
+    path: '/questions/new',
+    page: QuestionNew,
+  },
+  {
     path: '/questions/:id',
-    page: QuestionDetails,
+    page: QuestionEdit,
   },
   {
     name: 'Question Bank',
