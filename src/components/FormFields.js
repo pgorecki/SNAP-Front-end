@@ -4,11 +4,16 @@ import { Form, Message, Checkbox } from 'semantic-ui-react';
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import moment from 'moment';
 
-export const FormInput = ({ form, name, ...props }) => (
+export const FormInput = ({ form, name, handleChange, ...props }) => (
   <Form.Input
     name={name}
     value={form.values[name] || ''}
-    onChange={form.handleChange}
+    onChange={(event, { name, value }) => {
+      form.setFieldValue(name, value);
+      if (handleChange) {
+        handleChange(name, value);
+      }
+    }}
     onBlur={form.handleBlur}
     error={
       !!form.errors[name] && {
@@ -20,13 +25,24 @@ export const FormInput = ({ form, name, ...props }) => (
   />
 );
 
-export const FormTextArea = ({ form, name, validate, ...props }) => (
+export const FormTextArea = ({
+  form,
+  name,
+  validate,
+  handleChange,
+  ...props
+}) => (
   <Field name={name} validate={validate}>
     {() => (
       <Form.TextArea
         name={name}
         value={form.values[name] || ''}
-        onChange={form.handleChange}
+        onChange={(event, { name, value }) => {
+          form.setFieldValue(name, value);
+          if (handleChange) {
+            handleChange(name, value);
+          }
+        }}
         onBlur={form.handleBlur}
         error={
           !!form.errors[name] && {
@@ -40,28 +56,45 @@ export const FormTextArea = ({ form, name, validate, ...props }) => (
   </Field>
 );
 
-export const FormSelect = ({ form, name, ...props }) => (
+export const FormSelect = ({ form, name, handleChange, ...props }) => (
   <Form.Select
     name={name}
     value={form.values[name]}
-    onChange={(event, { value }) => form.setFieldValue(name, value)}
+    onChange={(event, { value }) => {
+      form.setFieldValue(name, value);
+      if (handleChange) {
+        handleChange(name, value);
+      }
+    }}
     onBlur={() => form.setFieldTouched(name)}
     {...props}
   />
 );
 
-export const FormCheckbox = ({ form, name, ...props }) => (
+export const FormCheckbox = ({ form, name, handleChange, ...props }) => (
   <Form.Field>
     <Checkbox
       checked={!!form.values[name]}
-      onChange={(event, { checked }) => form.setFieldValue(name, checked)}
+      onChange={(event, { checked }) => {
+        form.setFieldValue(name, checked);
+        if (handleChange) {
+          handleChange(name, checked);
+        }
+      }}
       onBlur={() => form.setFieldTouched(name)}
       {...props}
     />
   </Form.Field>
 );
 
-export const FormDatePicker = ({ form, label, name, required, ...props }) => {
+export const FormDatePicker = ({
+  form,
+  label,
+  name,
+  required,
+  handleChange,
+  ...props
+}) => {
   let value = form.values[name];
 
   if (typeof value === 'string') {
@@ -73,10 +106,13 @@ export const FormDatePicker = ({ form, label, name, required, ...props }) => {
       <label>{label}</label>
       <SemanticDatepicker
         value={value}
-        onChange={(event, { value }) =>
-          console.log(value) ||
-          form.setFieldValue(name, moment(value).format('YYYY-MM-DD'))
-        }
+        onChange={(event, { value }) => {
+          const dateStr = moment(value).format('YYYY-MM-DD');
+          form.setFieldValue(name, dateStr);
+          if (handleChange) {
+            handleChange(name, dateStr);
+          }
+        }}
         onBlur={() => form.setFieldTouched(name)}
         format="MM-DD-YYYY"
       />

@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
+import { Formik } from 'formik';
+import { Button, Form, Segment } from 'semantic-ui-react';
 import GridItemForm from './GridItemForm';
 import QuestionItemForm from './QuestionItemForm';
 import ScoreItemForm from './ScoreItemForm';
@@ -36,6 +38,7 @@ export default class ItemInspector extends React.Component {
   }
 
   onValueChange(name, value) {
+    console.log('item changed', name, value);
     const previous = Object.assign({}, this.props.item);
     const item = Object.assign({}, this.props.item);
     _.set(item, name, value);
@@ -185,31 +188,51 @@ export default class ItemInspector extends React.Component {
   renderItemForm() {
     const item = this.props.item;
 
+    console.log(item);
+
     switch (item.type) {
       case 'grid':
         return (
-          <GridItemForm
-            onChange={this.onValueChange}
-            model={item}
-            questions={this.props.questions}
-            isInFormBuilder
-          />
+          'grid' || (
+            <GridItemForm
+              onChange={this.onValueChange}
+              model={item}
+              questions={this.props.questions}
+              isInFormBuilder
+            />
+          )
         );
       case 'question':
         return (
-          <QuestionItemForm
-            onChange={this.onValueChange}
-            model={item}
-            questions={this.props.questions}
-            isInFormBuilder
-          />
+          'q' || (
+            <QuestionItemForm
+              onChange={this.onValueChange}
+              model={item}
+              questions={this.props.questions}
+              isInFormBuilder
+            />
+          )
         );
       case 'score':
-        return <ScoreItemForm onChange={this.onValueChange} model={item} />;
+        return (
+          's' || <ScoreItemForm onChange={this.onValueChange} model={item} />
+        );
       case 'section':
-        return <SectionItemForm onChange={this.onValueChange} model={item} />;
+        return (
+          'sec' || (
+            <SectionItemForm onChange={this.onValueChange} model={item} />
+          )
+        );
       case 'text':
-        return <TextItemForm onChange={this.onValueChange} model={item} />;
+        return (
+          <Formik enableReinitialize initialValues={item}>
+            {(form) => (
+              <Form>
+                <TextItemForm form={form} onChange={this.onValueChange} />
+              </Form>
+            )}
+          </Formik>
+        );
       default:
         return null;
     }
@@ -221,10 +244,8 @@ export default class ItemInspector extends React.Component {
         <h3>Item Inspector</h3>
         {this.renderItemForm()}
         <hr />
-        <div className="preview section">{this.renderItemPreview()}</div>
-        <button className="btn btn-default" onClick={this.props.onClose}>
-          Close Inspector
-        </button>
+        <Segment>{this.renderItemPreview()}</Segment>
+        <Button onClick={this.props.onClose}>Close Inspector</Button>
       </div>
     );
   }

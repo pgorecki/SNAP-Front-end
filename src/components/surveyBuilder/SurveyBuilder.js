@@ -38,7 +38,7 @@ export default class SurveyBuilder extends React.Component {
     const definition = props.survey.definition;
     this.state = {
       definition,
-      inspectedItem: null, // definition.items[2],
+      inspectedItem: definition.items[0], // null
       questionModalIsOpen: false,
       uploadToHmis: false,
       isUploading: false,
@@ -190,14 +190,13 @@ export default class SurveyBuilder extends React.Component {
 
     return {
       buttons: [
-        hasWarning && <p>Warning</p>,
-        <Button.Group>
+        <Button.Group color={hasWarning && 'yellow'}>
           <Button
+            icon={hasWarning && 'warning'}
             disabled={isSelected}
             onClick={() => this.setState({ inspectedItem: node.definition })}
-          >
-            Inspect
-          </Button>
+            content="Inspect"
+          />
           <Dropdown className="button icon" trigger={<React.Fragment />}>
             <Dropdown.Menu>
               <Dropdown.Item

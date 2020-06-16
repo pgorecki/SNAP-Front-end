@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 import { Form, Button } from 'semantic-ui-react';
-import { FormInput } from '../../components/FormFields';
+import { FormInput } from 'components/FormFields';
 
 export default class FormInspector extends React.Component {
   render() {
