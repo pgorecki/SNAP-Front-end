@@ -107,7 +107,7 @@ export default function ResponsesTab({ client }) {
       <Header as="h4">Client Responses</Header>
       <ControlledTable
         columns={columns}
-        data={responsesIndex.data}
+        data={responsesIndex.data && responsesIndex.data.results}
         loading={responsesIndex.loading}
         fetchData={responsesIndex.fetchData}
         error={responsesIndex.error}

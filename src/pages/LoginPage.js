@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
 import {
   Grid,
   Header,
@@ -9,17 +8,14 @@ import {
   Message,
 } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import useAuth from 'hooks/useAuth';
 import { AppContext } from '../AppStore';
 
 export default function LoginPage() {
-  const history = useHistory();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [, dispatch] = useContext(AppContext);
   const [loading, errors, authenticate] = useAuth();
-
-  console.log(loading, errors);
 
   return (
     <Grid

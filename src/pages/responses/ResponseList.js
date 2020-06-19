@@ -82,7 +82,7 @@ export default function ResponseList() {
       <Header>Responses</Header>
       <ControlledTable
         columns={columns}
-        data={data}
+        data={data && data.results}
         loading={loading}
         fetchData={fetchData}
       />

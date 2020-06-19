@@ -84,7 +84,7 @@ export default function ClientList() {
       </Button>
       <ControlledTable
         columns={columns}
-        data={data}
+        data={data && data.results}
         loading={loading}
         fetchData={fetchData}
       />

@@ -106,7 +106,7 @@ export default function SurveyList() {
       </Button>
       <ControlledTable
         columns={columns}
-        data={data}
+        data={data && data.results}
         loading={loading}
         fetchData={fetchData}
       />

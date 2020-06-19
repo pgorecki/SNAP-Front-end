@@ -4,7 +4,7 @@ import useApiClient from './useApiClient';
 function useFetchData(url, initialData = null) {
   const [apiClient] = useApiClient();
   const [data, setData] = useState(initialData);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const fetchData = useCallback(async () => {

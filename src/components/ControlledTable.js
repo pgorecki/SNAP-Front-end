@@ -25,7 +25,7 @@ export default function ControlledTable({
     prepareRow,
   } = useTable({
     columns,
-    data: (data && data.results) || [],
+    data: data || [],
     initialState: { pageIndex: 0 },
     manualPagination: true,
   });

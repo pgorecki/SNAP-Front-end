@@ -1,18 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Grid, Tab, Button } from 'semantic-ui-react';
-import useResource from '../../hooks/useResource';
-import useUrlParams from '../../hooks/useUrlParams';
-import { formatApiError } from '../../utils/apiUtils';
-import { fullName } from '../../utils/modelUtils';
-import DetailsPage from '../DetailsPage';
-import { ClientField } from './components';
-import ClientAvatar from '../../components/ClientAvatar';
-import { formatDate } from '../../utils/typeUtils';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
+import ClientAvatar from 'components/ClientAvatar';
+import useResource from 'hooks/useResource';
+import useUrlParams from 'hooks/useUrlParams';
+import DetailsPage from 'pages/DetailsPage';
+import { ClientField } from 'pages/clients/components';
+import { formatApiError } from 'utils/apiUtils';
+import { fullName } from 'utils/modelUtils';
+import { formatDate } from 'utils/typeUtils';
+import { AppContext } from 'AppStore';
 import ResponsesTab from './ResponsesTab';
+import EligibilityTab from './EligibilityTab';
+import EnrollmentsTab from './EnrollmentsTab';
 
 export default function ClientDetails() {
-  const [urlParams] = useUrlParams();
+  const history = useHistory();
+  const [{ user }] = useContext(AppContext);
+  const [urlParams, queryParams, fragment] = useUrlParams();
   const { data, error, loading } = useResource(`/clients/${urlParams.id}/`);
 
   const {
@@ -28,22 +33,22 @@ export default function ClientDetails() {
   const clientFullName = fullName({ firstName, middleName, lastName });
 
   const tabPanes = [
-    {
-      menuItem: 'Overview',
-      render: () => <Tab.Pane>TODO: Overview</Tab.Pane>,
-    },
-    {
-      menuItem: 'History',
-      render: () => <Tab.Pane>TODO: History</Tab.Pane>,
-    },
-    {
-      menuItem: 'ROIs',
-      render: () => <Tab.Pane>TODO: ROIs</Tab.Pane>,
-    },
-    {
-      menuItem: 'Referrals',
-      render: () => <Tab.Pane>TODO: Referrals</Tab.Pane>,
-    },
+    // {
+    //   menuItem: 'Overview',
+    //   render: () => <Tab.Pane>TODO: Overview</Tab.Pane>,
+    // },
+    // {
+    //   menuItem: 'History',
+    //   render: () => <Tab.Pane>TODO: History</Tab.Pane>,
+    // },
+    // {
+    //   menuItem: 'ROIs',
+    //   render: () => <Tab.Pane>TODO: ROIs</Tab.Pane>,
+    // },
+    // {
+    //   menuItem: 'Referrals',
+    //   render: () => <Tab.Pane>TODO: Referrals</Tab.Pane>,
+    // },
     {
       menuItem: 'Responses',
       render: () => (
@@ -53,13 +58,29 @@ export default function ClientDetails() {
       ),
     },
     {
-      menuItem: 'Case Notes',
-      render: () => <Tab.Pane>TODO: CaseNotes</Tab.Pane>,
+      menuItem: 'Eligibility',
+      render: () => (
+        <Tab.Pane>
+          <EligibilityTab client={data} />
+        </Tab.Pane>
+      ),
     },
     {
-      menuItem: 'Tags',
-      render: () => <Tab.Pane>TODO: Tags</Tab.Pane>,
+      menuItem: 'Enrollments',
+      render: () => (
+        <Tab.Pane>
+          <EnrollmentsTab client={data} />
+        </Tab.Pane>
+      ),
     },
+    // {
+    //   menuItem: 'Case Notes',
+    //   render: () => <Tab.Pane>TODO: CaseNotes</Tab.Pane>,
+    // },
+    // {
+    //   menuItem: 'Tags',
+    //   render: () => <Tab.Pane>TODO: Tags</Tab.Pane>,
+    // },
   ];
 
   return (
@@ -83,7 +104,14 @@ export default function ClientDetails() {
         </Grid.Column>
 
         <Grid.Column computer={16} mobile={16}>
-          <Tab panes={tabPanes} activeIndex={4} renderActiveOnly />
+          <Tab
+            panes={tabPanes}
+            activeIndex={fragment || 0}
+            renderActiveOnly
+            onTabChange={(event, { activeIndex }) => {
+              history.push(`${window.location.pathname}#${activeIndex}`);
+            }}
+          />
         </Grid.Column>
 
         <Button as={NavLink} to={`/clients/${data.id}/edit`} primary>
