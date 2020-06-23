@@ -1,10 +1,6 @@
 import React from 'react';
 import { Form, Button } from 'semantic-ui-react';
-import {
-  FormInput,
-  FormDatePicker,
-  FormErrors,
-} from '../../components/FormFields';
+import { FormInput, FormDatePicker, FormErrors } from 'components/FormFields';
 
 export default function ClientForm({ form }) {
   return (

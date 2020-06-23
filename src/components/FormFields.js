@@ -40,12 +40,13 @@ export const FormTextArea = ({ form, name, validate, ...props }) => (
   </Field>
 );
 
-export const FormSelect = ({ form, name, ...props }) => (
+export const FormSelect = ({ form, required, name, ...props }) => (
   <Form.Select
     name={name}
     value={form.values[name]}
     onChange={(event, { value }) => form.setFieldValue(name, value)}
     onBlur={() => form.setFieldTouched(name)}
+    required={required}
     {...props}
   />
 );
@@ -69,7 +70,7 @@ export const FormDatePicker = ({ form, label, name, required, ...props }) => {
   }
 
   return (
-    <Form.Field required>
+    <Form.Field required={required}>
       <label>{label}</label>
       <SemanticDatepicker
         value={value}
@@ -79,6 +80,7 @@ export const FormDatePicker = ({ form, label, name, required, ...props }) => {
         }
         onBlur={() => form.setFieldTouched(name)}
         format="MM-DD-YYYY"
+        required={required}
       />
     </Form.Field>
   );

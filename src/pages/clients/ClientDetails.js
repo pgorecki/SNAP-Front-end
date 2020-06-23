@@ -13,6 +13,7 @@ import { AppContext } from 'AppStore';
 import ResponsesTab from './ResponsesTab';
 import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
+import ReferralsTab from './ReferralsTab';
 
 export default function ClientDetails() {
   const history = useHistory();
@@ -70,6 +71,14 @@ export default function ClientDetails() {
       render: () => (
         <Tab.Pane>
           <EnrollmentsTab client={data} />
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: 'Referrals',
+      render: () => (
+        <Tab.Pane>
+          <ReferralsTab client={data} />
         </Tab.Pane>
       ),
     },

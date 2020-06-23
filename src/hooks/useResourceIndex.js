@@ -9,6 +9,7 @@ export default function useFetchResourceIndex(url, initialData = null) {
     data: (data && data.results) || initialData,
     error,
     loading,
+    ready: !loading && !error,
     fetchData,
   };
 }
