@@ -1,22 +1,52 @@
 import React from 'react';
 import { Button, Header } from 'semantic-ui-react';
 import ControlledTable from 'components/ControlledTable';
-import useResourceIndex from 'hooks/useResourceIndex';
+import toaster from 'components/toaster';
+import useApiClient from 'hooks/useApiClient';
 import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
+import useResourceIndex from 'hooks/useResourceIndex';
 import { formatDateTime } from 'utils/typeUtils';
+import { formatApiError } from 'utils/apiUtils';
 
 export default function EligibilityTab({ client, currentUser }) {
   const programsIndex = usePaginatedResourceIndex(`/programs/agency_configs/`);
+  const [apiClient] = useApiClient();
 
   const eligibilityIndex = useResourceIndex(
     `/programs/eligibility/?client=${client.id}`
   );
 
+  async function handleSetEligibility({ program, eligibility }, status) {
+    console.log(program, eligibility, status);
+    if (eligibility) {
+      // update existing
+      try {
+        await apiClient.patch(`/programs/eligibility/${eligibility.id}`, {
+          status,
+        });
+        toaster.success('Eligibility updated');
+      } catch (err) {
+        const apiError = formatApiError(err.response);
+        toaster.error(apiError);
+      }
+    } else {
+      // create new
+      try {
+        await apiClient.post('/programs/eligibility/', {
+          status,
+        });
+        toaster.success('Eligibility updated');
+      } catch (err) {
+        const apiError = formatApiError(err.response);
+        toaster.error(apiError);
+      }
+    }
+  }
+
   const loading = programsIndex.loading || eligibilityIndex.loading;
   const error = programsIndex.error || eligibilityIndex.error;
-  const ready = !loading && !error;
+  const ready = programsIndex.ready && eligibilityIndex.ready;
 
-  //const tableData = loading ? [] : programsIndex.data;
   const tableData = ready
     ? programsIndex.data.results
         .map(({ program }) => ({ program }))
@@ -31,7 +61,6 @@ export default function EligibilityTab({ client, currentUser }) {
           };
         })
     : [];
-  ready && console.log(eligibilityIndex.data.results);
 
   const columns = React.useMemo(
     () => [
@@ -54,8 +83,18 @@ export default function EligibilityTab({ client, currentUser }) {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <Button color="green">Eligible</Button>
-            <Button color="yellow">Not eligible</Button>
+            <Button
+              color="green"
+              onClick={() => handleSetEligibility(row.original, 'eligible')}
+            >
+              Eligible
+            </Button>
+            <Button
+              color="yellow"
+              onClick={() => handleSetEligibility(row.original, 'not eligible')}
+            >
+              Not eligible
+            </Button>
           </>
         ),
       },

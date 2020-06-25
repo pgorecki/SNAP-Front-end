@@ -1,4 +1,3 @@
-import { useCallback, useState, useEffect } from 'react';
 import useFetchData from './useFetchData';
 
 export default function usePaginatedResourceIndex(url, initialData = null) {
@@ -8,6 +7,7 @@ export default function usePaginatedResourceIndex(url, initialData = null) {
     data,
     error,
     loading,
+    ready: !loading && !error,
     fetchData,
   };
 }
