@@ -19,6 +19,8 @@ import { ClientSearch } from './components';
 export default function ClientList() {
   const [data, error, loading, fetchData] = useFetchData('/clients/');
 
+  console.log(data, error, loading);
+
   const columns = React.useMemo(
     () => [
       {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Header } from 'semantic-ui-react';
 import ControlledTable from 'components/ControlledTable';
 import toaster from 'components/toaster';
@@ -9,58 +9,59 @@ import { formatDateTime } from 'utils/typeUtils';
 import { formatApiError } from 'utils/apiUtils';
 
 export default function EligibilityTab({ client, currentUser }) {
-  const programsIndex = usePaginatedResourceIndex(`/programs/agency_configs/`);
+  const [tableRows, setTableRows] = useState([]);
   const [apiClient] = useApiClient();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const eligibilityIndex = useResourceIndex(
-    `/programs/eligibility/?client=${client.id}`
+  const fetchData = useCallback(
+    async ({ pageIndex, pageSize }) => {
+      setLoading(true);
+      try {
+        const p1 = apiClient.get('/programs/agency_configs/');
+        const p2 = apiClient.get(`/programs/eligibility/?client=${client.id}`);
+
+        const programsIndex = (await p1).data;
+        const eligibilityIndex = (await p2).data;
+
+        const tableData = programsIndex.results
+          .map(({ program }) => ({ program }))
+          .map((pe) => {
+            const { program } = pe;
+            const eligibility = eligibilityIndex.results.find(
+              (e) => e.program.id === program.id
+            );
+            return {
+              program,
+              eligibility,
+            };
+          });
+
+        setTableRows(tableData);
+      } catch (err) {
+        setError(err.response);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiClient, client.id]
   );
 
-  async function handleSetEligibility({ program, eligibility }, status) {
-    console.log(program, eligibility, status);
-    if (eligibility) {
-      // update existing
-      try {
-        await apiClient.patch(`/programs/eligibility/${eligibility.id}`, {
-          status,
-        });
-        toaster.success('Eligibility updated');
-      } catch (err) {
-        const apiError = formatApiError(err.response);
-        toaster.error(apiError);
-      }
-    } else {
-      // create new
-      try {
-        await apiClient.post('/programs/eligibility/', {
-          status,
-        });
-        toaster.success('Eligibility updated');
-      } catch (err) {
-        const apiError = formatApiError(err.response);
-        toaster.error(apiError);
-      }
-    }
+  async function handleSetEligibility(row, status) {
+    console.log(tableRows);
+    // return;
+    // console.log(row, status, data);
+    // const { index, original } = row;
+    // const updatedRow = {
+    //   ...original,
+    //   eligibility: {
+    //     status: 'xxxx',
+    //   },
+    // };
+    // const newData = [...data];
+    // // newData[index] = updatedRow;
+    // setData(newData);
   }
-
-  const loading = programsIndex.loading || eligibilityIndex.loading;
-  const error = programsIndex.error || eligibilityIndex.error;
-  const ready = programsIndex.ready && eligibilityIndex.ready;
-
-  const tableData = ready
-    ? programsIndex.data.results
-        .map(({ program }) => ({ program }))
-        .map((pe) => {
-          const { program } = pe;
-          const eligibility = eligibilityIndex.data.find(
-            (e) => e.program.id === program.id
-          );
-          return {
-            program,
-            eligibility,
-          };
-        })
-    : [];
 
   const columns = React.useMemo(
     () => [
@@ -85,13 +86,15 @@ export default function EligibilityTab({ client, currentUser }) {
           <>
             <Button
               color="green"
-              onClick={() => handleSetEligibility(row.original, 'eligible')}
+              onClick={(a, b, c) =>
+                console.log(tableRows) || handleSetEligibility(row, 'eligible')
+              }
             >
               Eligible
             </Button>
             <Button
               color="yellow"
-              onClick={() => handleSetEligibility(row.original, 'not eligible')}
+              onClick={() => handleSetEligibility(row, 'not eligible')}
             >
               Not eligible
             </Button>
@@ -102,14 +105,16 @@ export default function EligibilityTab({ client, currentUser }) {
     []
   );
 
+  console.log(tableRows);
+
   return (
     <>
       <Header as="h4">Program Eligibility</Header>
       <ControlledTable
         columns={columns}
-        data={tableData}
+        data={tableRows}
         loading={loading}
-        fetchData={programsIndex.fetchData}
+        fetchData={fetchData}
         error={error}
       />
     </>

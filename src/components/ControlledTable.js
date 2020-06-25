@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   useTable,
   useGroupBy,
@@ -23,12 +23,20 @@ export default function ControlledTable({
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({
-    columns,
-    data: data || [],
-    initialState: { pageIndex: 0 },
-    manualPagination: true,
-  });
+    state: { pageIndex, pageSize },
+  } = useTable(
+    {
+      columns,
+      data: data || [],
+      initialState: { pageIndex: 0 },
+      manualPagination: true,
+    },
+    usePagination
+  );
+
+  useEffect(() => {
+    fetchData({ pageIndex, pageSize });
+  }, [fetchData, pageIndex, pageSize]);
 
   const emptyMessage = error ? (
     <ErrorMessage error={error} />
@@ -57,7 +65,7 @@ export default function ControlledTable({
           ))}
         </Table.Header>
         <Table.Body style={{ position: 'relative' }} {...getTableBodyProps()}>
-          {console.log(rows) || rows.length ? (
+          {rows.length ? (
             rows.map((row) => {
               prepareRow(row);
               return (
