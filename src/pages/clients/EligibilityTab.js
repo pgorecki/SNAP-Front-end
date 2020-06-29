@@ -24,6 +24,8 @@ export default function EligibilityTab({ client, currentUser }) {
         const programsIndex = (await p1).data;
         const eligibilityIndex = (await p2).data;
 
+        console.log(programsIndex, eligibilityIndex);
+
         const tableData = programsIndex.results
           .map(({ program }) => ({ program }))
           .map((pe) => {
@@ -47,21 +49,22 @@ export default function EligibilityTab({ client, currentUser }) {
     [apiClient, client.id]
   );
 
-  async function handleSetEligibility(row, status) {
-    console.log(tableRows);
-    // return;
-    // console.log(row, status, data);
-    // const { index, original } = row;
-    // const updatedRow = {
-    //   ...original,
-    //   eligibility: {
-    //     status: 'xxxx',
-    //   },
-    // };
-    // const newData = [...data];
-    // // newData[index] = updatedRow;
-    // setData(newData);
-  }
+  const handleSetEligibility = useCallback(
+    async (row, isEligible) => {
+      const { index, original } = row;
+      const updatedRow = {
+        ...original,
+        eligibility: {
+          status: isEligible ? 'y' : 'n',
+          modified_at: new Date(),
+        },
+      };
+      const newRows = [...tableRows];
+      newRows[index] = updatedRow;
+      setTableRows(newRows);
+    },
+    [tableRows]
+  );
 
   const columns = React.useMemo(
     () => [
@@ -86,15 +89,13 @@ export default function EligibilityTab({ client, currentUser }) {
           <>
             <Button
               color="green"
-              onClick={(a, b, c) =>
-                console.log(tableRows) || handleSetEligibility(row, 'eligible')
-              }
+              onClick={() => handleSetEligibility(row, true)}
             >
               Eligible
             </Button>
             <Button
               color="yellow"
-              onClick={() => handleSetEligibility(row, 'not eligible')}
+              onClick={() => handleSetEligibility(row, false)}
             >
               Not eligible
             </Button>
@@ -102,8 +103,12 @@ export default function EligibilityTab({ client, currentUser }) {
         ),
       },
     ],
-    []
+    [handleSetEligibility]
   );
+
+  useEffect(() => {
+    fetchData({ pageIndex: 0, pageSize: 10 });
+  }, [fetchData]);
 
   console.log(tableRows);
 

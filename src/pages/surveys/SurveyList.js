@@ -107,7 +107,7 @@ export default function SurveyList() {
       <ControlledTable
         columns={columns}
         data={data && data.results}
-        loading={loading}
+        loading={false}
         fetchData={fetchData}
       />
     </ListPage>

@@ -34,10 +34,6 @@ export default function ControlledTable({
     usePagination
   );
 
-  useEffect(() => {
-    fetchData({ pageIndex, pageSize });
-  }, [fetchData, pageIndex, pageSize]);
-
   const emptyMessage = error ? (
     <ErrorMessage error={error} />
   ) : (
