@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import useApiClient from './useApiClient';
 
 export default function useNewResource(url, initialData = {}) {
-  const [apiClient] = useApiClient();
+  const apiClient = useApiClient();
   const [data, setData] = useState(initialData);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);

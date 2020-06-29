@@ -17,7 +17,7 @@ import { formatApiError } from '../../utils/apiUtils';
 
 export default function SurveyList() {
   const [data, error, loading, fetchData] = useFetchData('/surveys/');
-  const [apiClient] = useApiClient();
+  const apiClient = useApiClient();
   // const [, queryParams] = useUrlParams();
 
   const columns = React.useMemo(

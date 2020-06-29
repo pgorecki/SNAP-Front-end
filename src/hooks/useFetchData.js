@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 import useApiClient from './useApiClient';
 
 function useFetchData(url, initialData = null) {
-  const [apiClient] = useApiClient();
+  const apiClient = useApiClient();
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

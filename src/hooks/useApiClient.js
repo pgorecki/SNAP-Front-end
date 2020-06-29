@@ -24,5 +24,5 @@ export default function useApiClient() {
     });
   }, [accessToken]);
 
-  return [instance];
+  return instance;
 }

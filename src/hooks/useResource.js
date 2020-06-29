@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import useApiClient from './useApiClient';
 
 export default function useResource(url, initialData = {}) {
-  const [apiClient] = useApiClient();
+  const apiClient = useApiClient();
   const [data, setData] = useState(initialData);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);

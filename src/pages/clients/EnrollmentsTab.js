@@ -15,7 +15,7 @@ export default function EnrollmentsTab({ client, currentUser }) {
     `/programs/enrollments/?client=${client.id}`
   );
   const [tableRows, setTableRows] = useState([]);
-  const [apiClient] = useApiClient();
+  const apiClient = useApiClient();
 
   const loading = programsIndex.loading || enrollmentsIndex.loading;
   const error = programsIndex.error || enrollmentsIndex.error;
@@ -44,10 +44,18 @@ export default function EnrollmentsTab({ client, currentUser }) {
       if (enrollment) {
         result = await apiClient.patch(
           `/programs/enrollments/${enrollment.id}/`,
-          {}
+          {
+            program: pac.program.id,
+            client: client.id,
+            status,
+          }
         );
       } else {
-        result = await apiClient.post('/programs/enrollments/', {});
+        result = await apiClient.post('/programs/enrollments/', {
+          program: pac.program.id,
+          client: client.id,
+          status,
+        });
       }
 
       toaster.success(`Enrollment status for ${pac.program.name} updated`);
@@ -162,7 +170,7 @@ export default function EnrollmentsTab({ client, currentUser }) {
         },
       },
     ],
-    []
+    [handleSetEnrollmentStatus]
   );
 
   useEffect(() => {
