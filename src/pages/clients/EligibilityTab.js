@@ -3,8 +3,6 @@ import { Button, Header } from 'semantic-ui-react';
 import ControlledTable from 'components/ControlledTable';
 import toaster from 'components/toaster';
 import useApiClient from 'hooks/useApiClient';
-import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
-import useResourceIndex from 'hooks/useResourceIndex';
 import { formatDateTime } from 'utils/typeUtils';
 import { formatApiError } from 'utils/apiUtils';
 
@@ -51,19 +49,22 @@ export default function EligibilityTab({ client, currentUser }) {
 
   const handleSetEligibility = useCallback(
     async (row, isEligible) => {
-      console.log('aaa');
       const { index, original } = row;
       const { eligibility, program } = original;
 
+      console.log(eligibility);
+
       let result;
-      console.log(original);
       try {
         if (eligibility) {
-          result = await apiClient.post('/programs/eligibility/', {
-            status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
-            client: client.id,
-            program: program.id,
-          });
+          result = await apiClient.patch(
+            `/programs/eligibility/${eligibility.id}/`,
+            {
+              status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
+              client: client.id,
+              program: program.id,
+            }
+          );
         } else {
           result = await apiClient.post('/programs/eligibility/', {
             status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
@@ -75,22 +76,19 @@ export default function EligibilityTab({ client, currentUser }) {
         toaster.error(formatApiError(err.response));
       }
 
-      toaster.success('Eligibility status updated');
+      toaster.success(`Eligibility status for ${program.name} updated`);
 
       console.log(result);
 
       const updatedRow = {
         ...original,
-        eligibility: {
-          status: isEligible ? 'y' : 'n',
-          modified_at: new Date(),
-        },
+        eligibility: result.data,
       };
       const newRows = [...tableRows];
       newRows[index] = updatedRow;
       setTableRows(newRows);
     },
-    [tableRows, apiClient]
+    [tableRows, apiClient, client.id]
   );
 
   const columns = React.useMemo(
