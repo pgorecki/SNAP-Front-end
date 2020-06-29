@@ -51,7 +51,34 @@ export default function EligibilityTab({ client, currentUser }) {
 
   const handleSetEligibility = useCallback(
     async (row, isEligible) => {
+      console.log('aaa');
       const { index, original } = row;
+      const { eligibility, program } = original;
+
+      let result;
+      console.log(original);
+      try {
+        if (eligibility) {
+          result = await apiClient.post('/programs/eligibility/', {
+            status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
+            client: client.id,
+            program: program.id,
+          });
+        } else {
+          result = await apiClient.post('/programs/eligibility/', {
+            status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
+            client: client.id,
+            program: program.id,
+          });
+        }
+      } catch (err) {
+        toaster.error(formatApiError(err.response));
+      }
+
+      toaster.success('Eligibility status updated');
+
+      console.log(result);
+
       const updatedRow = {
         ...original,
         eligibility: {
@@ -63,7 +90,7 @@ export default function EligibilityTab({ client, currentUser }) {
       newRows[index] = updatedRow;
       setTableRows(newRows);
     },
-    [tableRows]
+    [tableRows, apiClient]
   );
 
   const columns = React.useMemo(
