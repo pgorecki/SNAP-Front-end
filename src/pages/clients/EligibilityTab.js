@@ -22,8 +22,6 @@ export default function EligibilityTab({ client, currentUser }) {
         const programsIndex = (await p1).data;
         const eligibilityIndex = (await p2).data;
 
-        console.log(programsIndex, eligibilityIndex);
-
         const tableData = programsIndex.results
           .map(({ program }) => ({ program }))
           .map((pe) => {
@@ -52,8 +50,6 @@ export default function EligibilityTab({ client, currentUser }) {
       const { index, original } = row;
       const { eligibility, program } = original;
 
-      console.log(eligibility);
-
       let result;
       try {
         if (eligibility) {
@@ -72,21 +68,18 @@ export default function EligibilityTab({ client, currentUser }) {
             program: program.id,
           });
         }
+        toaster.success(`Eligibility status for ${program.name} updated`);
+
+        const updatedRow = {
+          ...original,
+          eligibility: result.data,
+        };
+        const newRows = [...tableRows];
+        newRows[index] = updatedRow;
+        setTableRows(newRows);
       } catch (err) {
         toaster.error(formatApiError(err.response));
       }
-
-      toaster.success(`Eligibility status for ${program.name} updated`);
-
-      console.log(result);
-
-      const updatedRow = {
-        ...original,
-        eligibility: result.data,
-      };
-      const newRows = [...tableRows];
-      newRows[index] = updatedRow;
-      setTableRows(newRows);
     },
     [tableRows, apiClient, client.id]
   );

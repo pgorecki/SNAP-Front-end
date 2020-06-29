@@ -13,11 +13,13 @@ function useFetchData(url, initialData = null) {
       const result = await apiClient.get(url);
       setData(result.data);
       setError(false);
+      return result.data;
     } catch (e) {
       setError(e.response);
       setData(false);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [apiClient, url]);
 
   useEffect(() => {

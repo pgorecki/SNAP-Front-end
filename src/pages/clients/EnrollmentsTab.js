@@ -1,43 +1,68 @@
-import React, { useState } from 'react';
-import { Button, Form, Header } from 'semantic-ui-react';
-import { NavLink, useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Button, Header } from 'semantic-ui-react';
 import ControlledTable from 'components/ControlledTable';
-import { ErrorMessage } from 'components/common';
-import { EditActionLink } from 'components/tableComponents';
-
+import toaster from 'components/toaster';
+import useApiClient from 'hooks/useApiClient';
 import { formatDateTime } from 'utils/typeUtils';
-import { formatOwner } from 'utils/modelUtils';
+import { formatApiError } from 'utils/apiUtils';
 
 import useResourceIndex from 'hooks/useResourceIndex';
 import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
 
 export default function EnrollmentsTab({ client, currentUser }) {
-  console.log(client);
   const programsIndex = usePaginatedResourceIndex(`/programs/agency_configs/`);
-
   const enrollmentsIndex = useResourceIndex(
     `/programs/enrollments/?client=${client.id}`
   );
+  const [tableRows, setTableRows] = useState([]);
+  const [apiClient] = useApiClient();
 
   const loading = programsIndex.loading || enrollmentsIndex.loading;
   const error = programsIndex.error || enrollmentsIndex.error;
-  const ready = !loading && !error;
 
-  const handleSetEnrollmentStatus = (status) => {
-    alert('not yet implemented');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchData = async ({ pageIndex, pageSize }) => {
+    const programsResponse = await programsIndex.fetchData();
+    const enrollmentsResponse = await enrollmentsIndex.fetchData();
+    const tableData = programsResponse.results.map((pac) => {
+      const enrollment = enrollmentsResponse.results.find(
+        (e) => e.program.id === pac.program.id
+      );
+      return {
+        pac,
+        enrollment,
+      };
+    });
+    setTableRows(tableData);
   };
 
-  const tableData = ready
-    ? programsIndex.data.results.map((pac) => {
-        const enrollment = enrollmentsIndex.data.find(
-          (e) => e.program.id === pac.program.id
+  const handleSetEnrollmentStatus = async (row, status) => {
+    const { index, original } = row;
+    const { enrollment, pac } = original;
+    let result;
+    try {
+      if (enrollment) {
+        result = await apiClient.patch(
+          `/programs/enrollments/${enrollment.id}/`,
+          {}
         );
-        return {
-          pac,
-          enrollment,
-        };
-      })
-    : [];
+      } else {
+        result = await apiClient.post('/programs/enrollments/', {});
+      }
+
+      toaster.success(`Enrollment status for ${pac.program.name} updated`);
+
+      const updatedRow = {
+        ...original,
+        enrollment: result.data,
+      };
+      const newRows = [...tableRows];
+      newRows[index] = updatedRow;
+      setTableRows(newRows);
+    } catch (err) {
+      toaster.error(formatApiError(err.response));
+    }
+  };
 
   const columns = React.useMemo(
     () => [
@@ -69,24 +94,48 @@ export default function EnrollmentsTab({ client, currentUser }) {
           console.log(entrySurvey, updateSurvey, exitSurvey);
 
           const entryButton = entrySurvey ? (
-            <Button color="green">Entry survey</Button>
+            <Button
+              color="green"
+              onClick={() =>
+                alert('Enrollment surveys not yet implemented. Skipping.') ||
+                handleSetEnrollmentStatus(row, 'ENROLLED')
+              }
+            >
+              Entry survey
+            </Button>
           ) : (
             <Button
               color="green"
-              onClick={() => handleSetEnrollmentStatus('ENROLLED')}
+              onClick={() => handleSetEnrollmentStatus(row, 'ENROLLED')}
             >
               Enter
             </Button>
           );
           const updateButton = updateSurvey ? (
-            <Button color="green">Update survey</Button>
+            <Button
+              color="green"
+              onClick={() =>
+                alert('Enrollment surveys not yet implemented. Skipping.') ||
+                handleSetEnrollmentStatus(row, 'ENROLLED')
+              }
+            >
+              Update survey
+            </Button>
           ) : null;
           const exitButton = exitSurvey ? (
-            <Button color="yellow">Exit survey</Button>
+            <Button
+              color="yellow"
+              onClick={() =>
+                alert('Enrollment surveys not yet implemented. Skipping.') ||
+                handleSetEnrollmentStatus(row, 'EXITED')
+              }
+            >
+              Exit survey
+            </Button>
           ) : (
             <Button
               color="yellow"
-              onClick={() => handleSetEnrollmentStatus('EXITED')}
+              onClick={() => handleSetEnrollmentStatus(row, 'EXITED')}
             >
               Exit
             </Button>
@@ -116,14 +165,18 @@ export default function EnrollmentsTab({ client, currentUser }) {
     []
   );
 
+  useEffect(() => {
+    fetchData({ pageIndex: 0, pageSize: 10 });
+  }, []);
+
   return (
     <>
       <Header as="h4">Program Enrollments</Header>
       <ControlledTable
         columns={columns}
-        data={tableData}
+        data={tableRows}
         loading={loading}
-        fetchData={programsIndex.fetchData}
+        fetchData={fetchData}
         error={error}
       />
     </>
