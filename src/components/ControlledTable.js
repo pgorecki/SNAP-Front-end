@@ -19,7 +19,19 @@ export default function ControlledTable({
   totalCount, // total number of objects
   pageSize: controlledPageSize,
   pageCount: controlledPageCount,
+  setUpdatedRows,
 }) {
+  const updateRow = (row, data) => {
+    setUpdatedRows((prev) => {
+      const current = [...prev];
+      current[row.index] = {
+        ...row.original,
+        ...data,
+      };
+      return current;
+    });
+  };
+
   const table = useTable(
     {
       columns,
@@ -27,6 +39,9 @@ export default function ControlledTable({
       initialState: { pageIndex: 0, pageSize: controlledPageSize },
       manualPagination: true,
       pageCount: controlledPageCount,
+      actions: {
+        updateRow,
+      },
     },
     usePagination
   );

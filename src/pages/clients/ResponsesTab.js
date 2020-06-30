@@ -86,9 +86,14 @@ export default function TestTab({ client }) {
       {
         Header: 'Actions',
         accessor: 'actions',
-        Cell: ({ row }) => (
+        Cell: ({ row, actions }) => (
           <>
             <EditActionLink to={`/responses/${row.original.id}/edit`} />
+            {/* <Button
+              onClick={(...args) => {
+                actions.updateRow(row, { created_at: new Date() });
+              }}
+            /> */}
           </>
         ),
       },

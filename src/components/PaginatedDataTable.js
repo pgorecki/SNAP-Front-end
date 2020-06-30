@@ -4,7 +4,7 @@ import ControlledTable from './ControlledTable';
 
 export default function PaginatedDataTable({ url, columns }) {
   const [pageNumber] = useState(1);
-  const [pageSize] = useState(2);
+  const [pageSize] = useState(5);
   const resourceIndex = usePaginatedResourceIndex(url, pageNumber, pageSize);
   const [indexData, setIndexData] = useState({
     results: [],
@@ -37,6 +37,7 @@ export default function PaginatedDataTable({ url, columns }) {
       pageSize={pageSize}
       totalCount={resourceIndex.data ? resourceIndex.data.count : 0}
       pageCount={resourceIndex.data ? resourceIndex.data.total_pages : 0}
+      setUpdatedRows={setUpdatedRows}
     />
   );
 }
