@@ -1,25 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Icon, Grid, Search, Header, Label } from 'semantic-ui-react';
-import useFetchData from '../../hooks/useFetchData';
-import ControlledTable from '../../components/ControlledTable';
+import { Header } from 'semantic-ui-react';
+import { formatDateTime } from 'utils/typeUtils';
+import { EditActionLink } from 'components/tableComponents';
+import PaginatedDataTable from 'components/PaginatedDataTable';
+import { formatOwner } from 'utils/modelUtils';
+import { clientFullName } from 'utils/modelUtils';
 import ListPage from '../ListPage';
-import { formatDateTime } from '../../utils/typeUtils';
-import {
-  EditActionLink,
-  DeleteActionButton,
-  PrimaryActionLink,
-} from '../../components/tableComponents';
-import { formatApiError } from '../../utils/apiUtils';
-import { formatOwner } from '../../utils/modelUtils';
-import { ClientSearch } from '../clients/components';
-import { clientFullName } from '../../utils/modelUtils';
-
-// import useUrlParams from '../../hooks/useUrlParams';
 
 export default function ResponseList() {
-  const [data, error, loading, fetchData] = useFetchData('/responses/');
-
   const columns = React.useMemo(
     () => [
       {
@@ -78,14 +67,9 @@ export default function ResponseList() {
   );
 
   return (
-    <ListPage loading={loading} error={formatApiError(error)}>
+    <ListPage>
       <Header>Responses</Header>
-      <ControlledTable
-        columns={columns}
-        data={data && data.results}
-        loading={loading}
-        fetchData={fetchData}
-      />
+      <PaginatedDataTable columns={columns} url="/responses/" />
     </ListPage>
   );
 }

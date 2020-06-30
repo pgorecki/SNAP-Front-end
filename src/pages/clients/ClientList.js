@@ -13,6 +13,7 @@ import {
 import { formatApiError } from '../../utils/apiUtils';
 import { formatOwner } from '../../utils/modelUtils';
 import { ClientSearch } from './components';
+import PaginatedDataTable from 'components/PaginatedDataTable';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
@@ -84,12 +85,7 @@ export default function ClientList() {
       <Button primary as={NavLink} exact to={'/clients/new'}>
         New Client
       </Button>
-      <ControlledTable
-        columns={columns}
-        data={data && data.results}
-        loading={loading}
-        fetchData={fetchData}
-      />
+      <PaginatedDataTable columns={columns} url="/clients/" />
     </ListPage>
   );
 }

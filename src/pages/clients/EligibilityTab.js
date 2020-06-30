@@ -8,7 +8,7 @@ import { formatApiError } from 'utils/apiUtils';
 
 export default function EligibilityTab({ client, currentUser }) {
   const [tableRows, setTableRows] = useState([]);
-  const apiClient = useApiClient();
+  const [apiClient] = useApiClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -123,6 +123,12 @@ export default function EligibilityTab({ client, currentUser }) {
     ],
     [handleSetEligibility]
   );
+
+  useEffect(() => {
+    fetchData({ pageIndex: 0, pageSize: 10 });
+  }, [fetchData]);
+
+  console.log(tableRows);
 
   return (
     <>

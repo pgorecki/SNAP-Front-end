@@ -12,6 +12,7 @@ import {
 import { formatOwner } from '../../utils/modelUtils';
 import ListPage from '../ListPage';
 import { formatApiError } from '../../utils/apiUtils';
+import PaginatedDataTable from 'components/PaginatedDataTable';
 
 // import useUrlParams from '../../hooks/useUrlParams';
 
@@ -68,12 +69,7 @@ export default function QuestionList() {
       <Button primary as={NavLink} exact to={'/questions/new'}>
         New Question
       </Button>
-      <ControlledTable
-        columns={columns}
-        data={data && data.results}
-        loading={loading}
-        fetchData={fetchData}
-      />
+      <PaginatedDataTable columns={columns} url="/questions/" />
     </ListPage>
   );
 }

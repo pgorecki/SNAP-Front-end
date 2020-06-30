@@ -1,22 +1,20 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button, Label, Modal } from 'semantic-ui-react';
-import useFetchData from '../../hooks/useFetchData';
-import useApiClient from '../../hooks/useApiClient';
-import ControlledTable from '../../components/ControlledTable';
-import { formatDateTime } from '../../utils/typeUtils';
-import toaster from '../../components/toaster';
+import toaster from 'components/toaster';
 import {
   EditActionLink,
   DeleteActionButton,
   PrimaryActionLink,
-} from '../../components/tableComponents';
-import { formatOwner } from '../../utils/modelUtils';
+} from 'components/tableComponents';
+import useApiClient from 'hooks/useApiClient';
+import { formatDateTime } from 'utils/typeUtils';
+import { formatOwner } from 'utils/modelUtils';
+import { formatApiError } from 'utils/apiUtils';
 import ListPage from '../ListPage';
-import { formatApiError } from '../../utils/apiUtils';
+import PaginatedDataTable from 'components/PaginatedDataTable';
 
 export default function SurveyList() {
-  const [data, error, loading, fetchData] = useFetchData('/surveys/');
   const apiClient = useApiClient();
   // const [, queryParams] = useUrlParams();
 
@@ -52,7 +50,7 @@ export default function SurveyList() {
       {
         Header: 'Actions',
         accessor: 'actions',
-        Cell: ({ row }) => (
+        Cell: ({ row, actions }) => (
           <>
             <EditActionLink to={`/surveys/${row.original.id}/edit`} />
             <PrimaryActionLink
@@ -76,13 +74,9 @@ export default function SurveyList() {
                   negative
                   onClick={async () => {
                     try {
-                      console.log('a');
                       await apiClient.delete(`/surveys/${row.original.id}/`);
-                      console.log('b');
-                      await fetchData();
-                      console.log('c');
+                      actions.reload();
                     } catch (err) {
-                      console.log('d');
                       const apiError = formatApiError(err.response);
                       toaster.error(apiError);
                     }
@@ -100,16 +94,11 @@ export default function SurveyList() {
   );
 
   return (
-    <ListPage title="Surveys" loading={loading} error={formatApiError(error)}>
+    <ListPage title="Surveys">
       <Button primary as={NavLink} exact to="/surveys/new">
         New Survey
       </Button>
-      <ControlledTable
-        columns={columns}
-        data={data && data.results}
-        loading={false}
-        fetchData={fetchData}
-      />
+      <PaginatedDataTable columns={columns} url="/surveys/" />
     </ListPage>
   );
 }
