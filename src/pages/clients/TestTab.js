@@ -1,51 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Form, Header } from 'semantic-ui-react';
 import { NavLink, useHistory } from 'react-router-dom';
-import PaginatedDataTable from 'components/PaginatedDataTable';
 import { ErrorMessage } from 'components/common';
+import PaginatedDataTable from 'components/PaginatedDataTable';
 import { EditActionLink } from 'components/tableComponents';
-
 import { formatDateTime } from 'utils/typeUtils';
 import { formatOwner } from 'utils/modelUtils';
-
-import useResourceIndex from 'hooks/useResourceIndex';
-import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
-
-function SurveySelect({ client }) {
-  const history = useHistory();
-  const surveyIndex = useResourceIndex('/surveys/', []);
-  const [selectedSurvey, setSelectedSurvey] = useState(null);
-
-  const options = surveyIndex.data.map(({ id, name }) => ({
-    value: id,
-    text: name,
-  }));
-
-  return (
-    <Form>
-      <Form.Group>
-        <Form.Select
-          options={options}
-          placeholder="Select survey"
-          value={selectedSurvey}
-          onChange={(e, { value }) => setSelectedSurvey(value)}
-          disabled={surveyIndex.loading}
-        />
-        <Button
-          disabled={!selectedSurvey}
-          onClick={() => {
-            history.push(
-              `/responses/new?surveyId=${selectedSurvey}&clientId=${client.id}`
-            );
-          }}
-        >
-          Survey Client
-        </Button>
-      </Form.Group>
-      <ErrorMessage error={surveyIndex.error} />
-    </Form>
-  );
-}
 
 export default function TestTab({ client }) {
   const columns = React.useMemo(
@@ -98,8 +58,6 @@ export default function TestTab({ client }) {
 
   return (
     <>
-      <Header as="h4">Survey Client</Header>
-      <SurveySelect client={client} />
       <Header as="h4">Client Responses</Header>
       <PaginatedDataTable
         columns={columns}

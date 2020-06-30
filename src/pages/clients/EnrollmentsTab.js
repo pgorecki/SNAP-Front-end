@@ -173,10 +173,6 @@ export default function EnrollmentsTab({ client, currentUser }) {
     [handleSetEnrollmentStatus]
   );
 
-  useEffect(() => {
-    fetchData({ pageIndex: 0, pageSize: 10 });
-  }, []);
-
   return (
     <>
       <Header as="h4">Program Enrollments</Header>

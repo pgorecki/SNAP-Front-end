@@ -124,12 +124,6 @@ export default function EligibilityTab({ client, currentUser }) {
     [handleSetEligibility]
   );
 
-  useEffect(() => {
-    fetchData({ pageIndex: 0, pageSize: 10 });
-  }, [fetchData]);
-
-  console.log(tableRows);
-
   return (
     <>
       <Header as="h4">Program Eligibility</Header>

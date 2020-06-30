@@ -7,20 +7,23 @@ function useFetchData(url, initialData = null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await apiClient.get(url);
-      setData(result.data);
-      setError(false);
-      return result.data;
-    } catch (e) {
-      setError(e.response);
-      setData(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [apiClient, url]);
+  const fetchData = useCallback(
+    async (updatedUrl) => {
+      setLoading(true);
+      try {
+        const result = await apiClient.get(updatedUrl || url);
+        setData(result.data);
+        setError(false);
+        return result.data;
+      } catch (e) {
+        setError(e.response);
+        setData(false);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiClient, url]
+  );
 
   useEffect(() => {
     fetchData();

@@ -16,7 +16,21 @@ export default function ControlledTable({
   error,
   loading,
   fetchData,
+  totalCount, // total number of objects
+  pageSize: controlledPageSize,
+  pageCount: controlledPageCount,
 }) {
+  const table = useTable(
+    {
+      columns,
+      data: data || [],
+      initialState: { pageIndex: 0, pageSize: controlledPageSize },
+      manualPagination: true,
+      pageCount: controlledPageCount,
+    },
+    usePagination
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -24,15 +38,13 @@ export default function ControlledTable({
     rows,
     prepareRow,
     state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data: data || [],
-      initialState: { pageIndex: 0 },
-      manualPagination: true,
-    },
-    usePagination
-  );
+    page,
+    // gotoPage,
+    canNextPage,
+    canPreviousPage,
+    nextPage,
+    previousPage,
+  } = table;
 
   const emptyMessage = error ? (
     <ErrorMessage error={error} />
@@ -41,6 +53,11 @@ export default function ControlledTable({
       No data to display
     </p>
   );
+
+  React.useEffect(() => {
+    console.log('ControlledTable requesting new data', { pageIndex, pageSize });
+    fetchData({ pageIndex, pageSize });
+  }, [pageIndex, pageSize]);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -62,7 +79,7 @@ export default function ControlledTable({
         </Table.Header>
         <Table.Body style={{ position: 'relative' }} {...getTableBodyProps()}>
           {rows.length ? (
-            rows.map((row) => {
+            page.map((row) => {
               prepareRow(row);
               return (
                 <Table.Row {...row.getRowProps()}>
@@ -84,15 +101,25 @@ export default function ControlledTable({
             </Table.Row>
           )}
         </Table.Body>
-        {!error && (
+        {!error && pageSize !== undefined && (
           <Table.Footer>
             <Table.Row>
               <Table.HeaderCell colSpan={columns.length}>
                 <Menu floated="right" pagination>
-                  <Menu.Item as="a" icon disabled={!(data && data.previous)}>
+                  <Menu.Item
+                    as="a"
+                    icon
+                    disabled={!canPreviousPage}
+                    onClick={() => previousPage()}
+                  >
                     <Icon name="chevron left" />
                   </Menu.Item>
-                  <Menu.Item as="a" icon disabled={!(data && data.next)}>
+                  <Menu.Item
+                    as="a"
+                    icon
+                    disabled={!canNextPage}
+                    onClick={() => nextPage()}
+                  >
                     <Icon name="chevron right" />
                   </Menu.Item>
                 </Menu>
@@ -105,12 +132,10 @@ export default function ControlledTable({
                     background: 'transparent',
                   }}
                 >
-                  {data && data.count > 0 && (
+                  {data && data.length > 0 && (
                     <div className="item">
-                      {(data.page_number - 1) * data.page_size + 1}-
-                      {(data.page_number - 1) * data.page_size +
-                        data.results.length}{' '}
-                      of {data.count}
+                      {pageIndex * pageSize + 1}-
+                      {pageIndex * pageSize + page.length} of {totalCount}
                     </div>
                   )}
                 </div>

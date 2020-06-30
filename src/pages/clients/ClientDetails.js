@@ -14,6 +14,7 @@ import ResponsesTab from './ResponsesTab';
 import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
 import ReferralsTab from './ReferralsTab';
+import TestTab from './TestTab';
 
 export default function ClientDetails() {
   const history = useHistory();
@@ -28,8 +29,6 @@ export default function ClientDetails() {
     dob,
     ssn,
   } = data;
-
-  console.log(data);
 
   const clientFullName = fullName({ firstName, middleName, lastName });
 
@@ -79,6 +78,14 @@ export default function ClientDetails() {
       render: () => (
         <Tab.Pane>
           <ReferralsTab client={data} />
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: 'Test',
+      render: () => (
+        <Tab.Pane>
+          <TestTab client={data} />
         </Tab.Pane>
       ),
     },

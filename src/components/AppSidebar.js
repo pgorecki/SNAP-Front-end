@@ -24,7 +24,7 @@ export default function AppSidebar({ navigationMenu, adminMenu }) {
         .filter((item) => item.name)
         .map((item) => (
           <Menu.Item key={item.path} as={NavLink} exact to={item.path}>
-            {item.iconName && <Icon name={item.iconName} size="" />}
+            {item.iconName && <Icon name={item.iconName} />}
             {item.name}
           </Menu.Item>
         ))}
