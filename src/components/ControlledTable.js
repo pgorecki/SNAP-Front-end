@@ -38,6 +38,7 @@ export default function ControlledTable({
       data: data || [],
       initialState: { pageIndex: 0, pageSize: controlledPageSize },
       manualPagination: true,
+      manualSortBy: true,
       pageCount: controlledPageCount,
       actions: {
         updateRow,
@@ -46,6 +47,7 @@ export default function ControlledTable({
         },
       },
     },
+    useSortBy,
     usePagination
   );
 
@@ -55,7 +57,7 @@ export default function ControlledTable({
     headerGroups,
     rows,
     prepareRow,
-    state: { pageIndex, pageSize },
+    state: { pageIndex, pageSize, sortBy, filters },
     page,
     // gotoPage,
     canNextPage,
@@ -73,9 +75,9 @@ export default function ControlledTable({
   );
 
   React.useEffect(() => {
-    console.log('ControlledTable requesting new data', { pageIndex, pageSize });
-    fetchData({ pageIndex, pageSize });
-  }, [pageIndex, pageSize]);
+    console.log('ControlledTable requesting new data');
+    fetchData({ pageIndex, pageSize, sortBy, filters });
+  }, [pageIndex, pageSize, sortBy, filters]);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -88,8 +90,21 @@ export default function ControlledTable({
           {headerGroups.map((headerGroup) => (
             <Table.Row {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <Table.HeaderCell {...column.getHeaderProps()}>
+                <Table.HeaderCell
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                >
                   {column.render('Header')}
+                  <span>
+                    {column.isSorted ? (
+                      column.isSortedDesc ? (
+                        <Icon name="sort descending" />
+                      ) : (
+                        <Icon name="sort ascending" />
+                      )
+                    ) : (
+                      column.canSort && <Icon name="sort" disabled />
+                    )}
+                  </span>
                 </Table.HeaderCell>
               ))}
             </Table.Row>

@@ -16,11 +16,18 @@ export default function PaginatedDataTable({ url, columns }) {
 
   const data = indexData.results.map((r, i) => ({ ...r, ...updatedRows[i] }));
 
-  const fetchData = async ({ pageIndex, pageSize }) => {
-    const data = await resourceIndex.fetchData(pageIndex + 1, pageSize);
+  const fetchData = async ({ pageIndex, pageSize, sortBy, filters }) => {
+    const data = await resourceIndex.fetchData(
+      pageIndex + 1,
+      pageSize,
+      sortBy,
+      filters
+    );
     console.log('PaginatedDataTable page loaded', {
       pageIndex,
       pageSize,
+      sortBy,
+      filters,
       data,
     });
     setIndexData(data);

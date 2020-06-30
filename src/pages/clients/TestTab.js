@@ -36,6 +36,7 @@ export default function TestTab({ client }) {
       {
         Header: 'Date Modified',
         accessor: 'modified_at',
+        sortType: 'basic',
         Cell: ({ value }) => formatDateTime(value, true),
       },
       {
@@ -45,6 +46,7 @@ export default function TestTab({ client }) {
       },
       {
         Header: 'Actions',
+        disableSortBy: true,
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>

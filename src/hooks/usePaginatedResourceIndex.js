@@ -20,7 +20,7 @@ export default function usePaginatedResourceIndex(
     initialData
   );
 
-  const fetchData = async (pageNumber, pageSize) => {
+  const fetchData = async (pageNumber, pageSize, sortBy, filters) => {
     const [baseUrl, query, ...other] = url.split('?');
     const params = new URLSearchParams(query);
     if (pageNumber) {
@@ -28,6 +28,12 @@ export default function usePaginatedResourceIndex(
     }
     if (pageSize) {
       params.set('page_size', pageSize);
+    }
+    if (Array.isArray(sortBy) && sortBy.length) {
+      const orderingValue = sortBy.map(({ id, desc }) =>
+        desc ? `-${id}` : `${id}`
+      );
+      params.set('ordering', orderingValue);
     }
     const newUrl = [baseUrl, params.toString(), ...other].join('?');
     console.log({ baseUrl, newUrl, pageNumber, pageSize });
