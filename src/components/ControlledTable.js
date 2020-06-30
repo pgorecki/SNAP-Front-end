@@ -41,6 +41,9 @@ export default function ControlledTable({
       pageCount: controlledPageCount,
       actions: {
         updateRow,
+        reload: async () => {
+          fetchData({ pageIndex, pageSize });
+        },
       },
     },
     usePagination

@@ -46,9 +46,25 @@ export default function TestTab({ client }) {
       {
         Header: 'Actions',
         accessor: 'actions',
-        Cell: ({ row }) => (
+        Cell: ({ row, actions }) => (
           <>
-            <EditActionLink to={`/responses/${row.original.id}/edit`} />
+            <Button
+              onClick={(...args) => {
+                actions.updateRow(row, {
+                  answers: [...row.original.answers, {}],
+                  modified_at: new Date(),
+                });
+              }}
+            >
+              Update row
+            </Button>
+            <Button
+              onClick={(...args) => {
+                actions.reload();
+              }}
+            >
+              Reload
+            </Button>
           </>
         ),
       },
