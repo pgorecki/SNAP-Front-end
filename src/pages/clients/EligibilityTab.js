@@ -1,144 +1,116 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Header } from 'semantic-ui-react';
-import ControlledTable from 'components/ControlledTable';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Header, Form, Message } from 'semantic-ui-react';
+import { ErrorMessage } from 'components/common';
+import PaginatedDataTable from 'components/PaginatedDataTable';
 import toaster from 'components/toaster';
 import useApiClient from 'hooks/useApiClient';
 import { formatDateTime } from 'utils/typeUtils';
 import { formatApiError } from 'utils/apiUtils';
+import useResourceIndex from 'hooks/useResourceIndex';
+
+function EligibilityUpdateForm({ client, onUpdate }) {
+  const [loading, setLoading] = useState(false);
+  const { data, ready, error } = useResourceIndex(
+    '/eligibility/agency_configs/'
+  );
+  const [selectedEligibility, setSelectedEligibility] = useState(null);
+
+  const options = data
+    ? data.map(({ id, eligibility }) => ({
+        value: eligibility.id,
+        text: eligibility.name,
+      }))
+    : [];
+
+  useEffect(() => {
+    if (data && data.length > 0 && selectedEligibility === null) {
+      setSelectedEligibility(data[0].eligibility.id);
+    }
+  }, [ready]);
+
+  function handleUpdateEligibility(isEligible) {
+    onUpdate(selectedEligibility, isEligible, setLoading);
+  }
+
+  return (
+    <Form>
+      <Form.Group>
+        <Form.Select
+          options={options}
+          placeholder="Select Eligibility"
+          value={selectedEligibility}
+          onChange={(e, { value }) => setSelectedEligibility(value)}
+          disabled={!ready}
+        />
+        <Button
+          color="green"
+          disabled={!selectedEligibility || loading}
+          onClick={() => handleUpdateEligibility(true)}
+        >
+          Eligible
+        </Button>
+        <Button
+          color="yellow"
+          disabled={!selectedEligibility || loading}
+          onClick={() => handleUpdateEligibility(false)}
+        >
+          Not Eligible
+        </Button>
+      </Form.Group>
+      <ErrorMessage error={error} />
+    </Form>
+  );
+}
 
 export default function EligibilityTab({ client, currentUser }) {
-  const [tableRows, setTableRows] = useState([]);
-  const [apiClient] = useApiClient();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-
-  const fetchData = useCallback(
-    async ({ pageIndex, pageSize }) => {
-      setLoading(true);
-      try {
-        const p1 = apiClient.get('/programs/agency_configs/');
-        const p2 = apiClient.get(`/programs/eligibility/?client=${client.id}`);
-
-        const programsIndex = (await p1).data;
-        const eligibilityIndex = (await p2).data;
-
-        const tableData = programsIndex.results
-          .map(({ program }) => ({ program }))
-          .map((pe) => {
-            const { program } = pe;
-            const eligibility = eligibilityIndex.results.find(
-              (e) => e.program.id === program.id
-            );
-            return {
-              program,
-              eligibility,
-            };
-          });
-
-        setTableRows(tableData);
-      } catch (err) {
-        setError(err.response);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [apiClient, client.id]
-  );
-
-  const handleSetEligibility = useCallback(
-    async (row, isEligible) => {
-      const { index, original } = row;
-      const { eligibility, program } = original;
-
-      let result;
-      try {
-        if (eligibility) {
-          result = await apiClient.patch(
-            `/programs/eligibility/${eligibility.id}/`,
-            {
-              status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
-              client: client.id,
-              program: program.id,
-            }
-          );
-        } else {
-          result = await apiClient.post('/programs/eligibility/', {
-            status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
-            client: client.id,
-            program: program.id,
-          });
-        }
-        toaster.success(`Eligibility status for ${program.name} updated`);
-
-        const updatedRow = {
-          ...original,
-          eligibility: result.data,
-        };
-        const newRows = [...tableRows];
-        newRows[index] = updatedRow;
-        setTableRows(newRows);
-      } catch (err) {
-        toaster.error(formatApiError(err.response));
-      }
-    },
-    [tableRows, apiClient, client.id]
-  );
+  const tableRef = useRef();
+  const apiClient = useApiClient();
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Program',
-        accessor: 'program.name',
+        Header: 'Name',
+        accessor: 'eligibility.name',
       },
       {
         Header: 'Status',
-        accessor: 'eligibility.status',
+        accessor: 'status',
         Cell: ({ value }) => value || 'n/a',
       },
       {
         Header: 'Date Modified',
-        accessor: 'eligibility.modified_at',
+        accessor: 'modified_at',
         Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
       },
-      {
-        Header: 'Actions',
-        accessor: 'actions',
-        Cell: ({ row }) => (
-          <>
-            <Button
-              color="green"
-              onClick={() => handleSetEligibility(row, true)}
-            >
-              Eligible
-            </Button>
-            <Button
-              color="yellow"
-              onClick={() => handleSetEligibility(row, false)}
-            >
-              Not eligible
-            </Button>
-          </>
-        ),
-      },
     ],
-    [handleSetEligibility]
+    []
   );
-
-  useEffect(() => {
-    fetchData({ pageIndex: 0, pageSize: 10 });
-  }, [fetchData]);
-
-  console.log(tableRows);
 
   return (
     <>
-      <Header as="h4">Program Eligibility</Header>
-      <ControlledTable
+      <Header as="h4">Update Eligibility</Header>
+      <EligibilityUpdateForm
+        client={client}
+        onUpdate={async (eligibility, isEligible, setLoading) => {
+          setLoading(true);
+          try {
+            await apiClient.post('/eligibility/clients/', {
+              client: client.id,
+              status: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
+              eligibility,
+            });
+            toaster.success(`Eligibility updated`);
+          } catch (err) {
+            toaster.error(formatApiError(err.response));
+          } finally {
+            setLoading(false);
+          }
+        }}
+      />
+      <Header as="h4">History</Header>
+      <PaginatedDataTable
         columns={columns}
-        data={tableRows}
-        loading={loading}
-        fetchData={fetchData}
-        error={error}
+        url={`/eligibility/clients/?client=${client.id}`}
       />
     </>
   );

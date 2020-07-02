@@ -29,7 +29,7 @@ function SurveySelect({ client }) {
           placeholder="Select survey"
           value={selectedSurvey}
           onChange={(e, { value }) => setSelectedSurvey(value)}
-          disabled={surveyIndex.loading}
+          disabled={!surveyIndex.ready}
         />
         <Button
           disabled={!selectedSurvey}
