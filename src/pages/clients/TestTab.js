@@ -81,9 +81,9 @@ export default function TestTab({ client }) {
 
   return (
     <>
-      <Header as="h4">Client Responses</Header>
+      {/* <Header as="h4">Client Responses</Header>
       <PaginatedDataTable columns={columns} table={table} />
-      <Button onClick={() => table.reload()}>Refresh</Button>
+      <Button onClick={() => table.reload()}>Refresh</Button> */}
     </>
   );
 }
