@@ -19,19 +19,7 @@ export default function ControlledTable({
   totalCount, // total number of objects
   pageSize: controlledPageSize,
   pageCount: controlledPageCount,
-  setUpdatedRows,
 }) {
-  const updateRow = (row, data) => {
-    setUpdatedRows((prev) => {
-      const current = [...prev];
-      current[row.index] = {
-        ...row.original,
-        ...data,
-      };
-      return current;
-    });
-  };
-
   const table = useTable(
     {
       columns,
@@ -40,12 +28,6 @@ export default function ControlledTable({
       manualPagination: true,
       manualSortBy: true,
       pageCount: controlledPageCount,
-      actions: {
-        updateRow,
-        reload: async () => {
-          fetchData({ pageIndex, pageSize });
-        },
-      },
     },
     useSortBy,
     usePagination
@@ -78,6 +60,8 @@ export default function ControlledTable({
     console.log('ControlledTable requesting new data');
     fetchData({ pageIndex, pageSize, sortBy, filters });
   }, [pageIndex, pageSize, sortBy, filters]);
+
+  console.log(totalCount, canPreviousPage, canNextPage);
 
   return (
     <div style={{ position: 'relative' }}>

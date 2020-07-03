@@ -2,12 +2,17 @@ import React from 'react';
 import { Button, Form, Header } from 'semantic-ui-react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { ErrorMessage } from 'components/common';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import { EditActionLink } from 'components/tableComponents';
 import { formatDateTime } from 'utils/typeUtils';
 import { formatOwner } from 'utils/modelUtils';
 
 export default function TestTab({ client }) {
+  const table = usePaginatedDataTable({
+    url: '/responses/',
+  });
+
   const columns = React.useMemo(
     () => [
       {
@@ -52,7 +57,7 @@ export default function TestTab({ client }) {
           <>
             <Button
               onClick={(...args) => {
-                actions.updateRow(row, {
+                table.updateRow(row, {
                   answers: [...row.original.answers, {}],
                   modified_at: new Date(),
                 });
@@ -62,7 +67,7 @@ export default function TestTab({ client }) {
             </Button>
             <Button
               onClick={(...args) => {
-                actions.reload();
+                table.reload();
               }}
             >
               Reload
@@ -77,10 +82,8 @@ export default function TestTab({ client }) {
   return (
     <>
       <Header as="h4">Client Responses</Header>
-      <PaginatedDataTable
-        columns={columns}
-        url={`/responses/?client=${client.id}`}
-      />
+      <PaginatedDataTable columns={columns} table={table} />
+      <Button onClick={() => table.reload()}>Refresh</Button>
     </>
   );
 }

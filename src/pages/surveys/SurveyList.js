@@ -13,10 +13,11 @@ import { formatOwner } from 'utils/modelUtils';
 import { formatApiError } from 'utils/apiUtils';
 import ListPage from '../ListPage';
 import PaginatedDataTable from 'components/PaginatedDataTable';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 
 export default function SurveyList() {
+  const table = usePaginatedDataTable({ url: '/surveys/' });
   const apiClient = useApiClient();
-  // const [, queryParams] = useUrlParams();
 
   const columns = React.useMemo(
     () => [
@@ -98,7 +99,7 @@ export default function SurveyList() {
       <Button primary as={NavLink} exact to="/surveys/new">
         New Survey
       </Button>
-      <PaginatedDataTable columns={columns} url="/surveys/" />
+      <PaginatedDataTable columns={columns} table={table} />
     </ListPage>
   );
 }

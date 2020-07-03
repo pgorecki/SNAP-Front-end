@@ -1,26 +1,17 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Icon, Grid, Search, Header, Label } from 'semantic-ui-react';
-import useFetchData from '../../hooks/useFetchData';
-import ControlledTable from '../../components/ControlledTable';
+import { Button, Grid, Header } from 'semantic-ui-react';
 import ListPage from '../ListPage';
 import { formatDateTime } from '../../utils/typeUtils';
-import {
-  EditActionLink,
-  DeleteActionButton,
-  PrimaryActionLink,
-} from '../../components/tableComponents';
+import { EditActionLink } from '../../components/tableComponents';
 import { formatApiError } from '../../utils/apiUtils';
 import { formatOwner } from '../../utils/modelUtils';
 import { ClientSearch } from './components';
 import PaginatedDataTable from 'components/PaginatedDataTable';
-
-// import useUrlParams from '../../hooks/useUrlParams';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 
 export default function ClientList() {
-  const [data, error, loading, fetchData] = useFetchData('/clients/');
-
-  console.log(data, error, loading);
+  const table = usePaginatedDataTable({ url: '/clients/' });
 
   const columns = React.useMemo(
     () => [
@@ -74,7 +65,10 @@ export default function ClientList() {
   );
 
   return (
-    <ListPage loading={loading} error={formatApiError(error)}>
+    <ListPage
+    // loading={table.loading}
+    // error={formatApiError(table.error)}
+    >
       <Header>Clients</Header>
       <Grid>
         <Grid.Column width={6}>
@@ -85,7 +79,7 @@ export default function ClientList() {
       <Button primary as={NavLink} exact to={'/clients/new'}>
         New Client
       </Button>
-      <PaginatedDataTable columns={columns} url="/clients/" />
+      <PaginatedDataTable columns={columns} table={table} />
     </ListPage>
   );
 }

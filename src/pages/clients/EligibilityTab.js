@@ -4,11 +4,12 @@ import { ErrorMessage } from 'components/common';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import toaster from 'components/toaster';
 import useApiClient from 'hooks/useApiClient';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { formatDateTime } from 'utils/typeUtils';
 import { formatApiError } from 'utils/apiUtils';
 import useResourceIndex from 'hooks/useResourceIndex';
 
-function EligibilityUpdateForm({ client, onUpdate }) {
+function EligibilityUpdateForm({ onUpdate }) {
   const [loading, setLoading] = useState(false);
   const { data, ready, error } = useResourceIndex(
     '/eligibility/agency_configs/'
@@ -28,8 +29,10 @@ function EligibilityUpdateForm({ client, onUpdate }) {
     }
   }, [ready]);
 
-  function handleUpdateEligibility(isEligible) {
-    onUpdate(selectedEligibility, isEligible, setLoading);
+  async function handleUpdateEligibility(isEligible) {
+    setLoading(true);
+    await onUpdate(selectedEligibility, isEligible);
+    setLoading(false);
   }
 
   return (
@@ -63,7 +66,9 @@ function EligibilityUpdateForm({ client, onUpdate }) {
 }
 
 export default function EligibilityTab({ client, currentUser }) {
-  const tableRef = useRef();
+  const table = usePaginatedDataTable({
+    url: `/eligibility/clients/?client=${client.id}`,
+  });
   const apiClient = useApiClient();
 
   const columns = React.useMemo(
@@ -78,9 +83,13 @@ export default function EligibilityTab({ client, currentUser }) {
         Cell: ({ value }) => value || 'n/a',
       },
       {
-        Header: 'Date Modified',
-        accessor: 'modified_at',
+        Header: 'Date Created',
+        accessor: 'created_at',
         Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+      },
+      {
+        Header: 'Created By',
+        accessor: 'created_by',
       },
     ],
     []
@@ -91,8 +100,7 @@ export default function EligibilityTab({ client, currentUser }) {
       <Header as="h4">Update Eligibility</Header>
       <EligibilityUpdateForm
         client={client}
-        onUpdate={async (eligibility, isEligible, setLoading) => {
-          setLoading(true);
+        onUpdate={async (eligibility, isEligible) => {
           try {
             await apiClient.post('/eligibility/clients/', {
               client: client.id,
@@ -100,18 +108,14 @@ export default function EligibilityTab({ client, currentUser }) {
               eligibility,
             });
             toaster.success(`Eligibility updated`);
+            table.reload();
           } catch (err) {
             toaster.error(formatApiError(err.response));
-          } finally {
-            setLoading(false);
           }
         }}
       />
       <Header as="h4">History</Header>
-      <PaginatedDataTable
-        columns={columns}
-        url={`/eligibility/clients/?client=${client.id}`}
-      />
+      <PaginatedDataTable columns={columns} table={table} />
     </>
   );
 }
