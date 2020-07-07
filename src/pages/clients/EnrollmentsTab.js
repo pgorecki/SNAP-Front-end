@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Header, Form } from 'semantic-ui-react';
+import { Button, Header, Form, Grid, Modal } from 'semantic-ui-react';
+import { Formik } from 'formik';
+import SurveyWarnings from 'components/SurveyWarnings';
+import Survey from 'pages/surveys/Survey';
 import ControlledTable from 'components/ControlledTable';
 import { ErrorMessage } from 'components/common';
+import { FormSelect, FormDatePicker, FormErrors } from 'components/FormFields';
 import toaster from 'components/toaster';
+import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import useApiClient from 'hooks/useApiClient';
-import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
 import useResourceIndex from 'hooks/useResourceIndex';
-import { formatDateTime } from 'utils/typeUtils';
-import { formatApiError } from 'utils/apiUtils';
+import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import PaginatedDataTable from 'components/PaginatedDataTable';
+import { useHistory } from 'react-router-dom';
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
-  const [loading, setLoading] = useState(false);
-  const [selectedProgram, setSelectedProgram] = useState(null);
-
   const { data, ready, error } = programsIndex;
+  const [initialValues, setInitialValues] = useState({
+    surveyId: null,
+    program: null,
+    start_date: new Date(),
+  });
 
   const options = data
     ? data.map(({ program }) => ({
@@ -25,116 +32,103 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
     : [];
 
   useEffect(() => {
-    if (data && data.length > 0 && selectedProgram === null) {
-      setSelectedProgram(data[0].program.id);
+    if (data && data.length > 0 && initialValues.program === null) {
+      setInitialValues({ ...initialValues, program: data[0].program.id });
     }
   }, [ready]);
-  console.log(data, ready, error);
-
-  async function handleEnroll() {
-    setLoading(true);
-    await onSubmit(selectedProgram);
-    setLoading(false);
-  }
 
   return (
-    <Form>
-      <Form.Group>
-        <Form.Select
-          options={options}
-          placeholder="Select Program"
-          value={selectedProgram}
-          onChange={(e, { value }) => setSelectedProgram(value)}
-          disabled={!ready}
-        />
-        <Button
-          color="green"
-          disabled={!selectedProgram || loading}
-          onClick={() => handleEnroll()}
+    <Grid>
+      <Grid.Column computer={8} mobile={16}>
+        <Formik
+          enableReinitialize
+          initialValues={initialValues}
+          onSubmit={async (values, actions) => {
+            try {
+              await onSubmit({
+                ...values,
+                program: data.find((pac) => pac.program.id === values.program)
+                  .program,
+              });
+            } catch (err) {
+              actions.setErrors(apiErrorToFormError(err));
+            }
+            actions.setSubmitting(false);
+          }}
         >
-          Entry Survey
-        </Button>
-        <Button
-          color="yellow"
-          disabled={!selectedProgram || loading}
-          onClick={() => handleEnroll()}
-        >
-          Enroll
-        </Button>
-      </Form.Group>
-      <ErrorMessage error={error} />
-    </Form>
+          {(form) => {
+            if (!data) {
+              return null;
+            }
+            const selectedPac =
+              data &&
+              data.find((pac) => pac.program.id === form.values.program);
+
+            let intakeSurvey = null;
+            if (selectedPac) {
+              intakeSurvey =
+                selectedPac.enrollment_entry_survey ||
+                selectedPac.program.enrollment_entry_survey;
+            }
+
+            return (
+              <Form error onSubmit={form.handleSubmit}>
+                <FormSelect
+                  label="Progam"
+                  name="program"
+                  form={form}
+                  required
+                  options={options}
+                  placeholder="Select program"
+                />
+                <FormDatePicker
+                  label="Start Date"
+                  name="start_date"
+                  form={form}
+                  required
+                />
+                <FormErrors form={form} />
+                {intakeSurvey && (
+                  <Button
+                    primary
+                    type="submit"
+                    disabled={form.isSubmitting}
+                    onClick={() => {
+                      form.setFieldValue('surveyId', intakeSurvey.id);
+                    }}
+                  >
+                    Enroll with {intakeSurvey.name}
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  disabled={form.isSubmitting}
+                  onClick={() => {
+                    form.setFieldValue('surveyId', null);
+                  }}
+                >
+                  Enroll
+                </Button>
+              </Form>
+            );
+          }}
+        </Formik>
+      </Grid.Column>
+    </Grid>
   );
 }
 
 export default function EnrollmentsTab({ client }) {
+  const history = useHistory();
+  const [modalSurveyData, setModalSurveyData] = useState();
   const apiClient = useApiClient();
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
 
-  const programsIndex = useResourceIndex(`/programs/agency_configs/`);
-
-  // const enrollmentsIndex = useResourceIndex(
-  //   `/programs/enrollments/?client=${client.id}`
-  // );
-  // const [tableRows, setTableRows] = useState([]);
-
-  // const loading = programsIndex.loading || enrollmentsIndex.loading;
-  // const error = programsIndex.error || enrollmentsIndex.error;
-
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // const fetchData = async ({ pageIndex, pageSize }) => {
-  //   const programsResponse = await programsIndex.fetchData();
-  //   const enrollmentsResponse = await enrollmentsIndex.fetchData();
-  //   const tableData = programsResponse.results.map((pac) => {
-  //     const enrollment = enrollmentsResponse.results.find(
-  //       (e) => e.program.id === pac.program.id
-  //     );
-  //     return {
-  //       pac,
-  //       enrollment,
-  //     };
-  //   });
-  //   setTableRows(tableData);
-  // };
-
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // const handleSetEnrollmentStatus = async (row, status) => {
-  //   const { index, original } = row;
-  //   const { enrollment, pac } = original;
-  //   let result;
-  //   try {
-  //     if (enrollment) {
-  //       result = await apiClient.patch(
-  //         `/programs/enrollments/${enrollment.id}/`,
-  //         {
-  //           program: pac.program.id,
-  //           client: client.id,
-  //           status,
-  //         }
-  //       );
-  //     } else {
-  //       result = await apiClient.post('/programs/enrollments/', {
-  //         program: pac.program.id,
-  //         client: client.id,
-  //         status,
-  //       });
-  //     }
-
-  //     toaster.success(`Enrollment status for ${pac.program.name} updated`);
-
-  //     const updatedRow = {
-  //       ...original,
-  //       enrollment: result.data,
-  //     };
-  //     const newRows = [...tableRows];
-  //     newRows[index] = updatedRow;
-  //     setTableRows(newRows);
-  //   } catch (err) {
-  //     toaster.error(formatApiError(err.response));
-  //   }
-  // };
+  const programsIndex = useResourceIndex(
+    `/programs/agency_configs/?ordering=program__name`
+  );
 
   const columns = React.useMemo(
     () => [
@@ -239,31 +233,70 @@ export default function EnrollmentsTab({ client }) {
     []
   );
 
-  console.log(table.data);
-
   return (
     <>
       <Header as="h4">Enroll to Program</Header>
       <EnrollmentForm
         client={client}
         programsIndex={programsIndex}
-        onSubmit={async (program) => {
-          try {
+        onSubmit={async (values) => {
+          const { surveyId, program, start_date } = values;
+          console.log('onSubmit', values);
+          const result = await apiClient.get(
+            `/programs/enrollments/?client=${client.id}&program=${program.id}`
+          );
+          // if (result.data.count > 0) {
+          //   throw new FieldError(
+          //     'program',
+          //     `Client already enrolled to ${program.name}`
+          //   );
+          // }
+          if (!!surveyId) {
+            setModalSurveyData(values);
+          } else {
             await apiClient.post('/programs/enrollments/', {
               client: client.id,
               status: 'ENROLLED',
-              program,
+              program: program.id,
+              start_date,
             });
             toaster.success('Enrolled to program');
             table.reload();
-          } catch (err) {
-            toaster.error(formatApiError(err.response));
           }
         }}
       />
 
       <Header as="h4">History</Header>
       <PaginatedDataTable columns={columns} table={table} />
+
+      <Modal size="large" open={!!modalSurveyData}>
+        <Modal.Header>Enrollment survey</Modal.Header>
+        <Modal.Content>
+          {modalSurveyData && modalSurveyData.surveyId && (
+            <EnrollmentSurveyModal
+              client={client}
+              surveyId={modalSurveyData.surveyId}
+              onResponseSubmit={async (newResponse) => {
+                console.log('done!', modalSurveyData, newResponse);
+                const { program, start_date } = modalSurveyData;
+                await apiClient.post('/programs/enrollments/', {
+                  client: client.id,
+                  status: 'ENROLLED',
+                  program: program.id,
+                  start_date,
+                  response: newResponse.id,
+                });
+                toaster.success('Enrolled to program');
+                setModalSurveyData(null);
+                table.reload();
+              }}
+            />
+          )}
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
+        </Modal.Actions>
+      </Modal>
     </>
   );
 }

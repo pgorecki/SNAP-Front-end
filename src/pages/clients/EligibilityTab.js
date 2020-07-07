@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Header, Form, Message } from 'semantic-ui-react';
+import { Button, Header, Form, Message, Label } from 'semantic-ui-react';
 import { ErrorMessage } from 'components/common';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import toaster from 'components/toaster';
@@ -8,6 +8,7 @@ import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { formatDateTime } from 'utils/typeUtils';
 import { formatApiError } from 'utils/apiUtils';
 import useResourceIndex from 'hooks/useResourceIndex';
+import { formatOwner } from 'utils/modelUtils';
 
 function EligibilityUpdateForm({ onUpdate }) {
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ function EligibilityUpdateForm({ onUpdate }) {
           Eligible
         </Button>
         <Button
-          color="yellow"
+          color="red"
           disabled={!selectedEligibility || loading}
           onClick={() => handleUpdateEligibility(false)}
         >
@@ -80,7 +81,16 @@ export default function EligibilityTab({ client, currentUser }) {
       {
         Header: 'Status',
         accessor: 'status',
-        Cell: ({ value }) => value || 'n/a',
+        Cell: ({ value }) => {
+          switch (value) {
+            case 'ELIGIBLE':
+              return <Label color="green">Eligible</Label>;
+            case 'NOT_ELIGIBLE':
+              return <Label color="red">Not eligible</Label>;
+            default:
+              return 'n/a';
+          }
+        },
       },
       {
         Header: 'Date Created',
@@ -90,6 +100,7 @@ export default function EligibilityTab({ client, currentUser }) {
       {
         Header: 'Created By',
         accessor: 'created_by',
+        Cell: ({ value }) => formatOwner(value),
       },
     ],
     []

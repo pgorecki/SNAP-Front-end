@@ -10,7 +10,6 @@ export default function useResource(url, initialData = {}) {
 
   const load = useCallback(async () => {
     setLoading(true);
-    console.log('loading', url);
     try {
       const result = await apiClient.get(url);
       setData(result.data);
@@ -24,7 +23,6 @@ export default function useResource(url, initialData = {}) {
 
   const save = useCallback(
     async (payload) => {
-      console.log('saving', payload);
       setSaving(true);
       try {
         const request = apiClient.put(url, payload);

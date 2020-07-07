@@ -240,6 +240,7 @@ export default class Survey extends React.Component {
   }
 
   render() {
+    console.log('ddd', this.definition);
     if (!this.definition) {
       return <Message error>No survey definition</Message>;
     }
