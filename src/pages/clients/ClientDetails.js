@@ -81,21 +81,13 @@ export default function ClientDetails() {
         </Tab.Pane>
       ),
     },
-    {
-      menuItem: 'Test',
-      render: () => (
-        <Tab.Pane>
-          <TestTab client={data} />
-        </Tab.Pane>
-      ),
-    },
     // {
-    //   menuItem: 'Case Notes',
-    //   render: () => <Tab.Pane>TODO: CaseNotes</Tab.Pane>,
-    // },
-    // {
-    //   menuItem: 'Tags',
-    //   render: () => <Tab.Pane>TODO: Tags</Tab.Pane>,
+    //   menuItem: 'Test',
+    //   render: () => (
+    //     <Tab.Pane>
+    //       <TestTab client={data} />
+    //     </Tab.Pane>
+    //   ),
     // },
   ];
 
@@ -111,12 +103,12 @@ export default function ClientDetails() {
         </Grid.Column>
         <Grid.Column computer={7} mobile={16}>
           <ClientField label="First Name">{firstName}</ClientField>
-          <ClientField label="Middle Name">{middleName}</ClientField>
+          <ClientField label="Middle Name">{middleName || '-'}</ClientField>
           <ClientField label="Last Name">{lastName}</ClientField>
         </Grid.Column>
         <Grid.Column computer={7} mobile={16}>
           <ClientField label="Date of Birth">{formatDate(dob)}</ClientField>
-          <ClientField label="SSN">{ssn || 'n/a'}</ClientField>
+          <ClientField label="SSN">{ssn || '-'}</ClientField>
         </Grid.Column>
 
         <Grid.Column computer={16} mobile={16}>

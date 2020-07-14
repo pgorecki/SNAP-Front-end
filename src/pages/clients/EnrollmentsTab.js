@@ -88,26 +88,15 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
                   required
                 />
                 <FormErrors form={form} />
-                {intakeSurvey && (
-                  <Button
-                    primary
-                    type="submit"
-                    disabled={form.isSubmitting}
-                    onClick={() => {
-                      form.setFieldValue('surveyId', intakeSurvey.id);
-                    }}
-                  >
-                    Enroll with {intakeSurvey.name}
-                  </Button>
-                )}
                 <Button
+                  primary
                   type="submit"
-                  disabled={form.isSubmitting}
+                  disabled={!intakeSurvey || form.isSubmitting}
                   onClick={() => {
-                    form.setFieldValue('surveyId', null);
+                    form.setFieldValue('surveyId', intakeSurvey.id);
                   }}
                 >
-                  Enroll
+                  Start enrollment
                 </Button>
               </Form>
             );
@@ -161,72 +150,6 @@ export default function EnrollmentsTab({ client }) {
         accessor: 'actions',
         Cell: ({ value, row }) => {
           return <Button disabled>Details</Button>;
-          // const { enrollment } = row.original;
-          // const {
-          //   enrollment_entry_survey: entrySurvey,
-          //   enrollment_update_survey: updateSurvey,
-          //   enrollment_exit_survey: exitSurvey,
-          // } = row.original.pac;
-          // console.log(entrySurvey, updateSurvey, exitSurvey);
-          // const entryButton = entrySurvey ? (
-          //   <Button
-          //     color="green"
-          //     onClick={() =>
-          //       alert('Enrollment surveys not yet implemented. Skipping.') ||
-          //       handleSetEnrollmentStatus(row, 'ENROLLED')
-          //     }
-          //   >
-          //     Entry survey
-          //   </Button>
-          // ) : (
-          //   <Button
-          //     color="green"
-          //     onClick={() => handleSetEnrollmentStatus(row, 'ENROLLED')}
-          //   >
-          //     Enter
-          //   </Button>
-          // );
-          // const updateButton = updateSurvey ? (
-          //   <Button
-          //     color="green"
-          //     onClick={() =>
-          //       alert('Enrollment surveys not yet implemented. Skipping.') ||
-          //       handleSetEnrollmentStatus(row, 'ENROLLED')
-          //     }
-          //   >
-          //     Update survey
-          //   </Button>
-          // ) : null;
-          // const exitButton = exitSurvey ? (
-          //   <Button
-          //     color="yellow"
-          //     onClick={() =>
-          //       alert('Enrollment surveys not yet implemented. Skipping.') ||
-          //       handleSetEnrollmentStatus(row, 'EXITED')
-          //     }
-          //   >
-          //     Exit survey
-          //   </Button>
-          // ) : (
-          //   <Button
-          //     color="yellow"
-          //     onClick={() => handleSetEnrollmentStatus(row, 'EXITED')}
-          //   >
-          //     Exit
-          //   </Button>
-          // );
-          // if (!enrollment) {
-          //   // return entryButton;
-          // }
-          // switch (enrollment.status) {
-          //   case 'AWAITING_ENTRY':
-          //   // return entryButton;
-          //   case 'ENROLLED':
-          //     return <>{/* {updateButton}
-          //         {exitButton} */}</>;
-          //   default:
-          //     return null;
-          // }
         },
       },
     ],
@@ -240,29 +163,19 @@ export default function EnrollmentsTab({ client }) {
         client={client}
         programsIndex={programsIndex}
         onSubmit={async (values) => {
-          const { surveyId, program, start_date } = values;
-          console.log('onSubmit', values);
+          const { program } = values;
           const result = await apiClient.get(
             `/programs/enrollments/?client=${client.id}&program=${program.id}`
           );
-          // if (result.data.count > 0) {
-          //   throw new FieldError(
-          //     'program',
-          //     `Client already enrolled to ${program.name}`
-          //   );
-          // }
-          if (!!surveyId) {
-            setModalSurveyData(values);
-          } else {
-            await apiClient.post('/programs/enrollments/', {
-              client: client.id,
-              status: 'ENROLLED',
-              program: program.id,
-              start_date,
-            });
-            toaster.success('Enrolled to program');
-            table.reload();
+          if (result.data.count > 0) {
+            throw new FieldError(
+              'program',
+              `Client already enrolled to ${program.name}`
+            );
           }
+
+          // open the survey modal
+          setModalSurveyData(values);
         }}
       />
 
