@@ -3,6 +3,18 @@ import { itemsToArray } from '../pages/surveys/computations.js';
 export function formatApiError(response) {
   // pass error.response from API exception
   if (!response) return null;
+
+  if (typeof response.data === 'string') {
+    // handle 500 errors or string-based errors
+    const lines = response.data.split('\n');
+    const output = [];
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith('Django Version')) break;
+      output.push(lines[i]);
+    }
+    return `(${response.status}) ${output.join('\n')}`;
+  }
+
   const detail = response.data.detail || JSON.stringify(response.data);
   return `(${response.status}) ${detail}`;
 }

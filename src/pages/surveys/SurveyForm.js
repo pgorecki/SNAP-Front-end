@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Yup from 'yup';
 import yaml from 'js-yaml';
 import { Form, Button } from 'semantic-ui-react';
@@ -16,6 +16,7 @@ export function validateDefinition(definition) {
 }
 
 export default function SurveyForm({ form }) {
+  const [newQuestionsCount, setNewQuestionsCount] = useState(0);
   return (
     <Form error onSubmit={form.handleSubmit}>
       <FormInput label="Name" name="name" form={form} required />
@@ -26,6 +27,7 @@ export default function SurveyForm({ form }) {
         required
         form={form}
         validate={(value) => {
+          console.log('valudate');
           if (!value) return;
           try {
             const definition = yaml.safeLoad(value);

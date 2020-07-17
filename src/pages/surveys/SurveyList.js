@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button, Label, Modal } from 'semantic-ui-react';
 import toaster from 'components/toaster';
@@ -16,6 +16,7 @@ import PaginatedDataTable from 'components/PaginatedDataTable';
 
 export default function SurveyList() {
   const apiClient = useApiClient();
+  const [modalData, setModaData] = useState({});
   // const [, queryParams] = useUrlParams();
 
   const columns = React.useMemo(
@@ -59,33 +60,9 @@ export default function SurveyList() {
               to={`/surveys/${row.original.id}/builder`}
               disabled
             />
-            <Modal trigger={<DeleteActionButton />} closeIcon>
-              <Modal.Header>Are you sure?</Modal.Header>
-              <Modal.Content>
-                <Modal.Description>
-                  <p>
-                    Are you sure you want to delete survey{' '}
-                    <strong>{row.original.name}</strong>?
-                  </p>
-                </Modal.Description>
-              </Modal.Content>
-              <Modal.Actions>
-                <Button
-                  negative
-                  onClick={async () => {
-                    try {
-                      await apiClient.delete(`/surveys/${row.original.id}/`);
-                      actions.reload();
-                    } catch (err) {
-                      const apiError = formatApiError(err.response);
-                      toaster.error(apiError);
-                    }
-                  }}
-                >
-                  Delete Survey
-                </Button>
-              </Modal.Actions>
-            </Modal>
+            <DeleteActionButton
+              onClick={() => setModaData({ ...row.original, actions })}
+            />
           </>
         ),
       },
@@ -99,6 +76,35 @@ export default function SurveyList() {
         New Survey
       </Button>
       <PaginatedDataTable columns={columns} url="/surveys/" />
+      <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
+        <Modal.Header>Are you sure?</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <p>
+              Are you sure you want to delete survey{' '}
+              <strong>{modalData.name}</strong>?
+            </p>
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            negative
+            onClick={async () => {
+              try {
+                await apiClient.delete(`/surveys/${modalData.id}/`);
+                modalData.actions.reload();
+              } catch (err) {
+                const apiError = formatApiError(err.response);
+                toaster.error(apiError);
+              } finally {
+                setModaData({});
+              }
+            }}
+          >
+            Delete Survey
+          </Button>
+        </Modal.Actions>
+      </Modal>
     </ListPage>
   );
 }

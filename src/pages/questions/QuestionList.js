@@ -36,6 +36,11 @@ export default function QuestionList() {
         Cell: ({ value }) => <Label>{value ? 'Public' : 'Private'}</Label>,
       },
       {
+        Header: 'Usage',
+        accessor: 'usage_count',
+        disableSortBy: true,
+      },
+      {
         Header: 'Date Created',
         accessor: 'created_at',
         Cell: ({ value }) => formatDateTime(value, true),

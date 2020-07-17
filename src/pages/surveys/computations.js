@@ -14,7 +14,10 @@ export function castType(v) {
     return v;
   }
 
-  if (moment(v, 'YYYY-MM-DD', true).isValid() || moment(v, 'MM/DD/YYYY', true).isValid()) {
+  if (
+    moment(v, 'YYYY-MM-DD', true).isValid() ||
+    moment(v, 'MM/DD/YYYY', true).isValid()
+  ) {
     return v;
   }
 
@@ -23,8 +26,12 @@ export function castType(v) {
     return result;
   }
 
-  if (typeof(v) === 'string') {
-    if (v.startsWith('variables.') || v.startsWith('values.') || v.startsWith('props.')) {
+  if (typeof v === 'string') {
+    if (
+      v.startsWith('variables.') ||
+      v.startsWith('values.') ||
+      v.startsWith('props.')
+    ) {
       return undefined;
     }
   }
@@ -58,7 +65,10 @@ export function parseReducer(expr) {
     const parts = expr.split('(');
     return {
       name: parts[0],
-      args: parts[1].slice(0, -1).split(',').map(x => castType(x.trim())),
+      args: parts[1]
+        .slice(0, -1)
+        .split(',')
+        .map((x) => castType(x.trim())),
     };
   }
   return {
@@ -76,8 +86,9 @@ export function applyReducers(initialValue, reducers = []) {
     switch (name) {
       case 'min':
         arr = Array.isArray(value) ? value : [value];
-        arr = arr.filter(x => !isNaN(parseFloat(x)))
-          .map(x => parseFloat(x));
+        arr = arr
+          .filter((x) => !isNaN(parseFloat(x)))
+          .map((x) => parseFloat(x));
         result = Math.min(...arr);
         if (isNaN(result) || arr.length === 0) {
           return undefined;
@@ -85,8 +96,9 @@ export function applyReducers(initialValue, reducers = []) {
         return result;
       case 'max':
         arr = Array.isArray(value) ? value : [value];
-        arr = arr.filter(x => !isNaN(parseFloat(x)))
-          .map(x => parseFloat(x));
+        arr = arr
+          .filter((x) => !isNaN(parseFloat(x)))
+          .map((x) => parseFloat(x));
         result = Math.max(...arr);
         if (isNaN(result) || arr.length === 0) {
           return undefined;
@@ -153,9 +165,13 @@ export function evaluateCondition(operator, operand1, operand2) {
   }
 }
 
-export function evaluateOperand(operand, formState = {}, defaultValue = undefined) {
+export function evaluateOperand(
+  operand,
+  formState = {},
+  defaultValue = undefined
+) {
   let args;
-  if (typeof(operand) === 'string') {
+  if (typeof operand === 'string') {
     args = operand.split(':');
   } else {
     args = [operand];
@@ -200,7 +216,7 @@ export function evaluateRule(rule, formState) {
 export function applyResults(results, formState, currentId) {
   results.forEach((result) => {
     let args;
-    if (typeof(result) === 'string') {
+    if (typeof result === 'string') {
       args = [result];
     } else {
       args = result.slice(0);
@@ -232,7 +248,7 @@ export function applyResults(results, formState, currentId) {
       case 'add':
         current = formState.variables[args[0]] || 0;
         value = evaluateOperand(args[1], formState);
-        if (typeof(value) !== 'number') {
+        if (typeof value !== 'number') {
           break;
         }
         Object.assign(formState.variables, { [args[0]]: current + value });
@@ -247,7 +263,9 @@ export function applyResults(results, formState, currentId) {
         break;
       case 'rows':
         rows = parseInt(evaluateOperand(args[0], formState), 10);
-        Object.assign(formState.props, { [`${currentId}.rows`]: isNaN(rows) ? undefined : rows });
+        Object.assign(formState.props, {
+          [`${currentId}.rows`]: isNaN(rows) ? undefined : rows,
+        });
         break;
       case 'email':
         formState.emails.push({
@@ -285,13 +303,13 @@ export function cleanItemValues(item, formState, force = false) {
   let rows;
   switch (item.type) {
     case 'grid':
-      if (typeof(formState.props[`${item.id}.rows`]) === 'number') {
+      if (typeof formState.props[`${item.id}.rows`] === 'number') {
         rows = formState.props[`${item.id}.rows`];
       }
       if (force) {
         rows = 0;
       }
-      (item.columns || []).forEach(column => {
+      (item.columns || []).forEach((column) => {
         const values = formState.values[column.id];
         if (values && values.length > 0 && rows >= 0) {
           values.splice(rows);
@@ -311,7 +329,6 @@ export function cleanItemValues(item, formState, force = false) {
   return newState;
 }
 
-
 export function computeItemState(currentItem, formState) {
   let newState;
   newState = Object.assign({}, formState);
@@ -324,12 +341,15 @@ export function computeItemState(currentItem, formState) {
 }
 
 export function computeFormState(definition, values, props, otherData) {
-  const initialFormState = Object.assign({
-    variables: Object.assign({}, definition.variables),
-    values,
-    props,
-    emails: [],
-  }, otherData);
+  const initialFormState = Object.assign(
+    {
+      variables: Object.assign({}, definition.variables),
+      values,
+      props,
+      emails: [],
+    },
+    otherData
+  );
   const newState = computeItemState(definition, initialFormState);
   // console.log('computed', newState, firedRules, formState);
   return newState;
@@ -342,8 +362,8 @@ export function evaluatePostSubmitRules(definition, formState) {
 export function getScoringVariables(formState, scorePrefix = 'score.') {
   const variables = formState.variables;
   return Object.keys(variables)
-    .filter(name => name.indexOf(scorePrefix) === 0)
-    .map(name => ({
+    .filter((name) => name.indexOf(scorePrefix) === 0)
+    .map((name) => ({
       name,
       value: variables[name],
     }));
@@ -368,9 +388,21 @@ export function iterateItems(definition, callback) {
   return undefined;
 }
 
+export async function iterateItemsAsync(definition, asyncCallback) {
+  await asyncCallback(definition);
+
+  const items = definition.items || [];
+  await Promise.all(
+    items.map(async (item) => await iterateItemsAsync(item, asyncCallback))
+  );
+}
+
 export function itemsToArray(definition) {
   const items = [];
-  iterateItems(definition, (item) => { items.push(item); return undefined; });
+  iterateItems(definition, (item) => {
+    items.push(item);
+    return undefined;
+  });
   return items;
 }
 
@@ -393,7 +425,7 @@ export function findItemParent(itemId, definition) {
   let parent;
   iterateItems(definition, (item) => {
     const { items } = item;
-    const childIds = (items || []).map(child => child.id);
+    const childIds = (items || []).map((child) => child.id);
     if (childIds.includes(itemId)) {
       parent = item;
     }
@@ -419,7 +451,7 @@ export function parseText(text, formState) {
       }
     });
   }
-  Object.keys(translations).forEach(t => {
+  Object.keys(translations).forEach((t) => {
     const value = evaluateOperand(translations[t], formState, 'n/a');
     out = out.split(t).join(`${value}`);
   });
@@ -432,8 +464,8 @@ export function prepareEmails(definition, formState) {
   if (!definition.emails) return [];
 
   return emailsToSend
-    .map(email => {
-      const template = definition.emails.find(e => e.id === email.template);
+    .map((email) => {
+      const template = definition.emails.find((e) => e.id === email.template);
 
       if (!template) {
         return null;
@@ -445,25 +477,27 @@ export function prepareEmails(definition, formState) {
         body: parseText(template.body, formState),
       };
     })
-    .filter(email => email !== null);
+    .filter((email) => email !== null);
 }
 
 export function getQuestionItemOptions(item) {
   const options = item.options || {};
   if (Array.isArray(options)) {
-    return options.filter(o => !!o).reduce((all, o) => {
-      if (typeof o === 'string') {
-        const label = o.split('|').pop();
-        const value = o.split('|').shift();
+    return options
+      .filter((o) => !!o)
+      .reduce((all, o) => {
+        if (typeof o === 'string') {
+          const label = o.split('|').pop();
+          const value = o.split('|').shift();
+          return {
+            ...all,
+            [value]: label,
+          };
+        }
         return {
           ...all,
-          [value]: label,
         };
-      }
-      return {
-        ...all,
-      };
-    }, {});
+      }, {});
   }
   return options;
 }
