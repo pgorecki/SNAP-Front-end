@@ -1,25 +1,19 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Icon, Grid, Header, Label } from 'semantic-ui-react';
-import useFetchData from '../../hooks/useFetchData';
-import ControlledTable from '../../components/ControlledTable';
-import { formatDateTime } from '../../utils/typeUtils';
+import { Button, Label } from 'semantic-ui-react';
+import PaginatedDataTable from 'components/PaginatedDataTable';
+import { formatDateTime } from 'utils/typeUtils';
 import {
   EditActionLink,
   DeleteActionButton,
-  PrimaryActionLink,
 } from '../../components/tableComponents';
-import { formatOwner } from '../../utils/modelUtils';
+import { formatOwner } from 'utils/modelUtils';
 import ListPage from '../ListPage';
-import { formatApiError } from '../../utils/apiUtils';
-import PaginatedDataTable from 'components/PaginatedDataTable';
-
-// import useUrlParams from '../../hooks/useUrlParams';
+import { formatApiError } from 'utils/apiUtils';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 
 export default function QuestionList() {
-  const [data, error, loading, fetchData] = useFetchData('/questions/');
-  // const [, queryParams] = useUrlParams();
-  console.log(data, loading);
+  const table = usePaginatedDataTable({ url: '/questions/' });
 
   const columns = React.useMemo(
     () => [
@@ -70,11 +64,15 @@ export default function QuestionList() {
   );
 
   return (
-    <ListPage title="Questions" loading={loading} error={formatApiError(error)}>
+    <ListPage
+      title="Questions"
+      // loading={table.loading}
+      // error={formatApiError(table.error)}
+    >
       <Button primary as={NavLink} exact to={'/questions/new'}>
         New Question
       </Button>
-      <PaginatedDataTable columns={columns} url="/questions/" />
+      <PaginatedDataTable columns={columns} table={table} />
     </ListPage>
   );
 }

@@ -1,4 +1,7 @@
 export function formatOwner(owner) {
+  if (!owner) {
+    return 'Anonymous';
+  }
   return (
     [owner.first_name, owner.last_name]
       .map((x) => x.trim())

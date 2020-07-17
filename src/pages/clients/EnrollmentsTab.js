@@ -1,188 +1,215 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Header } from 'semantic-ui-react';
+import { Button, Header, Form, Grid, Modal } from 'semantic-ui-react';
+import { Formik } from 'formik';
+import SurveyWarnings from 'components/SurveyWarnings';
+import Survey from 'pages/surveys/Survey';
 import ControlledTable from 'components/ControlledTable';
+import { ErrorMessage } from 'components/common';
+import { FormSelect, FormDatePicker, FormErrors } from 'components/FormFields';
 import toaster from 'components/toaster';
+import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import useApiClient from 'hooks/useApiClient';
-import { formatDateTime } from 'utils/typeUtils';
-import { formatApiError } from 'utils/apiUtils';
-
 import useResourceIndex from 'hooks/useResourceIndex';
-import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
+import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
+import PaginatedDataTable from 'components/PaginatedDataTable';
+import { useHistory } from 'react-router-dom';
 
-export default function EnrollmentsTab({ client, currentUser }) {
-  const programsIndex = usePaginatedResourceIndex(`/programs/agency_configs/`);
-  const enrollmentsIndex = useResourceIndex(
-    `/programs/enrollments/?client=${client.id}`
-  );
-  const [tableRows, setTableRows] = useState([]);
-  const apiClient = useApiClient();
+function EnrollmentForm({ programsIndex, onSubmit }) {
+  const { data, ready, error } = programsIndex;
+  const [initialValues, setInitialValues] = useState({
+    surveyId: null,
+    program: null,
+    start_date: new Date(),
+  });
 
-  const loading = programsIndex.loading || enrollmentsIndex.loading;
-  const error = programsIndex.error || enrollmentsIndex.error;
+  const options = data
+    ? data.map(({ program }) => ({
+        value: program.id,
+        text: program.name,
+      }))
+    : [];
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = async ({ pageIndex, pageSize }) => {
-    const programsResponse = await programsIndex.fetchData();
-    const enrollmentsResponse = await enrollmentsIndex.fetchData();
-    const tableData = programsResponse.results.map((pac) => {
-      const enrollment = enrollmentsResponse.results.find(
-        (e) => e.program.id === pac.program.id
-      );
-      return {
-        pac,
-        enrollment,
-      };
-    });
-    setTableRows(tableData);
-  };
-
-  const handleSetEnrollmentStatus = async (row, status) => {
-    const { index, original } = row;
-    const { enrollment, pac } = original;
-    let result;
-    try {
-      if (enrollment) {
-        result = await apiClient.patch(
-          `/programs/enrollments/${enrollment.id}/`,
-          {
-            program: pac.program.id,
-            client: client.id,
-            status,
-          }
-        );
-      } else {
-        result = await apiClient.post('/programs/enrollments/', {
-          program: pac.program.id,
-          client: client.id,
-          status,
-        });
-      }
-
-      toaster.success(`Enrollment status for ${pac.program.name} updated`);
-
-      const updatedRow = {
-        ...original,
-        enrollment: result.data,
-      };
-      const newRows = [...tableRows];
-      newRows[index] = updatedRow;
-      setTableRows(newRows);
-    } catch (err) {
-      toaster.error(formatApiError(err.response));
+  useEffect(() => {
+    if (data && data.length > 0 && initialValues.program === null) {
+      setInitialValues({ ...initialValues, program: data[0].program.id });
     }
-  };
+  }, [ready]);
+
+  return (
+    <Grid>
+      <Grid.Column computer={8} mobile={16}>
+        <Formik
+          enableReinitialize
+          initialValues={initialValues}
+          onSubmit={async (values, actions) => {
+            try {
+              await onSubmit({
+                ...values,
+                program: data.find((pac) => pac.program.id === values.program)
+                  .program,
+              });
+            } catch (err) {
+              actions.setErrors(apiErrorToFormError(err));
+            }
+            actions.setSubmitting(false);
+          }}
+        >
+          {(form) => {
+            if (!data) {
+              return null;
+            }
+            const selectedPac =
+              data &&
+              data.find((pac) => pac.program.id === form.values.program);
+
+            let intakeSurvey = null;
+            if (selectedPac) {
+              intakeSurvey =
+                selectedPac.enrollment_entry_survey ||
+                selectedPac.program.enrollment_entry_survey;
+            }
+
+            return (
+              <Form error onSubmit={form.handleSubmit}>
+                <FormSelect
+                  label="Progam"
+                  name="program"
+                  form={form}
+                  required
+                  options={options}
+                  placeholder="Select program"
+                />
+                <FormDatePicker
+                  label="Start Date"
+                  name="start_date"
+                  form={form}
+                  required
+                />
+                <FormErrors form={form} />
+                <Button
+                  primary
+                  type="submit"
+                  disabled={!intakeSurvey || form.isSubmitting}
+                  onClick={() => {
+                    form.setFieldValue('surveyId', intakeSurvey.id);
+                  }}
+                >
+                  Start enrollment
+                </Button>
+              </Form>
+            );
+          }}
+        </Formik>
+      </Grid.Column>
+    </Grid>
+  );
+}
+
+export default function EnrollmentsTab({ client }) {
+  const history = useHistory();
+  const [modalSurveyData, setModalSurveyData] = useState();
+  const apiClient = useApiClient();
+  const table = usePaginatedDataTable({
+    url: `/programs/enrollments/?client=${client.id}`,
+  });
+
+  const programsIndex = useResourceIndex(
+    `/programs/agency_configs/?ordering=program__name`
+  );
 
   const columns = React.useMemo(
     () => [
       {
         Header: 'Program',
-        accessor: 'pac.program.name',
+        accessor: 'program.name',
       },
       {
         Header: 'Status',
-        accessor: 'enrollment.status',
+        accessor: 'status',
         Cell: ({ value }) => value || 'n/a',
       },
       {
+        Header: 'Date Created',
+        accessor: 'created_at',
+        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+      },
+      {
         Header: 'Date Modified',
-        accessor: 'enrollment.modified_at',
+        accessor: 'modified_at',
+        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+      },
+      {
+        Header: 'Created By',
+        accessor: 'created_by',
         Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
       },
       {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ value, row }) => {
-          const { enrollment } = row.original;
-          const {
-            enrollment_entry_survey: entrySurvey,
-            enrollment_update_survey: updateSurvey,
-            enrollment_exit_survey: exitSurvey,
-          } = row.original.pac;
-
-          console.log(entrySurvey, updateSurvey, exitSurvey);
-
-          const entryButton = entrySurvey ? (
-            <Button
-              color="green"
-              onClick={() =>
-                alert('Enrollment surveys not yet implemented. Skipping.') ||
-                handleSetEnrollmentStatus(row, 'ENROLLED')
-              }
-            >
-              Entry survey
-            </Button>
-          ) : (
-            <Button
-              color="green"
-              onClick={() => handleSetEnrollmentStatus(row, 'ENROLLED')}
-            >
-              Enter
-            </Button>
-          );
-          const updateButton = updateSurvey ? (
-            <Button
-              color="green"
-              onClick={() =>
-                alert('Enrollment surveys not yet implemented. Skipping.') ||
-                handleSetEnrollmentStatus(row, 'ENROLLED')
-              }
-            >
-              Update survey
-            </Button>
-          ) : null;
-          const exitButton = exitSurvey ? (
-            <Button
-              color="yellow"
-              onClick={() =>
-                alert('Enrollment surveys not yet implemented. Skipping.') ||
-                handleSetEnrollmentStatus(row, 'EXITED')
-              }
-            >
-              Exit survey
-            </Button>
-          ) : (
-            <Button
-              color="yellow"
-              onClick={() => handleSetEnrollmentStatus(row, 'EXITED')}
-            >
-              Exit
-            </Button>
-          );
-
-          if (!enrollment) {
-            return entryButton;
-          }
-          switch (enrollment.status) {
-            case 'AWAITING_ENTRY':
-              return entryButton;
-            case 'ENROLLED':
-              return (
-                <>
-                  {updateButton}
-                  {exitButton}
-                </>
-              );
-            case 'EXITED':
-              return entryButton;
-            default:
-              return '';
-          }
+          return <Button disabled>Details</Button>;
         },
       },
     ],
-    [handleSetEnrollmentStatus]
+    []
   );
 
   return (
     <>
-      <Header as="h4">Program Enrollments</Header>
-      <ControlledTable
-        columns={columns}
-        data={tableRows}
-        loading={loading}
-        fetchData={fetchData}
-        error={error}
+      <Header as="h4">Enroll to Program</Header>
+      <EnrollmentForm
+        client={client}
+        programsIndex={programsIndex}
+        onSubmit={async (values) => {
+          const { program } = values;
+          const result = await apiClient.get(
+            `/programs/enrollments/?client=${client.id}&program=${program.id}`
+          );
+          if (result.data.count > 0) {
+            throw new FieldError(
+              'program',
+              `Client already enrolled to ${program.name}`
+            );
+          }
+
+          // open the survey modal
+          setModalSurveyData(values);
+        }}
       />
+
+      <Header as="h4">History</Header>
+      <PaginatedDataTable columns={columns} table={table} />
+
+      <Modal size="large" open={!!modalSurveyData}>
+        <Modal.Header>Enrollment survey</Modal.Header>
+        <Modal.Content>
+          {modalSurveyData && modalSurveyData.surveyId && (
+            <EnrollmentSurveyModal
+              client={client}
+              surveyId={modalSurveyData.surveyId}
+              onResponseSubmit={async (newResponse) => {
+                console.log('done!', modalSurveyData, newResponse);
+                const { program, start_date } = modalSurveyData;
+                await apiClient.post('/programs/enrollments/', {
+                  client: client.id,
+                  status: 'ENROLLED',
+                  program: program.id,
+                  start_date,
+                  response: newResponse.id,
+                });
+                toaster.success('Enrolled to program');
+                setModalSurveyData(null);
+                table.reload();
+              }}
+            />
+          )}
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
+        </Modal.Actions>
+      </Modal>
     </>
   );
 }

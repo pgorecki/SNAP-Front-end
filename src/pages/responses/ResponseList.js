@@ -7,8 +7,10 @@ import PaginatedDataTable from 'components/PaginatedDataTable';
 import { formatOwner } from 'utils/modelUtils';
 import { clientFullName } from 'utils/modelUtils';
 import ListPage from '../ListPage';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 
 export default function ResponseList() {
+  const table = usePaginatedDataTable({ url: '/responses/' });
   const columns = React.useMemo(
     () => [
       {
@@ -69,7 +71,7 @@ export default function ResponseList() {
   return (
     <ListPage>
       <Header>Responses</Header>
-      <PaginatedDataTable columns={columns} url="/responses/" />
+      <PaginatedDataTable columns={columns} table={table} />
     </ListPage>
   );
 }

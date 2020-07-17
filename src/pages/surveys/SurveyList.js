@@ -13,11 +13,12 @@ import { formatOwner } from 'utils/modelUtils';
 import { formatApiError } from 'utils/apiUtils';
 import ListPage from '../ListPage';
 import PaginatedDataTable from 'components/PaginatedDataTable';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 
 export default function SurveyList() {
+  const table = usePaginatedDataTable({ url: '/surveys/' });
   const apiClient = useApiClient();
   const [modalData, setModaData] = useState({});
-  // const [, queryParams] = useUrlParams();
 
   const columns = React.useMemo(
     () => [
@@ -61,7 +62,7 @@ export default function SurveyList() {
               disabled
             />
             <DeleteActionButton
-              onClick={() => setModaData({ ...row.original, actions })}
+              onClick={() => setModaData({ ...row.original })}
             />
           </>
         ),
@@ -75,7 +76,7 @@ export default function SurveyList() {
       <Button primary as={NavLink} exact to="/surveys/new">
         New Survey
       </Button>
-      <PaginatedDataTable columns={columns} url="/surveys/" />
+      <PaginatedDataTable columns={columns} table={table} />
       <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
         <Modal.Header>Are you sure?</Modal.Header>
         <Modal.Content>
@@ -92,7 +93,7 @@ export default function SurveyList() {
             onClick={async () => {
               try {
                 await apiClient.delete(`/surveys/${modalData.id}/`);
-                modalData.actions.reload();
+                table.reload();
               } catch (err) {
                 const apiError = formatApiError(err.response);
                 toaster.error(apiError);

@@ -1,50 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
+import React from 'react';
+
 import ControlledTable from './ControlledTable';
 
-export default function PaginatedDataTable({ url, columns }) {
-  const [pageNumber] = useState(1);
-  const [pageSize] = useState(5);
-  const resourceIndex = usePaginatedResourceIndex(url, pageNumber, pageSize);
-  const [indexData, setIndexData] = useState({
-    results: [],
-    count: 0,
-    page_number: 1,
-    page_size: 0,
-  });
-  const [updatedRows, setUpdatedRows] = useState([]);
-
-  const data = indexData.results.map((r, i) => ({ ...r, ...updatedRows[i] }));
-
-  const fetchData = async ({ pageIndex, pageSize, sortBy, filters }) => {
-    const data = await resourceIndex.fetchData(
-      pageIndex + 1,
-      pageSize,
-      sortBy,
-      filters
-    );
-    console.log('PaginatedDataTable page loaded', {
-      pageIndex,
-      pageSize,
-      sortBy,
-      filters,
-      data,
-    });
-    setIndexData(data);
-    setUpdatedRows(new Array(data.results.length));
-  };
-
+export default function PaginatedDataTable({ table, columns }) {
+  // use in conjunction with usePaginatedDataTable
   return (
     <ControlledTable
-      data={data}
       columns={columns}
-      fetchData={fetchData}
-      loading={resourceIndex.loading}
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      totalCount={resourceIndex.data ? resourceIndex.data.count : 0}
-      pageCount={resourceIndex.data ? resourceIndex.data.total_pages : 0}
-      setUpdatedRows={setUpdatedRows}
+      data={table.data}
+      fetchData={table.fetchData}
+      pageNumber={table.pageNumber}
+      pageSize={table.pageSize}
+      totalCount={table.totalCount}
+      loading={table.loading}
+      pageCount={table.totalPages}
+      setUpdatedRows={table.setUpdatedRows}
     />
   );
 }

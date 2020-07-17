@@ -9,7 +9,7 @@ import { formatDateTime } from 'utils/typeUtils';
 import { formatOwner } from 'utils/modelUtils';
 
 import useResourceIndex from 'hooks/useResourceIndex';
-import usePaginatedResourceIndex from 'hooks/usePaginatedResourceIndex';
+import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 
 function SurveySelect({ client }) {
   const history = useHistory();
@@ -29,7 +29,7 @@ function SurveySelect({ client }) {
           placeholder="Select survey"
           value={selectedSurvey}
           onChange={(e, { value }) => setSelectedSurvey(value)}
-          disabled={surveyIndex.loading}
+          disabled={!surveyIndex.ready}
         />
         <Button
           disabled={!selectedSurvey}
@@ -47,7 +47,11 @@ function SurveySelect({ client }) {
   );
 }
 
-export default function TestTab({ client }) {
+export default function ResponsesTab({ client }) {
+  const table = usePaginatedDataTable({
+    url: `/responses/?client=${client.id}`,
+  });
+
   const columns = React.useMemo(
     () => [
       {
@@ -106,10 +110,7 @@ export default function TestTab({ client }) {
       <Header as="h4">Survey Client</Header>
       <SurveySelect client={client} />
       <Header as="h4">Client Responses</Header>
-      <PaginatedDataTable
-        columns={columns}
-        url={`/responses/?client=${client.id}`}
-      />
+      <PaginatedDataTable columns={columns} table={table} />
     </>
   );
 }

@@ -4,12 +4,12 @@ import moment from 'moment';
 import { Grid } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import SurveyWarnings from 'components/SurveyWarnings';
-import useNewResource from '../../hooks/useNewResource';
-import useResource from '../../hooks/useResource';
-import { formatApiError, apiErrorToFormError } from '../../utils/apiUtils';
+import useNewResource from 'hooks/useNewResource';
+import useResource from 'hooks/useResource';
+import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import DetailsPage from '../DetailsPage';
-import toaster from '../../components/toaster';
-import useUrlParams from '../../hooks/useUrlParams';
+import toaster from 'components/toaster';
+import useUrlParams from 'hooks/useUrlParams';
 import Survey from '../surveys/Survey';
 import { findItem } from '../surveys/computations';
 
