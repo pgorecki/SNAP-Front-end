@@ -25,15 +25,15 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
   });
 
   const options = data
-    ? data.map(({ program }) => ({
-        value: program.id,
-        text: program.name,
+    ? data.map(({ id, name }) => ({
+        value: id,
+        text: name,
       }))
     : [];
 
   useEffect(() => {
     if (data && data.length > 0 && initialValues.program === null) {
-      setInitialValues({ ...initialValues, program: data[0].program.id });
+      setInitialValues({ ...initialValues, program: data[0].id });
     }
   }, [ready]);
 
@@ -47,8 +47,7 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
             try {
               await onSubmit({
                 ...values,
-                program: data.find((pac) => pac.program.id === values.program)
-                  .program,
+                program: data.find((program) => program.id === values.program),
               });
             } catch (err) {
               actions.setErrors(apiErrorToFormError(err));
@@ -60,15 +59,13 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
             if (!data) {
               return null;
             }
-            const selectedPac =
+            const selectedProgram =
               data &&
-              data.find((pac) => pac.program.id === form.values.program);
+              data.find((program) => program.id === form.values.program);
 
             let intakeSurvey = null;
-            if (selectedPac) {
-              intakeSurvey =
-                selectedPac.enrollment_entry_survey ||
-                selectedPac.program.enrollment_entry_survey;
+            if (selectedProgram) {
+              intakeSurvey = selectedProgram.enrollment_entry_survey;
             }
 
             return (
@@ -115,9 +112,7 @@ export default function EnrollmentsTab({ client }) {
     url: `/programs/enrollments/?client=${client.id}`,
   });
 
-  const programsIndex = useResourceIndex(
-    `/programs/agency_configs/?ordering=program__name`
-  );
+  const programsIndex = useResourceIndex(`/programs/?ordering=name`);
 
   const columns = React.useMemo(
     () => [
