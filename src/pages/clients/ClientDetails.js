@@ -81,14 +81,14 @@ export default function ClientDetails() {
         </Tab.Pane>
       ),
     },
-    // {
-    //   menuItem: 'Test',
-    //   render: () => (
-    //     <Tab.Pane>
-    //       <TestTab client={data} />
-    //     </Tab.Pane>
-    //   ),
-    // },
+    {
+      menuItem: 'Test',
+      render: () => (
+        <Tab.Pane>
+          <TestTab client={data} />
+        </Tab.Pane>
+      ),
+    },
   ];
 
   return (

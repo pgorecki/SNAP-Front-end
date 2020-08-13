@@ -10,8 +10,12 @@ import {
 import Section from '../surveys/Section';
 
 const questionCategories = [
-  { value: 'text', text: 'Text' },
-  { value: 'choice', text: 'Choice' },
+  { value: 'text', text: 'text' },
+  { value: 'choice', text: 'choice' },
+  { value: 'date', text: 'date' },
+  { value: 'number', text: 'number' },
+  { value: 'textarea', text: 'textarea' },
+  { value: 'grid', text: 'grid' },
 ];
 
 export default function QuestionForm({ form, data = {} }) {

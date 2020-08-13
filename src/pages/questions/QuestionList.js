@@ -30,6 +30,10 @@ export default function QuestionList() {
         Cell: ({ value }) => <Label>{value ? 'Public' : 'Private'}</Label>,
       },
       {
+        Header: 'Category',
+        accessor: 'category',
+      },
+      {
         Header: 'Usage',
         accessor: 'usage_count',
         disableSortBy: true,

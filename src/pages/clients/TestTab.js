@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Header } from 'semantic-ui-react';
+import { Button, Form, Header, Step } from 'semantic-ui-react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { ErrorMessage } from 'components/common';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
@@ -81,9 +81,38 @@ export default function TestTab({ client }) {
 
   return (
     <>
-      {/* <Header as="h4">Client Responses</Header>
-      <PaginatedDataTable columns={columns} table={table} />
-      <Button onClick={() => table.reload()}>Refresh</Button> */}
+      <Step.Group ordered fluid>
+        <Step completed active disabled={0}>
+          <Step.Content>
+            <Step.Title as={'a'}>Eligibility</Step.Title>
+            <Step.Description>eligible</Step.Description>
+          </Step.Content>
+        </Step>
+        <Step completed active disabled={0}>
+          <Step.Content>
+            <Step.Title as={'a'}>Orientation</Step.Title>
+            <Step.Description>completed</Step.Description>
+          </Step.Content>
+        </Step>
+        <Step completed active disabled={0}>
+          <Step.Content>
+            <Step.Title as={'a'}>IEP Planning</Step.Title>
+            <Step.Description>completed</Step.Description>
+          </Step.Content>
+        </Step>
+        <Step active>
+          <Step.Content>
+            <Step.Title as={'a'}>Enrolled</Step.Title>
+            <Step.Description>Taking Customer service program</Step.Description>
+          </Step.Content>
+        </Step>
+        <Step disabled>
+          <Step.Content>
+            <Step.Title as={'a'}>Done</Step.Title>
+            <Step.Description></Step.Description>
+          </Step.Content>
+        </Step>
+      </Step.Group>
     </>
   );
 }
