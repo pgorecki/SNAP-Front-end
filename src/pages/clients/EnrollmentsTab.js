@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Header, Form, Grid, Modal } from 'semantic-ui-react';
+import { Button, Header, Form, Grid, Modal, Tab, Loader, Message } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import SurveyWarnings from 'components/SurveyWarnings';
 import Survey from 'pages/surveys/Survey';
@@ -14,8 +14,17 @@ import { formatDateTime, FieldError } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import PaginatedDataTable from 'components/PaginatedDataTable';
-import { useHistory } from 'react-router-dom';
-
+import { NavLink, useHistory } from 'react-router-dom';
+// import { EditActionLink } from '../../components/tableComponents';
+// import ResponsesTab from '../clients/ResponsesTab';
+// import EligibilityTab from '../clients/EligibilityTab';
+import SummaryTab from '../programs/SummaryTab';
+// import ReferralsTab from '../clients/ReferralsTab';
+import useResource from 'hooks/useResource';
+import useUrlParams from 'hooks/useUrlParams';
+// import DetailsPage from 'pages/DetailsPage';
+import EnrollmentDetails from '../programs/EnrollmentDetails';
+var enrollmentid = '';
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready, error } = programsIndex;
   const [initialValues, setInitialValues] = useState({
@@ -26,9 +35,9 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
 
   useEffect(() => {
@@ -104,15 +113,32 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
   );
 }
 
+// function showPasswordPage(enrollmentid) {
+//   console.log(enrollmentid);
+//   showEdit = true;
+//   enrollmentid = enrollmentid;
+// }
+
 export default function EnrollmentsTab({ client }) {
+  //console.log(client);
   const history = useHistory();
   const [modalSurveyData, setModalSurveyData] = useState();
+  const [isOpened, setIsOpened] = useState(false);
   const apiClient = useApiClient();
+  //console.log(apiClient);
+  const [urlParams, queryParams, fragment] = useUrlParams();
+  const clientFullName = 'Test';
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
 
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
+
+  function toggle(enrolid) {
+    console.log(enrolid);
+    setIsOpened(wasOpened => !wasOpened);
+    enrollmentid = enrolid;
+  }
 
   const columns = React.useMemo(
     () => [
@@ -144,12 +170,18 @@ export default function EnrollmentsTab({ client }) {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ value, row }) => {
-          return <Button disabled>Details</Button>;
+          // return <Button disabled>Details</Button>;
+          return <>
+            <Button onClick={() => toggle(row.original.id)}>Edit</Button>
+            <Button disabled>Details</Button>
+          </>;
         },
       },
     ],
     []
   );
+
+
 
   return (
     <>
@@ -176,7 +208,16 @@ export default function EnrollmentsTab({ client }) {
 
       <Header as="h4">History</Header>
       <PaginatedDataTable columns={columns} table={table} />
-
+      {isOpened && (
+        <EnrollmentDetails
+          title={clientFullName}
+          enrollmentid={enrollmentid}
+          
+        //loading={loading}
+        //error={formatApiError(error)}
+        >
+        </EnrollmentDetails>
+      )}
       <Modal size="large" open={!!modalSurveyData}>
         <Modal.Header>Enrollment survey</Modal.Header>
         <Modal.Content>
@@ -185,7 +226,7 @@ export default function EnrollmentsTab({ client }) {
               client={client}
               surveyId={modalSurveyData.surveyId}
               onResponseSubmit={async (newResponse) => {
-                console.log('done!', modalSurveyData, newResponse);
+                //console.log('done!', modalSurveyData, newResponse);
                 const { program, start_date } = modalSurveyData;
                 await apiClient.post('/programs/enrollments/', {
                   client: client.id,
