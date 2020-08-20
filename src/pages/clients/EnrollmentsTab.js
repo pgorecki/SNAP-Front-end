@@ -19,6 +19,7 @@ import { NavLink, useHistory } from 'react-router-dom';
 // import ResponsesTab from '../clients/ResponsesTab';
 // import EligibilityTab from '../clients/EligibilityTab';
 import SummaryTab from '../programs/SummaryTab';
+import CaseNotesTab from '../programs/CaseNotesTab';
 // import ReferralsTab from '../clients/ReferralsTab';
 import useResource from 'hooks/useResource';
 import useUrlParams from 'hooks/useUrlParams';

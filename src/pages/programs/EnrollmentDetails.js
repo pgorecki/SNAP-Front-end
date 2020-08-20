@@ -6,6 +6,7 @@ import { NavLink, useHistory } from 'react-router-dom';
 import useResource from 'hooks/useResource';
 import useApiClient from 'hooks/useApiClient';
 import useFetchData from 'hooks/useFetchData';
+import CaseNotesTab from './CaseNotesTab';
 
 export default function EnrollmentDetails({ title, children, enrollmentid }) {
   console.log(enrollmentid);
@@ -36,6 +37,15 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         render: () => (
           <Tab.Pane>
             <SummaryTab enrolldata={data} />
+          </Tab.Pane>
+        ),
+      },,
+      {
+        menuItem: 'Case Notes',
+        key: 8,
+        render: () => (
+          <Tab.Pane>
+            <CaseNotesTab enrolldata={data} />
           </Tab.Pane>
         ),
       },
