@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Header, Form, Message, Label } from 'semantic-ui-react';
-import { ErrorMessage } from 'components/common';
+import { EligibilityLabel, ErrorMessage } from 'components/common';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import toaster from 'components/toaster';
 import useApiClient from 'hooks/useApiClient';
@@ -82,14 +82,7 @@ export default function EligibilityTab({ client, currentUser }) {
         Header: 'Status',
         accessor: 'status',
         Cell: ({ value }) => {
-          switch (value) {
-            case 'ELIGIBLE':
-              return <Label color="green">Eligible</Label>;
-            case 'NOT_ELIGIBLE':
-              return <Label color="red">Not eligible</Label>;
-            default:
-              return 'n/a';
-          }
+          return <EligibilityLabel value={value} />;
         },
       },
       {

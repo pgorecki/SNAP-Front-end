@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import AboutPage from './pages/AboutPage';
-import UserProfilePage from './pages/UserProfilePage';
+// import UserProfilePage from './pages/UserProfilePage';
 import AppSidebar from './components/AppSidebar';
 import AppTopbar from './components/AppTopbar';
 import AppFooter from './components/AppFooter';
@@ -17,6 +17,7 @@ import ClientList from './pages/clients/ClientList';
 import ClientDetails from './pages/clients/ClientDetails';
 import ClientNew from './pages/clients/ClientNew';
 import ClientEdit from './pages/clients/ClientEdit';
+import EligilibityQueueList from './pages/eligibilityQueue/EligibilityQueue';
 import QuestionList from './pages/questions/QuestionList';
 import QuestionNew from './pages/questions/QuestionNew';
 import QuestionEdit from './pages/questions/QuestionEdit';
@@ -59,6 +60,13 @@ const navigationMenu = [
     iconName: 'address card outline',
     page: ClientList,
     permission: 'client.view_client',
+  },
+  {
+    name: 'Eligibility',
+    path: '/eligibility',
+    iconName: 'address card outline',
+    page: EligilibityQueueList,
+    permission: 'eligibility.view_eligibilityqueue',
   },
   {
     path: '/surveys/:id/edit',
