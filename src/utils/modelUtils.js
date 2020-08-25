@@ -10,6 +10,12 @@ export function formatOwner(owner) {
   );
 }
 
+export function formatUser(user) {
+  // for now user and owner are formatted in the same way
+  // but in the future... who knows
+  return formatOwner(user);
+}
+
 export function fullName(user) {
   if (!user) {
     return undefined;

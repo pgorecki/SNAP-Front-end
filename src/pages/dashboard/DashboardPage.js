@@ -20,7 +20,7 @@ function DashboardStat({ icon, label, value, href }) {
 }
 
 export default function DashboardPage() {
-  const { data, error, loading } = useResource('/dashboard/summary', {});
+  const { data, error, loading } = useResource('/dashboard/summary/', {});
 
   console.log(data);
 

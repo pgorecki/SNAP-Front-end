@@ -10,6 +10,7 @@ import { formatApiError } from 'utils/apiUtils';
 import { fullName } from 'utils/modelUtils';
 import { formatDate } from 'utils/typeUtils';
 import { AppContext } from 'AppStore';
+import IEPTab from './IepTab';
 import ResponsesTab from './ResponsesTab';
 import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
@@ -49,6 +50,14 @@ export default function ClientDetails() {
     //   menuItem: 'Referrals',
     //   render: () => <Tab.Pane>TODO: Referrals</Tab.Pane>,
     // },
+    {
+      menuItem: 'IEP',
+      render: () => (
+        <Tab.Pane>
+          <IEPTab client={data} />
+        </Tab.Pane>
+      ),
+    },
     {
       menuItem: 'Responses',
       render: () => (
