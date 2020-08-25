@@ -17,6 +17,7 @@ import ClientList from './pages/clients/ClientList';
 import ClientDetails from './pages/clients/ClientDetails';
 import ClientNew from './pages/clients/ClientNew';
 import ClientEdit from './pages/clients/ClientEdit';
+import EligilibityQueueList from './pages/eligibilityQueue/EligibilityQueue';
 import QuestionList from './pages/questions/QuestionList';
 import QuestionNew from './pages/questions/QuestionNew';
 import QuestionEdit from './pages/questions/QuestionEdit';
@@ -58,6 +59,13 @@ const navigationMenu = [
     path: '/clients',
     iconName: 'address card outline',
     page: ClientList,
+    permission: 'client.view_client',
+  },
+  {
+    name: 'Eligibility',
+    path: '/eligibility',
+    iconName: 'address card outline',
+    page: EligilibityQueueList,
     permission: 'client.view_client',
   },
   {
