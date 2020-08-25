@@ -1,4 +1,5 @@
 import React, { useReducer, useEffect, createContext } from 'react';
+import useApiClient from 'hooks/useApiClient';
 
 const initialState = {
   user: null,
@@ -30,6 +31,27 @@ function reducer(state, action) {
   }
 }
 
+function UserLoader({ state, dispatch }) {
+  const apiClient = useApiClient();
+  useEffect(() => {
+    async function refreshUserData() {
+      if (!apiClient.defaults.headers.Authorization) {
+        return;
+      }
+      const refreshedUser = await apiClient.get('/users/me/');
+      dispatch({
+        type: 'SET_USER',
+        data: {
+          token: state.user.token,
+          ...refreshedUser.data,
+        },
+      });
+    }
+    refreshUserData();
+  }, [apiClient]);
+  return null;
+}
+
 export const AppContext = createContext(initialState);
 
 export default function AppStore({ children }) {
@@ -48,6 +70,7 @@ export default function AppStore({ children }) {
   return (
     <AppContext.Provider value={[state, dispatch]}>
       {children}
+      <UserLoader state={state} dispatch={dispatch} />
     </AppContext.Provider>
   );
 }

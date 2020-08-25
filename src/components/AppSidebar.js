@@ -29,7 +29,7 @@ export default function AppSidebar({ navigationMenu, adminMenu }) {
           </Menu.Item>
         ))}
 
-      <Menu.Item header>
+      {/* <Menu.Item header>
         Admin Section
         <Menu.Menu>
           <Menu.Item as="a" name="page 1">
@@ -39,7 +39,7 @@ export default function AppSidebar({ navigationMenu, adminMenu }) {
             Danger Zone
           </Menu.Item>
         </Menu.Menu>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 }

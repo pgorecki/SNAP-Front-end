@@ -58,6 +58,7 @@ export default function LoginPage() {
               disabled={loading}
               onClick={async () => {
                 const user = await authenticate(username, password);
+                console.log(user);
                 if (user) {
                   dispatch({ type: 'SET_USER', data: user });
                   localStorage.setItem('user', JSON.stringify(user));
