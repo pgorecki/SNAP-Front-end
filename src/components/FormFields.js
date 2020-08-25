@@ -75,8 +75,10 @@ export const FormDatePicker = ({ form, label, name, required, ...props }) => {
       <SemanticDatepicker
         value={value}
         onChange={(event, { value }) =>
-          console.log(value) ||
-          form.setFieldValue(name, moment(value).format('YYYY-MM-DD'))
+          form.setFieldValue(
+            name,
+            value ? moment(value).format('YYYY-MM-DD') : null
+          )
         }
         onBlur={() => form.setFieldTouched(name)}
         format="MM-DD-YYYY"
