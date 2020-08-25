@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Form, Header, Modal } from 'semantic-ui-react';
 import { Formik } from 'formik';
+import moment from 'moment';
 import { NavLink, useHistory } from 'react-router-dom';
 import { ErrorMessage } from 'components/common';
 import { FormInput, FormDatePicker, FormErrors } from 'components/FormFields';
@@ -19,7 +20,7 @@ import useApiClient from 'hooks/useApiClient';
 
 export default function IEPTab({ client }) {
   const apiClient = useApiClient();
-  const [showNewIEPModal, setShowNewIEPModal] = useState(true);
+  const [showNewIEPModal, setShowNewIEPModal] = useState(false);
   const table = usePaginatedDataTable({
     url: `/iep/?client=${client.id}`,
   });
@@ -29,12 +30,12 @@ export default function IEPTab({ client }) {
       {
         Header: 'Start Date',
         accessor: 'start_date',
-        Cell: ({ value }) => formatDate(value),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'End Date',
         accessor: 'end_date',
-        Cell: ({ value }) => formatDate(value),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'Status',
@@ -69,7 +70,11 @@ export default function IEPTab({ client }) {
             initialValues={{ start_date: new Date(), client: client.id }}
             onSubmit={async (values, actions) => {
               try {
-                await apiClient.post('/iep/', values);
+                await apiClient.post('/iep/', {
+                  ...values,
+                  start_date: moment(values.start_date).format('YYYY-MM-DD'),
+                  end_date: moment(values.start_date).format('YYYY-MM-DD'),
+                });
                 toaster.success('New IEP created');
                 setShowNewIEPModal(false);
                 table.reload();
