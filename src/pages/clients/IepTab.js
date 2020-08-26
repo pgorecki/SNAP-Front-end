@@ -3,7 +3,7 @@ import { Button, Form, Header, Modal } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import moment from 'moment';
 import { NavLink, useHistory } from 'react-router-dom';
-import { ErrorMessage } from 'components/common';
+import { ErrorMessage, IEPStatus } from 'components/common';
 import { FormInput, FormDatePicker, FormErrors } from 'components/FormFields';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import useNewResource from 'hooks/useNewResource';
@@ -40,6 +40,7 @@ export default function IEPTab({ client }) {
       {
         Header: 'Status',
         accessor: 'status',
+        Cell: ({ value }) => <IEPStatus value={value} />,
       },
       {
         Header: 'Actions',

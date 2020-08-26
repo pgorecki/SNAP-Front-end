@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { Tab, Button, Segment } from 'semantic-ui-react';
-import { EligibilityLabel } from 'components/common';
+import { EligibilityStatus } from 'components/common';
 import toaster from 'components/toaster';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import useApiClient from 'hooks/useApiClient';
@@ -69,7 +69,25 @@ function NewClientsTab() {
             >
               Eligible
             </Button>
-            <Button color="red">Not Eligible</Button>
+            <Button
+              color="red"
+              onClick={async () => {
+                const { id } = row.original;
+                const fullName = clientFullName(row.original.client);
+                try {
+                  await apiClient.patch(`/eligibility/queue/${id}/`, {
+                    status: 'NOT_ELIGIBLE',
+                  });
+                  toaster.success(`Denied eligibilty for ${fullName}`);
+                  table.reload();
+                } catch (err) {
+                  const apiError = formatApiError(err.response);
+                  toaster.error(apiError);
+                }
+              }}
+            >
+              Not Eligible
+            </Button>
           </>
         ),
       },
@@ -138,7 +156,25 @@ function ExistingClientsTab() {
             >
               Eligible
             </Button>
-            <Button color="red">Not Eligible</Button>
+            <Button
+              color="red"
+              onClick={async () => {
+                const { id } = row.original;
+                const fullName = clientFullName(row.original.client);
+                try {
+                  await apiClient.patch(`/eligibility/queue/${id}/`, {
+                    status: 'NOT_ELIGIBLE',
+                  });
+                  toaster.success(`Denied eligibilty for ${fullName}`);
+                  table.reload();
+                } catch (err) {
+                  const apiError = formatApiError(err.response);
+                  toaster.error(apiError);
+                }
+              }}
+            >
+              Not Eligible
+            </Button>
           </>
         ),
       },
@@ -182,7 +218,7 @@ function HistoricalClientsTab() {
       {
         Header: 'Eligiblity',
         accessor: 'status',
-        Cell: ({ value }) => <EligibilityLabel value={value} />,
+        Cell: ({ value }) => <EligibilityStatus value={value} />,
       },
       {
         Header: 'Approved by',
