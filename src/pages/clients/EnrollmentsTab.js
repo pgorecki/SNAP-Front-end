@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Header, Form, Grid, Modal, Tab, Loader, Message } from 'semantic-ui-react';
+import {
+  Button,
+  Header,
+  Form,
+  Grid,
+  Modal,
+  Tab,
+  Loader,
+  Message,
+} from 'semantic-ui-react';
 import { Formik } from 'formik';
 import SurveyWarnings from 'components/SurveyWarnings';
 import Survey from 'pages/surveys/Survey';
@@ -36,9 +45,9 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-      value: id,
-      text: name,
-    }))
+        value: id,
+        text: name,
+      }))
     : [];
 
   useEffect(() => {
@@ -137,7 +146,7 @@ export default function EnrollmentsTab({ client }) {
 
   function toggle(enrolid) {
     console.log(enrolid);
-    setIsOpened(wasOpened => !wasOpened);
+    setIsOpened((wasOpened) => !wasOpened);
     enrollmentid = enrolid;
   }
 
@@ -172,17 +181,17 @@ export default function EnrollmentsTab({ client }) {
         accessor: 'actions',
         Cell: ({ value, row }) => {
           // return <Button disabled>Details</Button>;
-          return <>
-            <Button onClick={() => toggle(row.original.id)}>Edit</Button>
-            <Button disabled>Details</Button>
-          </>;
+          return (
+            <>
+              <Button onClick={() => toggle(row.original.id)}>Edit</Button>
+              <Button disabled>Details</Button>
+            </>
+          );
         },
       },
     ],
     []
   );
-
-
 
   return (
     <>
@@ -213,11 +222,10 @@ export default function EnrollmentsTab({ client }) {
         <EnrollmentDetails
           title={clientFullName}
           enrollmentid={enrollmentid}
-          
-        //loading={loading}
-        //error={formatApiError(error)}
-        >
-        </EnrollmentDetails>
+
+          //loading={loading}
+          //error={formatApiError(error)}
+        ></EnrollmentDetails>
       )}
       <Modal size="large" open={!!modalSurveyData}>
         <Modal.Header>Enrollment survey</Modal.Header>
@@ -225,6 +233,7 @@ export default function EnrollmentsTab({ client }) {
           {modalSurveyData && modalSurveyData.surveyId && (
             <EnrollmentSurveyModal
               client={client}
+              programId={modalSurveyData.program.id}
               surveyId={modalSurveyData.surveyId}
               onResponseSubmit={async (newResponse) => {
                 //console.log('done!', modalSurveyData, newResponse);
@@ -236,6 +245,9 @@ export default function EnrollmentsTab({ client }) {
                   start_date,
                   response: newResponse.id,
                 });
+                // TODO: patch newResponse to change context to enrollment
+                // alternatively, enrollmentSurvey modal will not save response
+                //  but response will be saved here
                 toaster.success('Enrolled to program');
                 setModalSurveyData(null);
                 table.reload();

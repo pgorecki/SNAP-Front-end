@@ -24,7 +24,7 @@ export default function ResponseList() {
       },
       {
         Header: 'Client',
-        accessor: 'respondent',
+        accessor: 'client',
         Cell: ({ value, row }) => {
           return (
             <NavLink to={`/clients/${value.id}`}>

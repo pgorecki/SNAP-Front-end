@@ -62,10 +62,7 @@ export default function ResponseNew() {
                 .filter((answer) => !!answer.question);
               const data = {
                 survey: survey.data.id,
-                respondent: {
-                  id: client.data.id,
-                  type: 'Client',
-                },
+                client: client.data.id,
                 answers,
               };
               try {

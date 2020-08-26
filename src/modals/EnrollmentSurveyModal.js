@@ -11,6 +11,7 @@ import { formatApiError } from 'utils/apiUtils';
 export default function EnrollmentSurveyModal({
   client,
   surveyId,
+  programId,
   onResponseSubmit,
 }) {
   const survey = useResource(surveyId && `/surveys/${surveyId}/`);
@@ -49,9 +50,10 @@ export default function EnrollmentSurveyModal({
             console.log('answers', answers);
             const data = {
               survey: survey.data.id,
-              respondent: {
-                id: client.id,
-                type: 'Client',
+              client: client.id,
+              response_context: {
+                id: programId,
+                type: 'Program',
               },
               answers,
             };

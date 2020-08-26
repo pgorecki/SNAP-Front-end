@@ -23,7 +23,7 @@ export default function ResponseEdit() {
 
   const { error, loading } = response;
 
-  const { respondent, survey } = response.data;
+  const { client, survey } = response.data;
 
   const ready = !loading && !error;
 
@@ -44,11 +44,11 @@ export default function ResponseEdit() {
             <Survey
               survey={survey}
               client={{
-                ...respondent,
+                ...client,
                 // extra fields for backward compatibility
-                firstName: respondent.first_name,
-                middleName: respondent.middle_name,
-                lastName: respondent.last_name,
+                firstName: client.first_name,
+                middleName: client.middle_name,
+                lastName: client.last_name,
               }}
               response={response.data}
               errors={submissionErrors}
@@ -66,10 +66,7 @@ export default function ResponseEdit() {
                   .filter((answer) => !!answer.question);
                 const data = {
                   survey: survey.id,
-                  respondent: {
-                    id: respondent.id,
-                    type: 'Client',
-                  },
+                  client: client.id,
                   answers,
                 };
                 try {

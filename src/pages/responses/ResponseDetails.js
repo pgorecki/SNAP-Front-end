@@ -22,7 +22,7 @@ export default function ResponseDetails() {
   const [submissionErrors, setSubmissionErrors] = useState([]);
 
   const { error, loading } = response;
-  const { respondent, survey } = response.data;
+  const { client, survey } = response.data;
 
   console.log(response.data, loading, error);
 
@@ -46,11 +46,11 @@ export default function ResponseDetails() {
               <Survey
                 survey={survey}
                 client={{
-                  ...respondent,
+                  ...client,
                   // extra fields for backward compatibility
-                  firstName: respondent.first_name,
-                  middleName: respondent.middle_name,
-                  lastName: respondent.last_name,
+                  firstName: client.first_name,
+                  middleName: client.middle_name,
+                  lastName: client.last_name,
                 }}
                 response={response.data}
                 errors={submissionErrors}
