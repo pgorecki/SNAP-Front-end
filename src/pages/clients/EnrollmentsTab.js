@@ -1,19 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Header,
-  Form,
-  Grid,
-  Modal,
-  Tab,
-  Loader,
-  Message,
-} from 'semantic-ui-react';
+import { Button, Header, Form, Grid, Modal } from 'semantic-ui-react';
 import { Formik } from 'formik';
-import SurveyWarnings from 'components/SurveyWarnings';
-import Survey from 'pages/surveys/Survey';
-import ControlledTable from 'components/ControlledTable';
-import { ErrorMessage } from 'components/common';
 import { FormSelect, FormDatePicker, FormErrors } from 'components/FormFields';
 import toaster from 'components/toaster';
 import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
@@ -23,20 +10,14 @@ import { formatDateTime, FieldError } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import PaginatedDataTable from 'components/PaginatedDataTable';
-import { NavLink, useHistory } from 'react-router-dom';
-// import { EditActionLink } from '../../components/tableComponents';
-// import ResponsesTab from '../clients/ResponsesTab';
-// import EligibilityTab from '../clients/EligibilityTab';
-import SummaryTab from '../programs/SummaryTab';
-import CaseNotesTab from '../programs/CaseNotesTab';
-// import ReferralsTab from '../clients/ReferralsTab';
-import useResource from 'hooks/useResource';
+import { useHistory } from 'react-router-dom';
 import useUrlParams from 'hooks/useUrlParams';
-// import DetailsPage from 'pages/DetailsPage';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
+
 var enrollmentid = '';
+
 function EnrollmentForm({ programsIndex, onSubmit }) {
-  const { data, ready, error } = programsIndex;
+  const { data, ready } = programsIndex;
   const [initialValues, setInitialValues] = useState({
     surveyId: null,
     program: null,
@@ -235,20 +216,41 @@ export default function EnrollmentsTab({ client }) {
               client={client}
               programId={modalSurveyData.program.id}
               surveyId={modalSurveyData.surveyId}
-              onResponseSubmit={async (newResponse) => {
-                //console.log('done!', modalSurveyData, newResponse);
+              onResponseSubmit={async (newResponseData) => {
                 const { program, start_date } = modalSurveyData;
-                await apiClient.post('/programs/enrollments/', {
-                  client: client.id,
-                  status: 'ENROLLED',
-                  program: program.id,
-                  start_date,
-                  response: newResponse.id,
-                });
-                // TODO: patch newResponse to change context to enrollment
-                // alternatively, enrollmentSurvey modal will not save response
-                //  but response will be saved here
-                toaster.success('Enrolled to program');
+
+                try {
+                  const enrollmentResponse = await apiClient.post(
+                    '/programs/enrollments/',
+                    {
+                      client: client.id,
+                      status: 'ENROLLED',
+                      program: program.id,
+                      start_date,
+                    }
+                  );
+                  const enrollment = enrollmentResponse.data;
+                  toaster.success('Enrolled to program');
+                  console.log('xxxx', enrollment);
+                  console.log(enrollment, {
+                    ...newResponseData,
+                    response_context: {
+                      id: enrollment.id,
+                      type: 'Enrollment',
+                    },
+                  });
+                  await apiClient.post('/responses/', {
+                    ...newResponseData,
+                    response_context: {
+                      id: enrollment.id,
+                      type: 'Enrollment',
+                    },
+                  });
+                  toaster.success('Entry response saved');
+                } catch (err) {
+                  const apiError = formatApiError(err.response);
+                  toaster.error(apiError);
+                }
                 setModalSurveyData(null);
                 table.reload();
               }}

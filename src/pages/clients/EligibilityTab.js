@@ -75,10 +75,6 @@ export default function EligibilityTab({ client, currentUser }) {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Name',
-        accessor: 'eligibility.name',
-      },
-      {
         Header: 'Status',
         accessor: 'status',
         Cell: ({ value }) => {

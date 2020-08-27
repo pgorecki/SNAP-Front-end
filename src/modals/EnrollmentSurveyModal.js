@@ -47,7 +47,6 @@ export default function EnrollmentSurveyModal({
                 };
               })
               .filter((answer) => !!answer.question);
-            console.log('answers', answers);
             const data = {
               survey: survey.data.id,
               client: client.id,
@@ -57,14 +56,7 @@ export default function EnrollmentSurveyModal({
               },
               answers,
             };
-            try {
-              const newResponse = await response.save(data);
-              toaster.success('Response created');
-              onResponseSubmit(newResponse);
-            } catch (err) {
-              const apiError = formatApiError(err.response);
-              toaster.error(apiError);
-            }
+            onResponseSubmit(data);
           }}
           debugMode
         />
