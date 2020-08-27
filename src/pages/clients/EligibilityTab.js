@@ -70,7 +70,7 @@ export default function EligibilityTab({ client, currentUser }) {
   const table = usePaginatedDataTable({
     url: `/eligibility/clients/?client=${client.id}`,
   });
-  const apiClient = useApiClient();
+  // const apiClient = useApiClient();
 
   const columns = React.useMemo(
     () => [
@@ -97,7 +97,7 @@ export default function EligibilityTab({ client, currentUser }) {
 
   return (
     <>
-      <Header as="h4">Update Eligibility</Header>
+      {/* <Header as="h4">Update Eligibility</Header>
       <EligibilityUpdateForm
         client={client}
         onUpdate={async (eligibility, isEligible) => {
@@ -113,8 +113,8 @@ export default function EligibilityTab({ client, currentUser }) {
             toaster.error(formatApiError(err.response));
           }
         }}
-      />
-      <Header as="h4">History</Header>
+      /> */}
+      <Header as="h4">Eligibility History</Header>
       <PaginatedDataTable columns={columns} table={table} />
     </>
   );

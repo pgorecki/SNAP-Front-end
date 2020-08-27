@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button, Label } from 'semantic-ui-react';
+import { AppContext } from 'AppStore';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import { formatDateTime } from 'utils/typeUtils';
 import {
@@ -11,8 +12,10 @@ import { formatOwner } from 'utils/modelUtils';
 import ListPage from '../ListPage';
 import { formatApiError } from 'utils/apiUtils';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
+import { hasPermission } from 'utils/permissions';
 
 export default function QuestionList() {
+  const [{ user }] = useContext(AppContext);
   const table = usePaginatedDataTable({ url: '/questions/' });
 
   const columns = React.useMemo(
@@ -58,8 +61,10 @@ export default function QuestionList() {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink to={`/questions/${row.original.id}/edit`} />
-            <DeleteActionButton onClick={() => alert('Not yet implemented')} />
+            <DeleteActionButton
+              onClick={() => alert('Not yet implemented')}
+              disabled={!hasPermission(user, 'survey.change_question')}
+            />
           </>
         ),
       },
@@ -73,7 +78,13 @@ export default function QuestionList() {
       // loading={table.loading}
       // error={formatApiError(table.error)}
     >
-      <Button primary as={NavLink} exact to={'/questions/new'}>
+      <Button
+        primary
+        as={NavLink}
+        exact
+        to={'/questions/new'}
+        disabled={!hasPermission(user, 'survey.add_question')}
+      >
         New Question
       </Button>
       <PaginatedDataTable columns={columns} table={table} />

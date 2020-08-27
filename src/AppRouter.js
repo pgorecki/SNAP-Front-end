@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import AboutPage from './pages/AboutPage';
-// import UserProfilePage from './pages/UserProfilePage';
+import UserProfilePage from './pages/UserProfilePage';
 import AppSidebar from './components/AppSidebar';
 import AppTopbar from './components/AppTopbar';
 import AppFooter from './components/AppFooter';
@@ -93,48 +93,48 @@ const navigationMenu = [
   {
     path: '/questions/new',
     page: QuestionNew,
-    permission: 'question.add_question',
+    permission: 'survey.add_question',
   },
   {
     path: '/questions/:id',
     page: QuestionEdit,
-    permission: 'question.view_question',
+    permission: 'survey.view_question',
   },
   {
     name: 'Question Bank',
     path: '/questions',
     iconName: 'question',
     page: QuestionList,
-    permission: 'question.view_question',
+    permission: 'survey.view_question',
   },
   {
     path: '/responses/new',
     page: ResponseNew,
-    permission: 'response.add_response',
+    permission: 'survey.add_response',
   },
   {
     path: '/responses/:id/edit',
     page: ResponseEdit,
-    permission: 'response.change_response',
+    permission: 'survey.change_response',
   },
   {
     path: '/responses/:id',
     page: ResponseDetails,
-    permission: 'response.view_response',
+    permission: 'survey.view_response',
   },
   {
     name: 'Responses',
     path: '/responses',
     iconName: 'comment outline',
     page: ResponseList,
-    permission: 'response.view_response',
+    permission: 'survey.view_response',
   },
-  // {
-  //   name: 'Account',
-  //   path: '/account',
-  //   iconName: 'user outline',
-  //   page: UserProfilePage,
-  // },
+  {
+    name: 'Account',
+    path: '/account',
+    iconName: 'user outline',
+    page: UserProfilePage,
+  },
 ];
 
 function getRoutesForUser(user) {

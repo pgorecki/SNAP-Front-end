@@ -16,6 +16,18 @@ import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
 import ReferralsTab from './ReferralsTab';
 import TestTab from './TestTab';
+import { hasPermission } from 'utils/permissions';
+
+function findTabIndex(tabPanes, tabName) {
+  if (!tabName) {
+    return 0;
+  }
+  const index = tabPanes.findIndex((tab) => tab.name === tabName);
+  if (index >= 0) {
+    return index;
+  }
+  return tabName;
+}
 
 export default function ClientDetails() {
   const history = useHistory();
@@ -34,69 +46,45 @@ export default function ClientDetails() {
   const clientFullName = fullName({ firstName, middleName, lastName });
 
   const tabPanes = [
-    // {
-    //   menuItem: 'Overview',
-    //   render: () => <Tab.Pane>TODO: Overview</Tab.Pane>,
-    // },
-    // {
-    //   menuItem: 'History',
-    //   render: () => <Tab.Pane>TODO: History</Tab.Pane>,
-    // },
-    // {
-    //   menuItem: 'ROIs',
-    //   render: () => <Tab.Pane>TODO: ROIs</Tab.Pane>,
-    // },
-    // {
-    //   menuItem: 'Referrals',
-    //   render: () => <Tab.Pane>TODO: Referrals</Tab.Pane>,
-    // },
     {
+      name: 'iep',
       menuItem: 'IEP',
       render: () => (
         <Tab.Pane>
           <IEPTab client={data} />
         </Tab.Pane>
       ),
+      permission: 'iep.view_clientiep',
     },
     {
+      name: 'responses',
       menuItem: 'Responses',
       render: () => (
         <Tab.Pane>
           <ResponsesTab client={data} />
         </Tab.Pane>
       ),
+      permission: 'survey.view_response',
     },
     {
+      name: 'eligibility',
       menuItem: 'Eligibility',
       render: () => (
         <Tab.Pane>
           <EligibilityTab client={data} />
         </Tab.Pane>
       ),
+      permission: 'eligibility.view_clienteligibility',
     },
     {
+      name: 'enrollments',
       menuItem: 'Enrollments',
       render: () => (
         <Tab.Pane>
           <EnrollmentsTab client={data} />
         </Tab.Pane>
       ),
-    },
-    {
-      menuItem: 'Referrals',
-      render: () => (
-        <Tab.Pane>
-          <ReferralsTab client={data} />
-        </Tab.Pane>
-      ),
-    },
-    {
-      menuItem: 'Test',
-      render: () => (
-        <Tab.Pane>
-          <TestTab client={data} />
-        </Tab.Pane>
-      ),
+      permission: 'program.view_enrollment',
     },
   ];
 
@@ -120,20 +108,25 @@ export default function ClientDetails() {
           <ClientField label="SSN">{ssn || '-'}</ClientField>
         </Grid.Column>
 
+        {hasPermission(user, 'client.change_client') && (
+          <Button as={NavLink} to={`/clients/${data.id}/edit`}>
+            Edit Client
+          </Button>
+        )}
+
         <Grid.Column computer={16} mobile={16}>
           <Tab
-            panes={tabPanes}
-            activeIndex={fragment || 0}
+            panes={tabPanes.filter((tab) =>
+              hasPermission(user, tab.permission)
+            )}
+            activeIndex={findTabIndex(tabPanes, fragment)}
             renderActiveOnly
             onTabChange={(event, { activeIndex }) => {
-              history.push(`${window.location.pathname}#${activeIndex}`);
+              const fragment = tabPanes[activeIndex].name || activeIndex;
+              history.push(`${window.location.pathname}#${fragment}`);
             }}
           />
         </Grid.Column>
-
-        <Button as={NavLink} to={`/clients/${data.id}/edit`} primary>
-          Edit
-        </Button>
       </Grid>
     </DetailsPage>
   );

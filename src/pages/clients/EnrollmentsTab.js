@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Button, Header, Form, Grid, Modal } from 'semantic-ui-react';
 import { Formik } from 'formik';
+import { AppContext } from 'AppStore';
 import { FormSelect, FormDatePicker, FormErrors } from 'components/FormFields';
 import toaster from 'components/toaster';
 import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
@@ -13,6 +14,7 @@ import PaginatedDataTable from 'components/PaginatedDataTable';
 import { useHistory } from 'react-router-dom';
 import useUrlParams from 'hooks/useUrlParams';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
+import { hasPermission } from 'utils/permissions';
 
 var enrollmentid = '';
 
@@ -111,12 +113,11 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
 // }
 
 export default function EnrollmentsTab({ client }) {
-  //console.log(client);
   const history = useHistory();
+  const [{ user }] = useContext(AppContext);
   const [modalSurveyData, setModalSurveyData] = useState();
   const [isOpened, setIsOpened] = useState(false);
   const apiClient = useApiClient();
-  //console.log(apiClient);
   const [urlParams, queryParams, fragment] = useUrlParams();
   const clientFullName = 'Test';
   const table = usePaginatedDataTable({
@@ -161,7 +162,6 @@ export default function EnrollmentsTab({ client }) {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ value, row }) => {
-          // return <Button disabled>Details</Button>;
           return (
             <>
               <Button onClick={() => toggle(row.original.id)}>Edit</Button>
@@ -176,28 +176,32 @@ export default function EnrollmentsTab({ client }) {
 
   return (
     <>
-      <Header as="h4">Enroll to Program</Header>
-      <EnrollmentForm
-        client={client}
-        programsIndex={programsIndex}
-        onSubmit={async (values) => {
-          const { program } = values;
-          const result = await apiClient.get(
-            `/programs/enrollments/?client=${client.id}&program=${program.id}`
-          );
-          if (result.data.count > 0) {
-            throw new FieldError(
-              'program',
-              `Client already enrolled to ${program.name}`
-            );
-          }
+      {hasPermission(user, 'program.add_enrollment') && (
+        <>
+          <Header as="h4">Enroll to Program</Header>
+          <EnrollmentForm
+            client={client}
+            programsIndex={programsIndex}
+            onSubmit={async (values) => {
+              const { program } = values;
+              const result = await apiClient.get(
+                `/programs/enrollments/?client=${client.id}&program=${program.id}`
+              );
+              if (result.data.count > 0) {
+                throw new FieldError(
+                  'program',
+                  `Client already enrolled to ${program.name}`
+                );
+              }
 
-          // open the survey modal
-          setModalSurveyData(values);
-        }}
-      />
+              // open the survey modal
+              setModalSurveyData(values);
+            }}
+          />
+        </>
+      )}
 
-      <Header as="h4">History</Header>
+      <Header as="h4">Enrollments History</Header>
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
         <EnrollmentDetails

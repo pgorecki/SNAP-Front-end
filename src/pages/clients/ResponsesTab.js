@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Form, Header } from 'semantic-ui-react';
 import { NavLink, useHistory } from 'react-router-dom';
+import { AppContext } from 'AppStore';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import { ErrorMessage } from 'components/common';
 import { EditActionLink } from 'components/tableComponents';
-
-import { formatDateTime } from 'utils/typeUtils';
-import { formatOwner } from 'utils/modelUtils';
-
 import useResourceIndex from 'hooks/useResourceIndex';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
+import { formatDateTime } from 'utils/typeUtils';
+import { formatOwner } from 'utils/modelUtils';
+import { hasPermission } from 'utils/permissions';
 
 function SurveySelect({ client }) {
   const history = useHistory();
@@ -48,6 +48,7 @@ function SurveySelect({ client }) {
 }
 
 export default function ResponsesTab({ client }) {
+  const [{ user }] = useContext(AppContext);
   const table = usePaginatedDataTable({
     url: `/responses/?client=${client.id}`,
   });
@@ -92,12 +93,10 @@ export default function ResponsesTab({ client }) {
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>
-            <EditActionLink to={`/responses/${row.original.id}/edit`} />
-            {/* <Button
-              onClick={(...args) => {
-                actions.updateRow(row, { created_at: new Date() });
-              }}
-            /> */}
+            <EditActionLink
+              to={`/responses/${row.original.id}/edit`}
+              disabled={!hasPermission(user, 'survey.change_response')}
+            />
           </>
         ),
       },
@@ -107,8 +106,12 @@ export default function ResponsesTab({ client }) {
 
   return (
     <>
-      <Header as="h4">Survey Client</Header>
-      <SurveySelect client={client} />
+      {hasPermission(user, 'survey.add_response') && (
+        <>
+          <Header as="h4">Survey Client</Header>
+          <SurveySelect client={client} />
+        </>
+      )}
       <Header as="h4">Client Responses</Header>
       <PaginatedDataTable columns={columns} table={table} />
     </>

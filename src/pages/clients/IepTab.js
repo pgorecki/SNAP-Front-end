@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Form, Header, Modal } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import moment from 'moment';
 import { NavLink, useHistory } from 'react-router-dom';
+import { AppContext } from 'AppStore';
 import { ErrorMessage, IEPStatus } from 'components/common';
 import { FormInput, FormDatePicker, FormErrors } from 'components/FormFields';
 import PaginatedDataTable from 'components/PaginatedDataTable';
@@ -17,8 +18,10 @@ import { formatOwner } from 'utils/modelUtils';
 import useResourceIndex from 'hooks/useResourceIndex';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import useApiClient from 'hooks/useApiClient';
+import { hasPermission } from 'utils/permissions';
 
 export default function IEPTab({ client }) {
+  const [{ user }] = useContext(AppContext);
   const apiClient = useApiClient();
   const [showNewIEPModal, setShowNewIEPModal] = useState(false);
   const table = usePaginatedDataTable({
@@ -62,7 +65,12 @@ export default function IEPTab({ client }) {
 
   return (
     <>
-      <Button onClick={() => setShowNewIEPModal(true)}>New IEP</Button>
+      <Button
+        onClick={() => setShowNewIEPModal(true)}
+        disabled={!hasPermission(user, 'iep.add_clientiep')}
+      >
+        New IEP
+      </Button>
       <Modal size="tiny" open={showNewIEPModal}>
         <Modal.Header>New IEP</Modal.Header>
         <Modal.Content>

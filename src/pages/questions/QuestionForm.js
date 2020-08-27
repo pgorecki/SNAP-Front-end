@@ -8,6 +8,7 @@ import {
   FormErrors,
 } from 'components/FormFields';
 import Section from '../surveys/Section';
+import { hasPermission } from 'utils/permissions';
 
 const questionCategories = [
   { value: 'text', text: 'text' },
@@ -18,7 +19,7 @@ const questionCategories = [
   { value: 'grid', text: 'grid' },
 ];
 
-export default function QuestionForm({ form, data = {} }) {
+export default function QuestionForm({ form, user, data = {} }) {
   return (
     <>
       <Grid.Column computer={8} mobile={16}>
@@ -53,9 +54,11 @@ export default function QuestionForm({ form, data = {} }) {
           <FormCheckbox label="Refusable" name="refusable" form={form} />
           <FormCheckbox label="Public" name="is_public" form={form} />
           <FormErrors form={form} />
-          <Button primary type="submit" disabled={form.isSubmitting}>
-            Submit
-          </Button>
+          {hasPermission(user, 'survey.change_question') && (
+            <Button primary type="submit" disabled={form.isSubmitting}>
+              Submit
+            </Button>
+          )}
         </Form>
       </Grid.Column>
       <Grid.Column computer={8} mobile={16}>

@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button, Grid, Header } from 'semantic-ui-react';
-import ListPage from '../ListPage';
-import { formatDateTime } from '../../utils/typeUtils';
-import { EditActionLink } from '../../components/tableComponents';
-import { formatApiError } from '../../utils/apiUtils';
-import { formatOwner } from '../../utils/modelUtils';
-import { ClientSearch } from './components';
+import { AppContext } from 'AppStore';
+import { formatDateTime } from 'utils/typeUtils';
+import { EditActionLink } from 'components/tableComponents';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
+import ListPage from 'pages/ListPage';
+import { hasPermission } from 'utils/permissions';
+import { formatOwner } from 'utils/modelUtils';
+import { ClientSearch } from './components';
 
 export default function ClientList() {
   const table = usePaginatedDataTable({ url: '/clients/' });
+  const [{ user }] = useContext(AppContext);
 
   const columns = React.useMemo(
     () => [
@@ -56,7 +58,11 @@ export default function ClientList() {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink to={`/clients/${row.original.id}/edit`} exact />
+            <EditActionLink
+              to={`/clients/${row.original.id}/edit`}
+              exact
+              disabled={!hasPermission(user, 'client.change_client')}
+            />
           </>
         ),
       },
@@ -65,10 +71,7 @@ export default function ClientList() {
   );
 
   return (
-    <ListPage
-    // loading={table.loading}
-    // error={formatApiError(table.error)}
-    >
+    <ListPage>
       <Header>Clients</Header>
       <Grid>
         <Grid.Column width={6}>
@@ -76,7 +79,15 @@ export default function ClientList() {
         </Grid.Column>
       </Grid>
 
-      <Button primary as={NavLink} exact to={'/clients/new'}>
+      <br />
+
+      <Button
+        primary
+        as={NavLink}
+        exact
+        to={'/clients/new'}
+        disabled={!hasPermission(user, 'client.add_client')}
+      >
         New Client
       </Button>
       <PaginatedDataTable columns={columns} table={table} />

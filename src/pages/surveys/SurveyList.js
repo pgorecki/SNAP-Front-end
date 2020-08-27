@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button, Label, Modal } from 'semantic-ui-react';
+import { AppContext } from 'AppStore';
 import toaster from 'components/toaster';
 import {
   EditActionLink,
@@ -14,8 +15,10 @@ import { formatApiError } from 'utils/apiUtils';
 import ListPage from '../ListPage';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
+import { hasPermission } from 'utils/permissions';
 
 export default function SurveyList() {
+  const [{ user }] = useContext(AppContext);
   const table = usePaginatedDataTable({ url: '/surveys/' });
   const apiClient = useApiClient();
   const [modalData, setModaData] = useState({});
@@ -54,15 +57,13 @@ export default function SurveyList() {
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>
-            <EditActionLink to={`/surveys/${row.original.id}/edit`} />
-            <PrimaryActionLink
-              icon="table"
-              label="Builder"
-              to={`/surveys/${row.original.id}/builder`}
-              disabled
+            <EditActionLink
+              to={`/surveys/${row.original.id}/edit`}
+              disabled={!hasPermission(user, 'survey.change_survey')}
             />
             <DeleteActionButton
               onClick={() => setModaData({ ...row.original })}
+              disabled={!hasPermission(user, 'survey.delete_survey')}
             />
           </>
         ),
@@ -73,7 +74,13 @@ export default function SurveyList() {
 
   return (
     <ListPage title="Surveys">
-      <Button primary as={NavLink} exact to="/surveys/new">
+      <Button
+        primary
+        as={NavLink}
+        exact
+        to="/surveys/new"
+        disabled={!hasPermission(user, 'survey.add_survey')}
+      >
         New Survey
       </Button>
       <PaginatedDataTable columns={columns} table={table} />

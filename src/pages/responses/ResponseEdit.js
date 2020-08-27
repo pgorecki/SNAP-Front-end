@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import { Grid } from 'semantic-ui-react';
 import { Formik } from 'formik';
-import useNewResource from '../../hooks/useNewResource';
-import useResource from '../../hooks/useResource';
+import { AppContext } from 'AppStore';
+import useNewResource from 'hooks/useNewResource';
+import useResource from 'hooks/useResource';
 import {
   formatApiError,
   getSurveyValuesFromResponse,
@@ -17,6 +18,7 @@ import { findItem } from '../surveys/computations';
 
 export default function ResponseEdit() {
   const history = useHistory();
+  const [{ user }] = useContext(AppContext);
   const [urlParams] = useUrlParams();
   const response = useResource(`/responses/${urlParams.id}/`);
   const [submissionErrors, setSubmissionErrors] = useState([]);
@@ -78,7 +80,7 @@ export default function ResponseEdit() {
                   toaster.error(apiError);
                 }
               }}
-              debugMode
+              debugMode={user.is_superuser}
             />
           )}
         </Grid.Column>
