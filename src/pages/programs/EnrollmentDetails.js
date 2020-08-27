@@ -7,6 +7,7 @@ import useResource from 'hooks/useResource';
 import useApiClient from 'hooks/useApiClient';
 import useFetchData from 'hooks/useFetchData';
 import CaseNotesTab from './CaseNotesTab';
+import AssessmentsTab from './AssessmentsTab';
 
 export default function EnrollmentDetails({ title, children, enrollmentid }) {
   console.log(enrollmentid);
@@ -36,7 +37,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         key: 7,
         render: () => (
           <Tab.Pane>
-            <SummaryTab enrolldata={data} />
+            <AssessmentsTab enrolldata={data} />
           </Tab.Pane>
         ),
       },,

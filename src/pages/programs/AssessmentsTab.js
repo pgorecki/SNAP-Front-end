@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Header, Form, Grid, Modal, Tab, Loader, Message, FormTextArea } from 'semantic-ui-react';
+import { Button, Header, Form, Grid, Modal, Tab, Loader, Message, FormTextArea, FormCheckbox } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import useApiClient from 'hooks/useApiClient';
 import useResourceIndex from 'hooks/useResourceIndex';
@@ -20,24 +20,37 @@ import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
 
 
-export default function CaseNotesTab({ enrolldata }) {
+export default function AssessmentsTab({ enrolldata }) {
     console.log(enrolldata);
     const history = useHistory();
     const apiClient = useApiClient();
     const programsIndex = useResourceIndex(`/programs/?ordering=name`);
+    const [urlParams, queryParams, hash] = useUrlParams();
     const table = usePaginatedDataTable({
-        url: `/notes/?source_id=${enrolldata.id}`,
+        url: `/responses/?context=${enrolldata.id}`,
       });
-    const { save } = useNewResource('/notes/', {});
+      console.log(table);
+      const survey = useResource(
+        enrolldata.client.id && `/surveys/${enrolldata.program.enrollment_entry_survey.id}/`,
+        {}
+      );
+      console.log(survey);
+    const { save } = useNewResource('/responses/', {});
     const { data, ready, error } = programsIndex;
     //Modal related
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [initialValues, setInitialValues] = useState({
-        source:{id:enrolldata.id
-            ,type:'Enrollment'}
-            ,text:'a message'
+        client:enrolldata.client.id
+        ,survey:enrolldata.program.enrollment_entry_survey.id
+        ,context: enrolldata.id
+        ,answers:[
+                {
+                    question:'3ab2f933-899c-4229-9c98-ce17e002633f'
+                    , value:'TestAns'
+                }
+            ]
     }            
     );
     const options = data
@@ -49,19 +62,19 @@ export default function CaseNotesTab({ enrolldata }) {
     const cncolumns = React.useMemo(
         () => [
           {
-            Header: 'Case Note Type',
-            accessor: 'source.type',
+            Header: 'Update Type',
+            accessor: 'response_context.type',
             Cell: ({ value, row }) => (
-                <NavLink to={`/notes/${row.original.id}`}>{value}</NavLink>
+                <NavLink to={`/responses/${row.original.id}`}>{value}</NavLink>
             ),
           },
           {
             Header: 'Date',
-            accessor: 'created_at',
+            accessor: 'modified_at',
             Cell: ({ value }) => (value ? formatDate(value, true) : ''),
           },
           {
-            Header: 'User Creating',
+            Header: 'User Updating',
             accessor: 'created_by',
             Cell: ({ value }) => formatOwner(value),
           },
@@ -70,7 +83,7 @@ export default function CaseNotesTab({ enrolldata }) {
             accessor: 'actions',
             Cell: ({ row }) => (
               <>
-                <EditActionLink to={`/notes/${row.original.id}/edit`} />
+                <EditActionLink to={`/responses/${row.original.id}/edit`} />
                 <DeleteActionButton onClick={() => alert('Not yet implemented')} />
               </>
             ),
@@ -82,7 +95,7 @@ export default function CaseNotesTab({ enrolldata }) {
       return (
         <>    
           <Button primary onClick={handleShow}>
-            New Case Note
+            New Update
         </Button>
           <PaginatedDataTable columns={cncolumns} table={table} />
           <Grid>
@@ -95,8 +108,8 @@ export default function CaseNotesTab({ enrolldata }) {
                               const result = await save({
                                 ...initialValues,
                               });
-                              history.push(`/notes/${result.id}`);
-                              toaster.success('Notes created');
+                              history.push(`/responses/${result.id}`);
+                              toaster.success('Assessment created');
                             } catch (err) {
                               actions.setErrors(apiErrorToFormError(err));
                             }
@@ -120,14 +133,15 @@ export default function CaseNotesTab({ enrolldata }) {
                                 <>
                                 <Modal open={show} onHide={handleClose}>
                                 <Modal.Header>          
-                                    New Case Note
+                                    New Assessment
                                 </Modal.Header>
                                 <Modal.Content>
                                     <Form error onSubmit={form.handleSubmit}>
                                         <FormInput label="Subject:" name="subject" form={form} />
-                                        <FormSelect label="Select Template" name="template" form={form} options={options} placeholder="Select Template" disabled="true" />
-                                        <FormDatePicker label="Date" name="date" form={form} />                                       
-                                        <FormTextArea name="note" placeholder="Enter note here" form={form} rows="5" />
+                                        <FormDatePicker label="Date" name="date" form={form} />  
+                                        Client Receiving any income 
+                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
+                                        
                                         <FormErrors form={form} />
                                         <Button  primary type="submit" disabled={form.isSubmitting}>
                                             Submit
