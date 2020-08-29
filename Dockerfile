@@ -2,6 +2,7 @@
 FROM node:13.12.0-alpine as build
 ARG BUILD_VERSION
 ENV REACT_APP_BUILD_VERSION "$BUILD_VERSION"
+ENV REACT_APP_BACKEND_URL "https://api.gsnap-alpha.ctagroup.com/"
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
