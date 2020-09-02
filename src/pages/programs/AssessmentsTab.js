@@ -27,7 +27,7 @@ export default function AssessmentsTab({ enrolldata }) {
     const programsIndex = useResourceIndex(`/programs/?ordering=name`);
     const [urlParams, queryParams, hash] = useUrlParams();
     const table = usePaginatedDataTable({
-        url: `/responses/?context=${enrolldata.id}`,
+        url: `/responses/?context=${enrolldata.id}`
       });
       console.log(table);
       const survey = useResource(
@@ -41,10 +41,11 @@ export default function AssessmentsTab({ enrolldata }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const [modalData, setModaData] = useState({});
     const [initialValues, setInitialValues] = useState({
         client:enrolldata.client.id
         ,survey:enrolldata.program.enrollment_entry_survey.id
-        ,context: enrolldata.id
+        ,response_context: {id: enrolldata.id, type: 'Enrollment'}
         ,answers:[
                 {
                     question:'3ab2f933-899c-4229-9c98-ce17e002633f'
@@ -53,6 +54,7 @@ export default function AssessmentsTab({ enrolldata }) {
             ]
     }            
     );
+    console.log(initialValues);
     const options = data
             ? data.map(({ id, name }) => ({
                 value: id,
@@ -63,7 +65,7 @@ export default function AssessmentsTab({ enrolldata }) {
         () => [
           {
             Header: 'Update Type',
-            accessor: 'response_context.type',
+            accessor: 'sourceobject.type',
             Cell: ({ value, row }) => (
                 <NavLink to={`/responses/${row.original.id}`}>{value}</NavLink>
             ),
@@ -84,7 +86,8 @@ export default function AssessmentsTab({ enrolldata }) {
             Cell: ({ row }) => (
               <>
                 <EditActionLink to={`/responses/${row.original.id}/edit`} />
-                <DeleteActionButton onClick={() => alert('Not yet implemented')} />
+                <DeleteActionButton
+                  onClick={() => setModaData({ ...row.original })} />
               </>
             ),
           },
@@ -108,12 +111,14 @@ export default function AssessmentsTab({ enrolldata }) {
                               const result = await save({
                                 ...initialValues,
                               });
-                              history.push(`/responses/${result.id}`);
+                              //history.push(`/responses/${result.id}`);
                               toaster.success('Assessment created');
                             } catch (err) {
                               actions.setErrors(apiErrorToFormError(err));
                             }
                             actions.setSubmitting(false);
+                            handleClose();
+                            table.reload();
                           }}
                     >
                         {(form) => {
@@ -138,10 +143,21 @@ export default function AssessmentsTab({ enrolldata }) {
                                 <Modal.Content>
                                     <Form error onSubmit={form.handleSubmit}>
                                         <FormInput label="Subject:" name="subject" form={form} />
-                                        <FormDatePicker label="Date" name="date" form={form} />  
+                                        <FormDatePicker label="Date" name="date" form={form} />
                                         Client Receiving any income 
                                         <FormCheckbox label="Yes" /><FormCheckbox label="No" />
-                                        
+                                        Earned income 
+                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
+                                        <FormInput label="Amount" name="eiamount" form={form} />
+                                        TANF 
+                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
+                                        <FormInput label="Amount" name="tanfamount" form={form} />
+                                        SSI
+                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
+                                        <div>
+                                        Pension
+                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
+                                        </div>
                                         <FormErrors form={form} />
                                         <Button  primary type="submit" disabled={form.isSubmitting}>
                                             Submit
@@ -156,6 +172,35 @@ export default function AssessmentsTab({ enrolldata }) {
                     </Formik>
                 </Grid.Column>
             </Grid>
+            <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
+            <Modal.Header>Are you sure?</Modal.Header>
+            <Modal.Content>
+              <Modal.Description>
+                <p>
+                  Are you sure you want to delete assessment{' '}
+                  <strong>{modalData.name}</strong>?
+                </p>
+              </Modal.Description>
+            </Modal.Content>
+            <Modal.Actions>
+              <Button
+                negative
+                onClick={async () => {
+                  try {
+                    await apiClient.delete(`/responses/${modalData.id}/`);
+                    table.reload();
+                  } catch (err) {
+                    const apiError = formatApiError(err.response);
+                    toaster.error(apiError);
+                  } finally {
+                    setModaData({});
+                  }
+                }}
+              >
+                Delete assessment
+              </Button>
+            </Modal.Actions>
+          </Modal>
         </>
       );
 }
