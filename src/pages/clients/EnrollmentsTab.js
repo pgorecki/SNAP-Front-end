@@ -20,6 +20,7 @@ var enrollmentid = '';
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready } = programsIndex;
+  
   const [initialValues, setInitialValues] = useState({
     surveyId: null,
     program: null,
@@ -28,9 +29,9 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
 
   useEffect(() => {
@@ -117,9 +118,12 @@ export default function EnrollmentsTab({ client }) {
   const [{ user }] = useContext(AppContext);
   const [modalSurveyData, setModalSurveyData] = useState();
   const [isOpened, setIsOpened] = useState(false);
+  const handleClose = () => setIsOpened(false);
+  const handleShow = () => setIsOpened(true);
   const apiClient = useApiClient();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const clientFullName = 'Test';
+  const [SummarytabModal, setSummarytabModal] = useState(true);
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
@@ -129,6 +133,7 @@ export default function EnrollmentsTab({ client }) {
   function toggle(enrolid) {
     console.log(enrolid);
     setIsOpened((wasOpened) => !wasOpened);
+
     enrollmentid = enrolid;
   }
 
@@ -204,13 +209,20 @@ export default function EnrollmentsTab({ client }) {
       <Header as="h4">Enrollments History</Header>
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
-        <EnrollmentDetails
-          title={clientFullName}
-          enrollmentid={enrollmentid}
+        <Modal open={SummarytabModal}>
+          <Modal.Header>Enrollment Data</Modal.Header>
+          <EnrollmentDetails
+            title={clientFullName}
+            enrollmentid={enrollmentid}
 
           //loading={loading}
-          //error={formatApiError(error)}
-        ></EnrollmentDetails>
+          //error={formatApiError(error)} 
+          >
+          </EnrollmentDetails>
+          <Modal.Actions>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Modal.Actions>
+        </Modal>
       )}
       <Modal size="large" open={!!modalSurveyData}>
         <Modal.Header>Enrollment survey</Modal.Header>

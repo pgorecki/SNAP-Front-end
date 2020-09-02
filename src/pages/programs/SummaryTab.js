@@ -1,25 +1,24 @@
 import React from 'react';
-import { Grid, Label } from 'semantic-ui-react';
-import moment from 'moment';
+import { Grid, Label, Table, Modal } from 'semantic-ui-react';
+import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { LabelField } from 'components/common';
 
 export default function SummaryTab({ enrolldata }) {
-    //console.log(enrolldata);
     return (
         <>
-            <Grid>
+            <Grid >
                 <Grid.Column computer={16} mobile={16}>
-                    <label>Status: </label><label style={{ color: "green" }}>{enrolldata.status}</label>
+                    <LabelField label="Status" value={enrolldata.status} valColor="#20B2AA"></LabelField>
                 </Grid.Column>
                 <Grid.Column computer={5} mobile={16}>
-                    <label>Start Date: </label><label>{moment(enrolldata.created_at).format('MM-DD-YYYY')}</label>
+                    <LabelField label="Start Date" value={formatDateTime(enrolldata.created_at, true)}></LabelField>
                 </Grid.Column>
                 <Grid.Column computer={5} mobile={16}>
-                    <label>Projected End Date: </label><label>{moment(new Date()).format('MM-DD-YYYY')}</label>
+                    <LabelField label="Projected End Date" value={formatDateTime(new Date(), true)}></LabelField>
                 </Grid.Column>
                 <Grid.Column computer={5} mobile={16}>
-                    <label>Actual End Date: </label><label>{"N/A"}</label>
+                    <LabelField label="Actual End Date" value={null}></LabelField>
                 </Grid.Column>
             </Grid>
-        </>
-    );
+        </>);
 }

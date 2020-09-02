@@ -1,5 +1,6 @@
 import React from 'react';
 import { Label, Message } from 'semantic-ui-react';
+import moment from 'moment';
 
 export function ErrorMessage({ error }) {
   let message = error;
@@ -43,4 +44,18 @@ export function IEPStatus({ value }) {
     default:
       return <Label>{value}</Label>;
   }
+}
+
+export function LabelField({ label, value ,valColor}) {
+  var valueColor = '#666';
+  if(valColor)
+    valueColor = valColor;
+  return (
+    <div>
+      <label>
+        <strong style={{ fontSize: '1em' }}>{label}:</strong>
+      </label>
+      <label style={{ marginBottom: '1.15em', color: valueColor, marginLeft: '5px' }}>{value}</label>      
+    </div>
+  );
 }
