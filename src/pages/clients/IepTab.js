@@ -21,6 +21,8 @@ import useApiClient from 'hooks/useApiClient';
 import { hasPermission } from 'utils/permissions';
 import TestTab from './TestTab';
 
+var programvalues = {};
+
 export default function IEPTab({ client }) {
   const [{ user }] = useContext(AppContext);
   const apiClient = useApiClient();
@@ -36,6 +38,7 @@ export default function IEPTab({ client }) {
   function toggle(values) {
     setIsOpened((wasOpened) => !wasOpened);
     console.log(values);
+    programvalues = values;
   }
 
   const columns = React.useMemo(
@@ -135,7 +138,7 @@ export default function IEPTab({ client }) {
         <Modal size="large" open={StepModal}>
           <Modal.Header></Modal.Header>
           <Modal.Content>
-            <TestTab>
+            <TestTab values={programvalues}>
             </TestTab>
           </Modal.Content>
           <Modal.Actions>

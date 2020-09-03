@@ -8,7 +8,8 @@ import { EditActionLink } from 'components/tableComponents';
 import { formatDateTime } from 'utils/typeUtils';
 import { formatOwner } from 'utils/modelUtils';
 
-export default function TestTab() {
+export default function TestTab({ values }) {
+  console.log(values);
   const table = usePaginatedDataTable({
     url: '/responses/',
   });
