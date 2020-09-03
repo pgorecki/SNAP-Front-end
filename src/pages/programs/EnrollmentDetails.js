@@ -9,17 +9,17 @@ import useFetchData from 'hooks/useFetchData';
 import CaseNotesTab from './CaseNotesTab';
 import AssessmentsTab from './AssessmentsTab';
 
-export default function EnrollmentDetails({ title, children, enrollmentid }) {
-  console.log(enrollmentid);
+export default function EnrollmentDetails({ title, children, enrollmentid, pdata }) {
+  //console.log(enrollmentid);
   const history = useHistory();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const apiClient = useApiClient();
   const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentid}`, {});
-  console.log(data);
-  if (typeof data.program !== 'undefined') {
+  console.log(pdata);
+  if (typeof pdata !== 'undefined') {
 
     //}
-    title = data.program.name;
+    // title = data.program.name;
     //const { data } = useResource(`/programs/enrollments/?id=${urlParams.id}/`);
     //console.log(result.data);
     const tabPanesEnrollments = [
@@ -28,7 +28,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         key: 6,
         render: () => (
           <Tab.Pane>
-            <SummaryTab enrolldata={data} />
+            <SummaryTab enrolldata={pdata} />
           </Tab.Pane>
         ),
       },
@@ -40,7 +40,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
             <AssessmentsTab enrolldata={data} />
           </Tab.Pane>
         ),
-      },,
+      }, ,
       {
         menuItem: 'Case Notes',
         key: 8,
@@ -69,11 +69,11 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
           background: '#fff',
           margin: 0,
           padding: 30,
-          minHeight: '50vh',
+          minHeight: '30vh',
         }}
       >
         <Grid.Column>
-          {title && <Header as="h5">{title}</Header>}
+          {/* {title && <Header as="h5">{title}</Header>} */}
           {loading ? renderLoading() : error ? renderError() : children}
         </Grid.Column>
         <Grid.Column computer={16} mobile={16}>
@@ -89,7 +89,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         </Grid.Column>
       </Grid>
     );
-  }else{
+  } else {
     return null;
   }
 }

@@ -8,10 +8,10 @@ export default function SummaryTab({ enrolldata }) {
         <>
             <Grid >
                 <Grid.Column computer={16} mobile={16}>
-                    <LabelField label="Status" value={enrolldata.status} valColor="#20B2AA"></LabelField>
+                    <LabelField label="Status" value={enrolldata["status"]} valColor="#20B2AA"></LabelField>
                 </Grid.Column>
                 <Grid.Column computer={5} mobile={16}>
-                    <LabelField label="Start Date" value={formatDateTime(enrolldata.created_at, true)}></LabelField>
+                    <LabelField label="Start Date" value={formatDateTime(enrolldata["created_at"], true)}></LabelField>
                 </Grid.Column>
                 <Grid.Column computer={5} mobile={16}>
                     <LabelField label="Projected End Date" value={formatDateTime(new Date(), true)}></LabelField>

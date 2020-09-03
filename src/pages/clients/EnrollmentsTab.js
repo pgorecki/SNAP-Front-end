@@ -17,10 +17,12 @@ import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
 
 var enrollmentid = '';
+var programname = '';
+var programvalues = {};
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready } = programsIndex;
-  
+
   const [initialValues, setInitialValues] = useState({
     surveyId: null,
     program: null,
@@ -130,11 +132,11 @@ export default function EnrollmentsTab({ client }) {
 
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
 
-  function toggle(enrolid) {
-    console.log(enrolid);
+  function toggle(enrolid, values) {
     setIsOpened((wasOpened) => !wasOpened);
-
     enrollmentid = enrolid;
+    programname = values["program.name"];
+    programvalues = values;
   }
 
   const columns = React.useMemo(
@@ -167,9 +169,10 @@ export default function EnrollmentsTab({ client }) {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ value, row }) => {
+          // console.log(row)
           return (
             <>
-              <Button onClick={() => toggle(row.original.id)}>Edit</Button>
+              <Button onClick={() => toggle(row.original.id, row.values)}>Edit</Button>
               <Button disabled>Details</Button>
             </>
           );
@@ -210,15 +213,17 @@ export default function EnrollmentsTab({ client }) {
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
         <Modal open={SummarytabModal}>
-          <Modal.Header>Enrollment Data</Modal.Header>
-          <EnrollmentDetails
-            title={clientFullName}
-            enrollmentid={enrollmentid}
-
-          //loading={loading}
-          //error={formatApiError(error)} 
-          >
-          </EnrollmentDetails>
+          <Modal.Header>{programname}</Modal.Header>
+          <Modal.Content>
+            <EnrollmentDetails
+              title={clientFullName}
+              enrollmentid={enrollmentid}
+              pdata = {programvalues}
+            //loading={loading}
+            //error={formatApiError(error)} 
+            >
+            </EnrollmentDetails>
+          </Modal.Content>
           <Modal.Actions>
             <Button onClick={handleClose}>Cancel</Button>
           </Modal.Actions>
