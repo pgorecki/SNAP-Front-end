@@ -18,6 +18,7 @@ import ClientDetails from './pages/clients/ClientDetails';
 import ClientNew from './pages/clients/ClientNew';
 import ClientEdit from './pages/clients/ClientEdit';
 import EligilibityQueueList from './pages/eligibilityQueue/EligibilityQueue';
+import EnrollmentQueueList from './pages/enrollmentQueue/EnrollmentQueue';
 import QuestionList from './pages/questions/QuestionList';
 import QuestionNew from './pages/questions/QuestionNew';
 import QuestionEdit from './pages/questions/QuestionEdit';
@@ -67,6 +68,13 @@ const navigationMenu = [
     iconName: 'address card outline',
     page: EligilibityQueueList,
     permission: 'eligibility.view_eligibilityqueue',
+  },
+  {
+    name: 'Enrollments',
+    path: '/enrollments',
+    iconName: 'address card outline',
+    page: EnrollmentQueueList,
+    permission: 'iep.view_clientiep',
   },
   {
     path: '/surveys/:id/edit',
