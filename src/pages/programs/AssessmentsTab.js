@@ -85,8 +85,8 @@ export default function AssessmentsTab({ enrolldata }) {
             accessor: 'actions',
             Cell: ({ row }) => (
               <>
-                <EditActionLink to={`/responses/${row.original.id}/edit`} />
-                <DeleteActionButton
+                <EditActionLink disabled={enrolldata.status=='COMPLETED'} to={`/responses/${row.original.id}/edit`} />
+                <DeleteActionButton disabled={enrolldata.status=='COMPLETED'}
                   onClick={() => setModaData({ ...row.original })} />
               </>
             ),
@@ -97,7 +97,7 @@ export default function AssessmentsTab({ enrolldata }) {
 
       return (
         <>    
-          <Button primary onClick={handleShow}>
+          <Button disabled={enrolldata.status=='COMPLETED'} primary onClick={handleShow}>
             New Update
         </Button>
           <PaginatedDataTable columns={cncolumns} table={table} />

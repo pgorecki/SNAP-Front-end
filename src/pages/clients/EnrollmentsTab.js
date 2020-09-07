@@ -129,9 +129,9 @@ export default function EnrollmentsTab({ client }) {
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
-
+  const [modalData, setModaData] = useState({});
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
-
+  //console.log(table);
   function toggle(enrolid, values) {
     setIsOpened((wasOpened) => !wasOpened);
     enrollmentid = enrolid;
@@ -173,7 +173,7 @@ export default function EnrollmentsTab({ client }) {
           return (
             <>
               <Button onClick={() => toggle(row.original.id, row.values)}>Edit</Button>
-              <Button disabled>Details</Button>
+              <Button disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModaData({ ...row.original })}>End</Button>
             </>
           );
         },
@@ -239,7 +239,8 @@ export default function EnrollmentsTab({ client }) {
               surveyId={modalSurveyData.surveyId}
               onResponseSubmit={async (newResponseData) => {
                 const { program, start_date } = modalSurveyData;
-
+                debugger;
+                var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
                 try {
                   const enrollmentResponse = await apiClient.post(
                     '/programs/enrollments/',
@@ -247,7 +248,7 @@ export default function EnrollmentsTab({ client }) {
                       client: client.id,
                       status: 'ENROLLED',
                       program: program.id,
-                      start_date,
+                      sd,
                     }
                   );
                   const enrollment = enrollmentResponse.data;
@@ -282,6 +283,47 @@ export default function EnrollmentsTab({ client }) {
           <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
+      <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
+            <Modal.Header>End Enrollment</Modal.Header>
+            <Modal.Content>
+              <Modal.Description>
+                <p>
+                  Are you sure you want to end enrollment?
+                </p>
+              </Modal.Description>
+            </Modal.Content>
+            <Modal.Actions>
+              <Button
+                negative
+                onClick={async () => {
+                  try {
+                    var dt =new Date();
+                    var nd = dt.getFullYear() + '-' + ("0" + (dt.getMonth() + 1)).slice(-2) + '-' + ("0" + dt.getDate()).slice(-2) ;
+                    
+                    //dt=  dt.getFullYear() + (dt.getMonth()-1) + dt.getDate() ;
+                    await apiClient.patch(`/programs/enrollments/${modalData.id}/`,
+                      {
+                        client: client.id,
+                        status: 'COMPLETED',
+                        program: modalData.programId,
+                        end_date: nd
+                      });
+                    table.reload();
+                  } catch (err) {
+                    const apiError = formatApiError(err.response);
+                    toaster.error(apiError);
+                  } finally {
+                    setModaData({});
+                  }
+                }}
+              >
+                Yes
+              </Button>
+              <Button onClick={async () => {setModaData({});}}>
+                No
+              </Button>
+            </Modal.Actions>
+          </Modal>
     </>
   );
 }
