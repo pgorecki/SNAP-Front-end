@@ -13,32 +13,26 @@ import { OrientationStep } from './OrientationStep';
 import { PlanningStep } from './PlanningStep';
 
 export default function TestTab({ values }) {
+
+  const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? true : false);
+  const [isEligibleDisabled, setIsEligibleDisabled] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? false : true);
+  const [isEligibleCompleted, setIsEligibleCompleted] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? false : (values.status) === "in_orientation" ? true : true);
+
+  // const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "awaiting_approval" ? true : false);
+  // const [isEligibleDisabled, setIsEligibleDisabled] = useState((values.status) === "awaiting_approval" ? false : true);
+  // const [isEligibleCompleted, setIsEligibleCompleted] = useState((values.status) === "awaiting_approval" ? false : (values.status) === "in_orientation" ? true : true);
+
   const [isOrientOpened, setIsOrientOpened] = useState((values.status) === "in_orientation" ? true : false);
   const [isOrientDisabled, setIsOrientDisabled] = useState((values.status) === "in_orientation" ? false : true);
-  const [isOrientCompleted, setIsOrientCompleted] = useState((values.status) === "in_orientation" ? false : true);
-  //useState(false);
-  const [isIepOpened, setIsIepOpened] = useState((values.status) === "not_eligible" ? true : false);
-  const [isIepDisabled, setIsIepDisabled] = useState((values.status) === "not_eligible" ? false : (values.status) === "in_orientation" ? true : false);
-  const [isIepCompleted, setIsIepCompleted] = useState((values.status) === "not_eligible" ? false : (values.status) === "in_orientation" ? false : true);
-  // console.log(values);
-  // console.log(isOrientOpened);
-  // console.log(isIepOpened);
+  const [isOrientCompleted, setIsOrientCompleted] = useState((values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? true : (values.status) === "not_eligible" ? false : (values.status) === "in_progress" ? true : (values.status) === "awaiting_approval" ? false : true);
 
-  const handleClose = (values) => {
-    if ((values.status) === "in_orientation") {
-      setIsOrientOpened(true);
-      setIsIepOpened(false);
-      setIsIepDisabled(true);
-      setIsIepCompleted(false);
-      //return;
-    } else if ((values.status) === "not_eligible") {
-      setIsOrientOpened(false);
-      setIsIepOpened(true);
-      setIsOrientDisabled(true);
-      setIsOrientCompleted(true);
-      //return;
-    }
-  };
+  const [isIepOpened, setIsIepOpened] = useState((values.status) === "in_planning" ? true : false);
+  const [isIepDisabled, setIsIepDisabled] = useState((values.status) === "in_planning" ? false : true);
+  const [isIepCompleted, setIsIepCompleted] = useState((values.status) === "in_planning" ? false : (values.status) === "in_progress" ? true : (values.status) === "in_orientation" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : true);
+
+  const [isInProgressActive, setIsInProgressActive] = useState((values.status) === "in_progress" ? true : false);
+  const [isInProgressDisabled, setIsInProgressDisabled] = useState((values.status) === "in_progress" ? false : true);
+  const [isInProgressCompleted, setIsInProgressCompleted] = useState((values.status) === "in_progress" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : true);
 
   const table = usePaginatedDataTable({
     url: '/responses/',
@@ -111,30 +105,80 @@ export default function TestTab({ values }) {
 
   function Orientation() {
     console.log(values);
-    if ((values.status) === "in_orientation") {
-      setIsOrientOpened(true);
+    if ((values.status) === "not_eligible") {
+      setIsEligibleActive(true);
+      setIsEligibleDisabled(false);
+      setIsEligibleCompleted(false);
+
+      setIsOrientOpened(false);
+      setIsOrientDisabled(true);
+      setIsOrientCompleted(false);
+
       setIsIepOpened(false);
       setIsIepDisabled(true);
       setIsIepCompleted(false);
-      //return;
-    } else if ((values.status) === "not_eligible") {
+
+      setIsInProgressActive(false);
+      setIsInProgressDisabled(true);
+      setIsInProgressCompleted(false);
+    }
+    else if ((values.status) === "in_orientation") {
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
+      setIsOrientOpened(true);
+      setIsOrientDisabled(false);
+      setIsOrientCompleted(false);
+
+      setIsIepOpened(false);
+      setIsIepDisabled(true);
+      setIsIepCompleted(false);
+
+      setIsInProgressActive(false);
+      setIsInProgressDisabled(true);
+      setIsInProgressCompleted(false);
+
+    } else if ((values.status) === "in_planning") {
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
       setIsOrientOpened(false);
-      setIsIepOpened(true);
       setIsOrientDisabled(true);
       setIsOrientCompleted(true);
-      //return;
+
+      setIsIepOpened(true);
+      setIsIepDisabled(false);
+      setIsIepCompleted(false);
+
+      setIsInProgressActive(false);
+      setIsInProgressDisabled(true);
+      setIsInProgressCompleted(false);
+
+    } else if ((values.status) === "in_progress") {
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
+      setIsOrientOpened(false);
+      setIsOrientDisabled(true);
+      setIsOrientCompleted(true);
+
+      setIsIepOpened(false);
+      setIsIepDisabled(true);
+      setIsIepCompleted(true);
+
+      setIsInProgressActive(true);
+      setIsInProgressDisabled(false);
+      setIsInProgressCompleted(false);
     }
   }
-
-  // ReactDOM.render(
-  //   // Try changing to isLoggedIn={true}:
-  //   <Orientation />
-  // );
 
   return (
     <>
       <Step.Group ordered fluid>
-        <Step completed active disabled>
+        <Step onClick={Orientation} active={isEligibleActive} completed={isEligibleCompleted} disabled={isEligibleDisabled}>
           <Step.Content>
             <Step.Title as={'a'}>Eligibility</Step.Title>
             <Step.Description>eligible</Step.Description>
@@ -152,7 +196,7 @@ export default function TestTab({ values }) {
             <Step.Description>in planning</Step.Description>
           </Step.Content>
         </Step>
-        <Step disabled>
+        <Step onClick={Orientation} active={isInProgressActive} completed={isInProgressCompleted} disabled={isInProgressDisabled}>
           <Step.Content>
             <Step.Title as={'a'}>Enrolled</Step.Title>
             <Step.Description>Taking Customer service program</Step.Description>
@@ -167,6 +211,10 @@ export default function TestTab({ values }) {
       </Step.Group>
 
       {
+        isEligibleActive &&
+        (<OrientationStep />)
+      }
+      {
         isOrientOpened &&
         (<OrientationStep />)
       }
@@ -174,7 +222,10 @@ export default function TestTab({ values }) {
         isIepOpened &&
         (<PlanningStep />)
       }
-
+      {
+        isInProgressActive &&
+        (<PlanningStep />)
+      }
 
     </>
   );
