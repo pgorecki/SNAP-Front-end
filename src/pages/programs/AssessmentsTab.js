@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Button, Header, Form, Grid, Modal, Tab, Loader, Message, FormTextArea, FormCheckbox } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import useApiClient from 'hooks/useApiClient';
+import { AppContext } from 'AppStore';
 import useResourceIndex from 'hooks/useResourceIndex';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
@@ -18,23 +19,98 @@ import { FormSelect, FormDatePicker, FormErrors, FormInput } from 'components/Fo
 import { EditActionLink, DeleteActionButton } from '../../components/tableComponents';
 import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
+import { hasPermission } from 'utils/permissions';
+
+function UpdateSurveyForm({ programsIndex, onSubmit, enrdata }){
+  const { data, ready } = programsIndex;
+console.log(enrdata);
+  const [initialValues, setInitialValues] = useState({
+    surveyId: null,
+    program: null,
+    start_date: new Date(),
+  });
+
+  const options = data
+    ? data.map(({ id, name }) => ({
+      value: id,
+      text: name,
+    }))
+    : [];
+
+  useEffect(() => {
+    if (data && data.length > 0 && initialValues.program === null) {
+      setInitialValues({ ...initialValues, program: data[0].id });
+    }
+  }, [ready]);
+
+  return (
+    <Grid>
+      <Grid.Column computer={8} mobile={16}>
+        <Formik
+          enableReinitialize
+          initialValues={initialValues}
+          onSubmit={async (values, actions) => {
+            try {
+              await onSubmit({
+                ...values,
+                program: data.find((program) => program.id === values.program),
+              });
+            } catch (err) {
+              actions.setErrors(apiErrorToFormError(err));
+            }
+            
+            actions.setSubmitting(false);
+          }}
+        >
+          {(form) => {
+            if (!data) {
+              return null;
+            }
+            const selectedProgram =
+              data &&
+              data.find((program) => program.id === form.values.program);
+console.log(selectedProgram);
+            let intakeSurvey = null;
+            if (selectedProgram) {
+              intakeSurvey = selectedProgram.enrollment_update_survey;
+              
+            }
+
+            return (
+              <Form error onSubmit={form.handleSubmit}>
+                <FormErrors form={form} />
+                <Button
+                  primary
+                  type="submit"
+                  disabled={form.isSubmitting}
+                  onClick={() => {
+                    form.setFieldValue('surveyId', intakeSurvey.id);
+                  }}
+                >
+                  New Update
+                </Button>
+              </Form>
+            );
+          }}
+        </Formik>
+      </Grid.Column>
+    </Grid>
+  );
+}
 
 
 export default function AssessmentsTab({ enrolldata }) {
     console.log(enrolldata);
     const history = useHistory();
     const apiClient = useApiClient();
+    const [{ user }] = useContext(AppContext);
     const programsIndex = useResourceIndex(`/programs/?ordering=name`);
     const [urlParams, queryParams, hash] = useUrlParams();
     const table = usePaginatedDataTable({
         url: `/responses/?context=${enrolldata.id}`
       });
-      console.log(table);
-      const survey = useResource(
-        enrolldata.client.id && `/surveys/${enrolldata.program.enrollment_entry_survey.id}/`,
-        {}
-      );
-      console.log(survey);
+          
+    const [modalSurveyData, setModalSurveyData] = useState();
     const { save } = useNewResource('/responses/', {});
     const { data, ready, error } = programsIndex;
     //Modal related
@@ -54,7 +130,7 @@ export default function AssessmentsTab({ enrolldata }) {
             ]
     }            
     );
-    console.log(initialValues);
+    
     const options = data
             ? data.map(({ id, name }) => ({
                 value: id,
@@ -96,82 +172,98 @@ export default function AssessmentsTab({ enrolldata }) {
       ); 
 
       return (
-        <>    
-          <Button disabled={enrolldata.status=='COMPLETED'} primary onClick={handleShow}>
-            New Update
-        </Button>
-          <PaginatedDataTable columns={cncolumns} table={table} />
-          <Grid>
-                <Grid.Column computer={8} mobile={16}>
-                    <Formik
-                        enableReinitialize
-                        initialValues={initialValues}
-                        onSubmit={async (values, actions) => {
-                            try {
-                              const result = await save({
-                                ...initialValues,
-                              });
-                              //history.push(`/responses/${result.id}`);
-                              toaster.success('Assessment created');
-                            } catch (err) {
-                              actions.setErrors(apiErrorToFormError(err));
-                            }
-                            actions.setSubmitting(false);
-                            handleClose();
-                            table.reload();
-                          }}
-                    >
-                        {(form) => {
-                            if (!data) {
-                                return null;
-                            }
-                            const selectedProgram =
-                                data &&
-                                data.find((program) => program.id === form.values.program);
-
-                            let intakeSurvey = null;
-                            if (selectedProgram) {
-                                intakeSurvey = selectedProgram.enrollment_entry_survey;
-                            }
-
-                            return (
-                                <>
-                                <Modal open={show} onHide={handleClose}>
-                                <Modal.Header>          
-                                    New Assessment
-                                </Modal.Header>
-                                <Modal.Content>
-                                    <Form error onSubmit={form.handleSubmit}>
-                                        <FormInput label="Subject:" name="subject" form={form} />
-                                        <FormDatePicker label="Date" name="date" form={form} />
-                                        Client Receiving any income 
-                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
-                                        Earned income 
-                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
-                                        <FormInput label="Amount" name="eiamount" form={form} />
-                                        TANF 
-                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
-                                        <FormInput label="Amount" name="tanfamount" form={form} />
-                                        SSI
-                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
-                                        <div>
-                                        Pension
-                                        <FormCheckbox label="Yes" /><FormCheckbox label="No" />
-                                        </div>
-                                        <FormErrors form={form} />
-                                        <Button  primary type="submit" disabled={form.isSubmitting}>
-                                            Submit
-                                        </Button>
-                                        <Button onClick={handleClose}>Cancel</Button>
-                                    </Form>                                    
-                                </Modal.Content>
-                                </Modal>
-                                </>
-                            );
-                        }}
-                    </Formik>
-                </Grid.Column>
-            </Grid>
+        <>          
+        {hasPermission(user, 'program.add_enrollment') && (
+        <UpdateSurveyForm
+          client={enrolldata.client}
+          programsIndex={programsIndex}
+          enrdata={enrolldata}
+          onSubmit={async (values) => {
+            const { program } = values;
+            const result = await apiClient.get(
+              `/programs/enrollments/?client=${enrolldata.client.id}&program=${program.id}`
+            );
+            if (result.data.count > 0) {
+              throw new FieldError(
+                'program',
+                `Client already enrolled to ${program.name}`
+              );
+            }
+          
+            // open the survey modal
+            setModalSurveyData(values);
+          }}
+        />
+        )}
+        <PaginatedDataTable columns={cncolumns} table={table} />
+            <Formik
+                enableReinitialize
+                initialValues={initialValues}
+                onSubmit={async (values, actions) => {
+                    try {
+                      const result = await save({
+                        ...initialValues,
+                      });
+                      //history.push(`/responses/${result.id}`);
+                      toaster.success('Assessment created');
+                    } catch (err) {
+                      actions.setErrors(apiErrorToFormError(err));
+                    }
+                    actions.setSubmitting(false);
+                    //handleClose();
+                    table.reload();
+                  }}
+            >
+                {(form) => {
+                    if (!data) {
+                        return null;
+                    }
+                    const selectedProgram =
+                        data &&
+                        data.find((program) => program.id === form.values.program);
+                    
+                    return (
+                        <>                          
+                          <Modal size="large" open={!!modalSurveyData}>
+                            <Modal.Header>Enrollment survey</Modal.Header>
+                            <Modal.Content>
+                              {modalSurveyData && modalSurveyData.surveyId && (
+                                <EnrollmentSurveyModal
+                                  client={enrolldata.client}
+                                  programId={modalSurveyData.program.id}
+                                  surveyId={modalSurveyData.surveyId}
+                                  onResponseSubmit={async (newResponseData) => {
+                                    const { program, start_date } = modalSurveyData;
+                                    debugger;
+                                    var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
+                                    try {                                    
+                                      
+                                      await apiClient.post('/responses/', {
+                                        ...newResponseData,
+                                        response_context: {
+                                          id: enrolldata.id,
+                                          type: 'Enrollment',
+                                        },
+                                      });
+                                      toaster.success('Response saved');
+                                    } catch (err) {
+                                      const apiError = formatApiError(err.response);
+                                      toaster.error(apiError);
+                                    }
+                                    setModalSurveyData(null);
+                                    table.reload();
+                                  }}
+                                />
+                              )}
+                            </Modal.Content>
+                            <Modal.Actions>
+                              <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
+                            </Modal.Actions>
+                        </Modal>
+                        </>
+                    );
+                }}
+            </Formik>
             <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
             <Modal.Header>Are you sure?</Modal.Header>
             <Modal.Content>
