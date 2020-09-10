@@ -22,6 +22,7 @@ import { hasPermission } from 'utils/permissions';
 import TestTab from './TestTab';
 
 var programvalues = {};
+var ieprow = {};
 
 export default function IEPTab({ client }) {
   const [{ user }] = useContext(AppContext);
@@ -35,10 +36,11 @@ export default function IEPTab({ client }) {
   const handleClose = () => setIsOpened(false);
   const handleShow = () => setIsOpened(true);
 
-  function toggle(values) {
+  function toggle(row) {
     setIsOpened((wasOpened) => !wasOpened);
-    console.log(values);
-    programvalues = values;
+    //console.log(row);
+    programvalues = row;
+    //ieprow = row;
   }
 
   const columns = React.useMemo(
@@ -63,7 +65,7 @@ export default function IEPTab({ client }) {
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>
-            <Button onClick={() => toggle(row.values)}>Details</Button>
+            <Button onClick={() => toggle(row)}>Details</Button>
             {/* <EditActionLink disabled to={`#`} /> */}
             {/* <Button
               onClick={(...args) => {
@@ -138,7 +140,7 @@ export default function IEPTab({ client }) {
         <Modal size="large" open={StepModal}>
           <Modal.Header></Modal.Header>
           <Modal.Content>
-            <TestTab values={programvalues}>
+            <TestTab ieprow={programvalues}>
             </TestTab>
           </Modal.Content>
           <Modal.Actions>

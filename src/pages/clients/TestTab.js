@@ -11,8 +11,19 @@ import { formatOwner } from 'utils/modelUtils';
 import { useState } from 'react';
 import { OrientationStep } from './OrientationStep';
 import { PlanningStep } from './PlanningStep';
+import useApiClient from 'hooks/useApiClient';
+import { formatApiError } from 'utils/apiUtils';
+import toaster from 'components/toaster';
+import { InProgressStep } from './InProgressStep';
 
-export default function TestTab({ values }) {
+export default function TestTab({ ieprow }) {
+  console.log(ieprow);
+  var values = ieprow.values;
+  const apiClient = useApiClient();
+
+  const ieptable = usePaginatedDataTable({
+    url: `/iep/?client=${ieprow.original}`,
+  });
 
   const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? true : false);
   const [isEligibleDisabled, setIsEligibleDisabled] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? false : true);
@@ -33,6 +44,10 @@ export default function TestTab({ values }) {
   const [isInProgressActive, setIsInProgressActive] = useState((values.status) === "in_progress" ? true : false);
   const [isInProgressDisabled, setIsInProgressDisabled] = useState((values.status) === "in_progress" ? false : true);
   const [isInProgressCompleted, setIsInProgressCompleted] = useState((values.status) === "in_progress" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : true);
+
+  const [isEndActive, setIsEndActive] = useState((values.status) === "ended" ? true : false);
+  const [isEndDisabled, setIsEndDisabled] = useState((values.status) === "ended" ? false : true);
+  const [isEndCompleted, setIsEndCompleted] = useState((values.status) === "ended" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : (values.status) === "in_progress" ? false : true);
 
   const table = usePaginatedDataTable({
     url: '/responses/',
@@ -103,8 +118,113 @@ export default function TestTab({ values }) {
     []
   );
 
+  async function ConfirmOrientationButton() {
+    try {
+      const { id } = ieprow.original;
+      await apiClient.patch(`/iep/${id}/`,
+        {
+          orientation_completed: true,
+          status: 'in_planning'
+        });
+    } catch (err) {
+      const apiError = formatApiError(err.response);
+      toaster.error(apiError);
+    } finally {
+      //ieptable.reload();
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
+      setIsOrientOpened(false);
+      setIsOrientDisabled(true);
+      setIsOrientCompleted(true);
+
+      setIsIepOpened(true);
+      setIsIepDisabled(false);
+      setIsIepCompleted(false);
+
+      setIsInProgressActive(false);
+      setIsInProgressDisabled(true);
+      setIsInProgressCompleted(false);
+
+      setIsEndActive(false);
+      setIsEndDisabled(true);
+      setIsEndCompleted(false);
+
+    }
+  }
+
+  async function ConfirmIEPEnd() {
+    try {
+      const { id } = ieprow.original;
+      await apiClient.patch(`/iep/${id}/`,
+        {
+          // orientation_completed: true,
+          status: 'ended'
+        });
+    } catch (err) {
+      const apiError = formatApiError(err.response);
+      toaster.error(apiError);
+    } finally {
+      //ieptable.reload();
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
+      setIsOrientOpened(false);
+      setIsOrientDisabled(true);
+      setIsOrientCompleted(true);
+
+      setIsIepOpened(false);
+      setIsIepDisabled(true);
+      setIsIepCompleted(true);
+
+      setIsInProgressActive(false);
+      setIsInProgressDisabled(true);
+      setIsInProgressCompleted(true);
+
+      setIsEndActive(true);
+      setIsEndDisabled(true);
+      setIsEndCompleted(true);
+    }
+  }
+
+  async function ModifyOkButton() {
+    try {
+      const { id } = ieprow.original;
+      await apiClient.patch(`/iep/${id}/`,
+        {
+          orientation_completed: true,
+          status: 'in_progress'
+        });
+    } catch (err) {
+      const apiError = formatApiError(err.response);
+      toaster.error(apiError);
+    } finally {
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
+      setIsOrientOpened(false);
+      setIsOrientDisabled(true);
+      setIsOrientCompleted(true);
+
+      setIsIepOpened(false);
+      setIsIepDisabled(true);
+      setIsIepCompleted(true);
+
+      setIsInProgressActive(true);
+      setIsInProgressDisabled(false);
+      setIsInProgressCompleted(false);
+
+      setIsEndActive(false);
+      setIsEndDisabled(true);
+      setIsEndCompleted(false);
+    }
+  }
+
   function Orientation() {
-    console.log(values);
+    //console.log(values);
     if ((values.status) === "not_eligible") {
       setIsEligibleActive(true);
       setIsEligibleDisabled(false);
@@ -121,6 +241,10 @@ export default function TestTab({ values }) {
       setIsInProgressActive(false);
       setIsInProgressDisabled(true);
       setIsInProgressCompleted(false);
+
+      setIsEndActive(false);
+      setIsEndDisabled(true);
+      setIsEndCompleted(false);
     }
     else if ((values.status) === "in_orientation") {
       setIsEligibleActive(false);
@@ -139,6 +263,10 @@ export default function TestTab({ values }) {
       setIsInProgressDisabled(true);
       setIsInProgressCompleted(false);
 
+      setIsEndActive(false);
+      setIsEndDisabled(true);
+      setIsEndCompleted(false);
+
     } else if ((values.status) === "in_planning") {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
@@ -156,6 +284,10 @@ export default function TestTab({ values }) {
       setIsInProgressDisabled(true);
       setIsInProgressCompleted(false);
 
+      setIsEndActive(false);
+      setIsEndDisabled(true);
+      setIsEndCompleted(false);
+
     } else if ((values.status) === "in_progress") {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
@@ -172,6 +304,30 @@ export default function TestTab({ values }) {
       setIsInProgressActive(true);
       setIsInProgressDisabled(false);
       setIsInProgressCompleted(false);
+
+      setIsEndActive(false);
+      setIsEndDisabled(true);
+      setIsEndCompleted(false);
+    } else if ((values.status) === "ended") {
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
+      setIsEligibleCompleted(true);
+
+      setIsOrientOpened(false);
+      setIsOrientDisabled(true);
+      setIsOrientCompleted(true);
+
+      setIsIepOpened(false);
+      setIsIepDisabled(true);
+      setIsIepCompleted(true);
+
+      setIsInProgressActive(false);
+      setIsInProgressDisabled(true);
+      setIsInProgressCompleted(true);
+
+      setIsEndActive(true);
+      setIsEndDisabled(true);
+      setIsEndCompleted(true);
     }
   }
 
@@ -202,7 +358,7 @@ export default function TestTab({ values }) {
             <Step.Description>Taking Customer service program</Step.Description>
           </Step.Content>
         </Step>
-        <Step disabled>
+        <Step onClick={Orientation} active={isEndActive} completed={isEndCompleted} disabled={isEndDisabled}>
           <Step.Content>
             <Step.Title as={'a'}>Done</Step.Title>
             <Step.Description></Step.Description>
@@ -211,21 +367,26 @@ export default function TestTab({ values }) {
       </Step.Group>
 
       {
-        isEligibleActive &&
-        (<OrientationStep />)
+        isEligibleActive 
+        // &&
+        // (<OrientationStep />)
       }
       {
         isOrientOpened &&
-        (<OrientationStep />)
+        (<OrientationStep confirmOrientationClicked={ConfirmOrientationButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {
         isIepOpened &&
-        (<PlanningStep />)
+        (<PlanningStep modifyOkButtonClicked={ModifyOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {
         isInProgressActive &&
-        (<PlanningStep />)
+        (<InProgressStep />)
       }
+      {/* {
+        isEndActive &&
+        (<PlanningStep />)
+      } */}
 
     </>
   );

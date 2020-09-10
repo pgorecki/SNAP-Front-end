@@ -2,11 +2,20 @@ import React from 'react';
 import { Button, Grid, Checkbox, Dropdown, Menu, Segment, Modal } from 'semantic-ui-react';
 import { useState } from 'react';
 
-export const PlanningStep = () => {
+export const PlanningStep = (props) => {
   const [isModidystate, setIsModifyState] = useState(false)
 
   const modifyiep = () => {
     setIsModifyState(true);
+  }
+
+  function confirmEndClicked() {
+    props.confirmEndIEPClicked();
+  }
+
+  function modifyOkButtonClicked() {
+    props.modifyOkButtonClicked();
+    setIsModifyState(null);
   }
 
   return (
@@ -18,7 +27,7 @@ export const PlanningStep = () => {
           <Button onClick={modifyiep} button >
             Modify IEP plan
                 </Button>
-          <Button color="red" style={{ marginLeft: "1rem" }}>End IEP</Button>
+          <Button onClick={confirmEndClicked} color="red" style={{ marginLeft: "1rem" }}>End IEP</Button>
         </Grid.Row>
       </Grid>
 
@@ -40,7 +49,7 @@ export const PlanningStep = () => {
                 <Checkbox label="Job search assistance"></Checkbox>
               </Grid.Column>
               <Button style={{ marginLeft: "1rem" }} onClick={() => setIsModifyState(null)}>Cancel</Button>
-              <Button primary style={{ marginTop: "1rem", marginLeft: "1rem" }}>Ok</Button>
+              <Button onClick={modifyOkButtonClicked} primary style={{ marginTop: "1rem", marginLeft: "1rem" }}>Ok</Button>
             </Segment>
           </Modal.Content>
         </Modal>
