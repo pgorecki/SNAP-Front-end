@@ -12,12 +12,14 @@ export default function usePaginatedDataTable({
   const [lastFetchParams, setLastFetchParams] = useState({});
   const [updatedRows, setUpdatedRows] = useState([]);
 
-  const [indexData, setIndexData] = useState({
+  const initialIndexData = {
     results: [],
     count: 0,
     page_number: 1,
     page_size: 0,
-  });
+  };
+
+  const [indexData, setIndexData] = useState(initialIndexData);
 
   const fetchData = async ({ pageIndex, pageSize, sortBy, filters }) => {
     setLastFetchParams({ pageIndex, pageSize, sortBy, filters });
@@ -35,7 +37,8 @@ export default function usePaginatedDataTable({
       data,
     });
     setIndexData(data);
-    setUpdatedRows(new Array(data.results.length));
+    const rowsCount = data ? data.results.length : 0;
+    setUpdatedRows(new Array(rowsCount));
   };
 
   const updateRow = (row, data) => {
@@ -49,13 +52,18 @@ export default function usePaginatedDataTable({
     });
   };
 
-  const data = indexData.results.map((r, i) => ({ ...r, ...updatedRows[i] }));
+  const safeIndexData = indexData || initialIndexData;
+
+  const data = safeIndexData.results.map((r, i) => ({
+    ...r,
+    ...updatedRows[i],
+  }));
 
   return {
     url,
     data,
-    totalCount: indexData.count,
-    totalPages: indexData.total_pages,
+    totalCount: safeIndexData.count,
+    totalPages: safeIndexData.total_pages,
     pageNumber,
     pageSize,
     loading: resourceIndex.loading,

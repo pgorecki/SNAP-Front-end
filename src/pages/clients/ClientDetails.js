@@ -14,8 +14,7 @@ import IEPTab from './IepTab';
 import ResponsesTab from './ResponsesTab';
 import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
-import ReferralsTab from './ReferralsTab';
-import TestTab from './TestTab';
+import EnrollmentServicesTab from './EnrollmentServicesTab';
 import { hasPermission } from 'utils/permissions';
 
 function findTabIndex(tabPanes, tabName) {
@@ -82,6 +81,16 @@ export default function ClientDetails() {
       render: () => (
         <Tab.Pane>
           <EnrollmentsTab client={data} />
+        </Tab.Pane>
+      ),
+      permission: 'program.view_enrollment',
+    },
+    {
+      name: 'services',
+      menuItem: 'Services (TEMP)',
+      render: () => (
+        <Tab.Pane>
+          <EnrollmentServicesTab enrollmentId="24c4882c-66d8-4b45-b40a-7575621e712c" />
         </Tab.Pane>
       ),
       permission: 'program.view_enrollment',

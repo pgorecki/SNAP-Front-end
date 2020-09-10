@@ -191,7 +191,7 @@ function HistoricalClientsTab() {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Last Reivew Date',
+        Header: 'Last Review Date',
         accessor: 'modified_at',
         Cell: ({ value }) => formatDateTime(value, true),
       },
