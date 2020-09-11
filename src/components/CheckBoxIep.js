@@ -21,12 +21,12 @@ const programs = [
 
 export const CheckBoxIep = (props) => {
     const [data, error, loading] = useFetchData(`/programs/`, {});
-    const [Checked, setChecked] = useState([])
+    const [Checked, setChecked] = useState(props.setPreData)
     const [elements, setelements] = useState([])
     if (typeof data.results === 'undefined') {
         return null;
     }
-
+    console.log(props);
     const handleCheck = (pvalue) => {
         console.log(pvalue);
         const currentIndex = Checked.indexOf(pvalue);
@@ -51,6 +51,11 @@ export const CheckBoxIep = (props) => {
         setChecked(elements)
         props.handleChecks(elements)
     }
+
+    // function setPreData(listInitialPrograms) {
+    //     setChecked(listInitialPrograms);
+    //     //props.setPreData(listInitialPrograms)
+    // }
 
 
     return (<>

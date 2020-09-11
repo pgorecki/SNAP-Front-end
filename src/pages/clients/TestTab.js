@@ -382,11 +382,11 @@ export default function TestTab({ ieprow }) {
       }
       {
         isOrientOpened &&
-        (<OrientationStep confirmOrientationClicked={ConfirmOrientationButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
+        (<OrientationStep client={ieprow.original} confirmOrientationClicked={ConfirmOrientationButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {
         isIepOpened &&
-        (<PlanningStep modifyOkButtonClicked={ModifyOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
+        (<PlanningStep client={ieprow.original} modifyOkButtonClicked={ModifyOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {
         isInProgressActive &&
