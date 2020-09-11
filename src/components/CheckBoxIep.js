@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Grid, Checkbox, Modal } from 'semantic-ui-react'
 import { useState } from 'react'
+import useFetchData from 'hooks/useFetchData';
 
 const programs = [
     {
@@ -19,32 +20,44 @@ const programs = [
 
 
 export const CheckBoxIep = (props) => {
-
+    const [data, error, loading] = useFetchData(`/programs/`, {});
     const [Checked, setChecked] = useState([])
+    const [elements, setelements] = useState([])
+    if (typeof data.results === 'undefined') {
+        return null;
+    }
 
-    const handleCheck = (value) => {
+    const handleCheck = (pvalue) => {
+        const currentIndex = Checked.indexOf(pvalue);
+        const elements = [...Checked];
+        let elem = new Object();
+        let fbool = false;
+        elem.id = pvalue["id"];
+        elem.name = pvalue["name"];
+        elements.forEach(e => {
+            if (e["id"] == elem.id)
+                fbool = true;
+        });
 
-        const currentIndex = Checked.indexOf(value);
-        const newChecked = [...Checked];
-
-        if (currentIndex === -1) {
-            newChecked.push(value)
+        const objIndex = elements.indexOf(elem);
+        if (fbool === false) {
+            elements.push(elem);
+        } else {
+            elements.splice(objIndex, 1);
         }
-        else {
-            newChecked.splice(currentIndex, 1)
-        }
-        setChecked(newChecked)
-        props.handleChecks(newChecked)
+
+        setChecked(elements)
+        props.handleChecks(elements)
     }
 
 
     return (<>
-        {programs.map((value, index) => (
+        {typeof data.results !== 'undefined' ? data.results.map((value, index) => (
             <React.Fragment key={index}>
-                <Checkbox onChange={() => handleCheck(value.name)} style={{ marginTop: "1rem" }} />
+                <Checkbox onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} />
                 <span style={{ marginLeft: "1rem" }}>{value.name}</span><br></br>
             </React.Fragment>
 
-        ))}
+        )) : null}
     </>)
 }

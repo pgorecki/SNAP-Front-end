@@ -16,8 +16,8 @@ export const InProgressStep = (props) => {
     <>
       <div>
         {listInitialPrograms == null ? <h4>No programs are planned yet.Please modify IEP plan </h4> : listInitialPrograms.map((p, index) => (
-          <li key={index}>
-            {p}
+          <li key={p["id"]}>
+            {p["name"]}
           </li>
         ))}
       </div>
