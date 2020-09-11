@@ -49,6 +49,8 @@ export default function TestTab({ ieprow }) {
   const [isEndDisabled, setIsEndDisabled] = useState((values.status) === "ended" ? false : true);
   const [isEndCompleted, setIsEndCompleted] = useState((values.status) === "ended" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : (values.status) === "in_progress" ? false : true);
 
+  const [listInitialPrograms, setListInitialPrograms] = useState(null);
+  console.log(listInitialPrograms);
   const table = usePaginatedDataTable({
     url: '/responses/',
   });
@@ -189,7 +191,10 @@ export default function TestTab({ ieprow }) {
     }
   }
 
-  async function ModifyOkButton() {
+  async function ModifyOkButton(checkPrograms) {
+    console.log(checkPrograms)
+    setListInitialPrograms(checkPrograms);
+    //const [listPrograms, setListPrograms] = useState(checkPrograms);
     try {
       const { id } = ieprow.original;
       await apiClient.patch(`/iep/${id}/`,
@@ -221,6 +226,10 @@ export default function TestTab({ ieprow }) {
       setIsEndDisabled(true);
       setIsEndCompleted(false);
     }
+  }
+
+  async function ModifyPOkButton() {
+
   }
 
   function Orientation() {
@@ -367,7 +376,7 @@ export default function TestTab({ ieprow }) {
       </Step.Group>
 
       {
-        isEligibleActive 
+        isEligibleActive
         // &&
         // (<OrientationStep />)
       }
@@ -381,7 +390,7 @@ export default function TestTab({ ieprow }) {
       }
       {
         isInProgressActive &&
-        (<InProgressStep />)
+        (<InProgressStep listPrograms={listInitialPrograms} modifyOkButtonClicked={ModifyPOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {/* {
         isEndActive &&

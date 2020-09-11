@@ -1,20 +1,28 @@
 import React from 'react';
 import { Button, Grid, Checkbox, Dropdown, Menu, Segment, Modal } from 'semantic-ui-react';
 import { useState } from 'react';
+import { CheckBoxIep } from '../../components/CheckBoxIep'
 
 export const PlanningStep = (props) => {
   const [isModidystate, setIsModifyState] = useState(false)
-
+  const [checkPrograms, setCheckedPrograms] = useState(null)
   const modifyiep = () => {
     setIsModifyState(true);
   }
+
+  const handleChecks = (checks, category) => {
+    setCheckedPrograms(checks);
+    //console.log(checks)
+  }
+
 
   function confirmEndClicked() {
     props.confirmEndIEPClicked();
   }
 
   function modifyOkButtonClicked() {
-    props.modifyOkButtonClicked();
+    //console.log(checkPrograms);
+    props.modifyOkButtonClicked(checkPrograms);
     setIsModifyState(null);
   }
 
@@ -38,19 +46,10 @@ export const PlanningStep = (props) => {
         <Modal size='tiny' open={true} >
           <h3 style={{ marginTop: "1rem", marginLeft: "1rem" }}>Select program for this IEP</h3>
           <Modal.Content scrolling={true}>
-            <Segment color="blue">
-              <Grid.Column style={{ marginTop: "1rem" }}>
-                <Checkbox label="Child care"></Checkbox>
-              </Grid.Column>
-              <Grid.Column style={{ marginTop: "1rem" }}>
-                <Checkbox label="Welding"></Checkbox>
-              </Grid.Column>
-              <Grid.Column style={{ marginTop: "1rem" }}>
-                <Checkbox label="Job search assistance"></Checkbox>
-              </Grid.Column>
-              <Button style={{ marginLeft: "1rem" }} onClick={() => setIsModifyState(null)}>Cancel</Button>
-              <Button onClick={modifyOkButtonClicked} primary style={{ marginTop: "1rem", marginLeft: "1rem" }}>Ok</Button>
-            </Segment>
+            <CheckBoxIep handleChecks={checks => handleChecks(checks, "programs")} />
+            <Button style={{ marginLeft: "1rem" }} onClick={() => setIsModifyState(null)}>Cancel</Button>
+            <Button onClick={modifyOkButtonClicked} primary style={{ marginTop: "1rem", marginLeft: "1rem" }}>Ok</Button>
+
           </Modal.Content>
         </Modal>
       )}
