@@ -33,16 +33,17 @@ export default function IEPTab({ client }) {
     url: `/iep/?client=${client.id}`,
   });
   const [isOpened, setIsOpened] = useState(false);
-  const handleClose = () => setIsOpened(false);
-  const handleShow = () => setIsOpened(true);
+  // const handleClose = () => setIsOpened(false);
+  // const handleShow = () => setIsOpened(true);
 
   function toggle(row) {
-    setIsOpened((wasOpened) => !wasOpened);
-    //console.log(row);
-    console.log(client);
-    console.log(row);
+    setIsOpened(true);
     programValues = row;
-    //ieprow = row;
+  }
+
+  function handleClose() {
+    table.reload();
+    setIsOpened(false);
   }
 
   const columns = React.useMemo(
@@ -139,7 +140,7 @@ export default function IEPTab({ client }) {
       <Header as="h4">IEPs</Header>
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
-        <Modal size="large" open={StepModal}>
+        <Modal size="large" open={isOpened}>
           <Modal.Header></Modal.Header>
           <Modal.Content>
             <TestTab ieprow={programValues}>
