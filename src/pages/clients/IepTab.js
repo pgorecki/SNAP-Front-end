@@ -21,8 +21,8 @@ import useApiClient from 'hooks/useApiClient';
 import { hasPermission } from 'utils/permissions';
 import TestTab from './TestTab';
 
-var programvalues = {};
-var ieprow = {};
+let programValues = {};
+let iepRow = {};
 
 export default function IEPTab({ client }) {
   const [{ user }] = useContext(AppContext);
@@ -41,7 +41,7 @@ export default function IEPTab({ client }) {
     //console.log(row);
     console.log(client);
     console.log(row);
-    programvalues = row;
+    programValues = row;
     //ieprow = row;
   }
 
@@ -142,7 +142,7 @@ export default function IEPTab({ client }) {
         <Modal size="large" open={StepModal}>
           <Modal.Header></Modal.Header>
           <Modal.Content>
-            <TestTab ieprow={programvalues}>
+            <TestTab ieprow={programValues}>
             </TestTab>
           </Modal.Content>
           <Modal.Actions>

@@ -15,10 +15,11 @@ import { useHistory } from 'react-router-dom';
 import useUrlParams from 'hooks/useUrlParams';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
+import moment from 'moment';
 
-let enrollmentId = '';
-let programName = '';
-let programValues = {};
+var enrollmentId = '';
+var programName = '';
+var programValues = {};
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready } = programsIndex;
@@ -217,8 +218,8 @@ export default function EnrollmentsTab({ client }) {
           <Modal.Content>
             <EnrollmentDetails
               title={clientFullName}
-              enrollmentid={enrollmentId}
-              pdata = {programValues}
+              enrollmentId={enrollmentId}
+              pdata={programValues}
             //loading={loading}
             //error={formatApiError(error)} 
             >
@@ -239,8 +240,7 @@ export default function EnrollmentsTab({ client }) {
               surveyId={modalSurveyData.surveyId}
               onResponseSubmit={async (newResponseData) => {
                 const { program, start_date } = modalSurveyData;
-                debugger;
-                var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
+
                 try {
                   const enrollmentResponse = await apiClient.post(
                     '/programs/enrollments/',
@@ -248,7 +248,7 @@ export default function EnrollmentsTab({ client }) {
                       client: client.id,
                       status: 'ENROLLED',
                       program: program.id,
-                      sd,
+                      start_date: moment(start_date).format('YYYY-MM-DD'),
                     }
                   );
                   const enrollment = enrollmentResponse.data;
@@ -284,46 +284,42 @@ export default function EnrollmentsTab({ client }) {
         </Modal.Actions>
       </Modal>
       <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
-            <Modal.Header>End Enrollment</Modal.Header>
-            <Modal.Content>
-              <Modal.Description>
-                <p>
-                  Are you sure you want to end enrollment?
+        <Modal.Header>End Enrollment</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <p>
+              Are you sure you want to end enrollment?
                 </p>
-              </Modal.Description>
-            </Modal.Content>
-            <Modal.Actions>
-              <Button
-                negative
-                onClick={async () => {
-                  try {
-                    var dt =new Date();
-                    var nd = dt.getFullYear() + '-' + ("0" + (dt.getMonth() + 1)).slice(-2) + '-' + ("0" + dt.getDate()).slice(-2) ;
-                    
-                    //dt=  dt.getFullYear() + (dt.getMonth()-1) + dt.getDate() ;
-                    await apiClient.patch(`/programs/enrollments/${modalData.id}/`,
-                      {
-                        client: client.id,
-                        status: 'COMPLETED',
-                        program: modalData.programId,
-                        end_date: nd
-                      });
-                    table.reload();
-                  } catch (err) {
-                    const apiError = formatApiError(err.response);
-                    toaster.error(apiError);
-                  } finally {
-                    setModaData({});
-                  }
-                }}
-              >
-                Yes
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            negative
+            onClick={async () => {
+              try {
+                await apiClient.patch(`/programs/enrollments/${modalData.id}/`,
+                  {
+                    client: client.id,
+                    status: 'COMPLETED',
+                    program: modalData.programId,
+                    end_date: moment(new Date()).format('YYYY-MM-DD'),
+                  });
+                table.reload();
+              } catch (err) {
+                const apiError = formatApiError(err.response);
+                toaster.error(apiError);
+              } finally {
+                setModaData({});
+              }
+            }}
+          >
+            Yes
               </Button>
-              <Button onClick={async () => {setModaData({});}}>
-                No
+          <Button onClick={async () => { setModaData({}); }}>
+            No
               </Button>
-            </Modal.Actions>
-          </Modal>
+        </Modal.Actions>
+      </Modal>
     </>
   );
 }

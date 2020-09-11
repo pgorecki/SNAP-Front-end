@@ -20,13 +20,13 @@ import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
 
 
-export default function CaseNotesTab({ enrolldata }) {
-  console.log(enrolldata);
+export default function CaseNotesTab({ enrollData }) {
+  console.log(enrollData);
   const history = useHistory();
   const apiClient = useApiClient();
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   const table = usePaginatedDataTable({
-    url: `/notes/?source_id=${enrolldata.id}`,
+    url: `/notes/?source_id=${enrollData.id}`,
   });
   console.log(table);
   const { save } = useNewResource('/notes/', {});
@@ -40,7 +40,7 @@ export default function CaseNotesTab({ enrolldata }) {
 
   const [initialValues, setInitialValues] = useState({
     source: {
-      id: enrolldata.id
+      id: enrollData.id
       , type: 'Enrollment'
     }
     //,text:'a message'
@@ -98,7 +98,6 @@ export default function CaseNotesTab({ enrolldata }) {
         initialValues={initialValues}
         onSubmit={async (values, actions) => {
           try {
-            debugger;
             const result = await save({
               ...values,
               text: values.subject
@@ -188,7 +187,6 @@ export default function CaseNotesTab({ enrolldata }) {
             initialValues={initialValues}
             onSubmit={async (values, actions) => {
               try {
-                debugger;
                 const result = await save({
                   ...values,
                   text: values.subject

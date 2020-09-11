@@ -9,12 +9,12 @@ import useFetchData from 'hooks/useFetchData';
 import CaseNotesTab from './CaseNotesTab';
 import AssessmentsTab from './AssessmentsTab';
 
-export default function EnrollmentDetails({ title, children, enrollmentid, pdata }) {
+export default function EnrollmentDetails({ title, children, enrollmentId, pdata }) {
   //console.log(enrollmentid);
   const history = useHistory();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const apiClient = useApiClient();
-  const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentid}`, {});
+  const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentId}`, {});
   console.log(pdata);
   if (typeof pdata !== 'undefined') {
 
@@ -28,7 +28,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid, pdata
         key: 6,
         render: () => (
           <Tab.Pane>
-            <SummaryTab enrolldata={pdata} />
+            <SummaryTab enrollData={pdata} />
           </Tab.Pane>
         ),
       },
@@ -37,7 +37,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid, pdata
         key: 7,
         render: () => (
           <Tab.Pane>
-            <AssessmentsTab enrolldata={data} />
+            <AssessmentsTab enrollData={data} />
           </Tab.Pane>
         ),
       }, ,
@@ -46,7 +46,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid, pdata
         key: 8,
         render: () => (
           <Tab.Pane>
-            <CaseNotesTab enrolldata={data} />
+            <CaseNotesTab enrollData={data} />
           </Tab.Pane>
         ),
       },
