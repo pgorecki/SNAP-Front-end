@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Button, Grid, Checkbox, Label, Modal, Header, Form } from 'semantic-ui-react';
+import { Button, Grid, Checkbox, Label, Modal, Header, Form, FormTextArea } from 'semantic-ui-react';
 import { handleChecks, PlanningStep } from './PlanningStep';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
@@ -7,23 +7,28 @@ import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import useResourceIndex from 'hooks/useResourceIndex';
 import { AppContext } from 'AppStore';
 import { Formik } from 'formik';
-import { FormSelect, FormDatePicker, FormErrors } from 'components/FormFields';
+import { FormSelect, FormDatePicker, FormErrors, FormInput } from 'components/FormFields';
 import { formatDateTime, FieldError } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import useApiClient from 'hooks/useApiClient';
+import useNewResource from 'hooks/useNewResource';
 
 export const InProgressStep = (props) => {
   console.log(props);
   const [isModidystate, setIsModifyState] = useState(false)
   const [isSurveyModel, setIsSurveyModelState] = useState(false)
   const [isBeginEnrollment, setIsBeginEnrollmentState] = useState(false)
+  const [isNotesModel, setIsNotesModelState] = useState(false)
   const [listInitialPrograms, setListInitialPrograms] = useState(props.listPrograms);
   const [initProgram, setInitialProgram] = useState(null);
   const [initClient, setClientState] = useState(props.client.client);
+  const [initIep, setIepState] = useState(props.client);
   const [modalSurveyData, setModalSurveyData] = useState();
   const [{ user }] = useContext(AppContext);
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   const apiClient = useApiClient();
+  const { save } = useNewResource('/notes/', {});
+
 
   const modifyiep = () => {
     setIsModifyState(true);
@@ -41,6 +46,15 @@ export const InProgressStep = (props) => {
   function CloseEnrollment() {
     setIsBeginEnrollmentState(false);
     setModalSurveyData(null);
+  }
+
+  function CloseNotes() {
+    setIsNotesModelState(false);
+    //setModalSurveyData(null);
+  }
+
+  function OpenNotes() {
+    setIsNotesModelState(true);
   }
 
   function EnrollmentForm({ programsIndex, onSubmit, initP }) {
@@ -133,6 +147,56 @@ export const InProgressStep = (props) => {
     );
   }
 
+  function NotesForm({ iepIndex }) {
+    const [initialValues, setInitialValues] = useState({
+      source: {
+        id: iepIndex["id"]
+        , type: 'ClientIEP'
+      }
+    });
+    return (
+      <>
+        <Formik
+          enableReinitialize
+          initialValues={initialValues}
+          onSubmit={async (values, actions) => {
+            try {
+              const result = await save({
+                ...values,
+                text: values.subject
+              });
+              //history.push(`/notes/${result.id}`);
+              toaster.success('Notes created');
+            } catch (err) {
+              actions.setErrors(apiErrorToFormError(err));
+            }
+            actions.setSubmitting(false);
+            setIsNotesModelState(false);
+            //table.reload();
+          }}
+        >
+          {(form) => {
+            return (
+              <>
+                <Form error onSubmit={form.handleSubmit}>
+                  <FormInput label="Subject:" name="subject" form={form} />
+                  {/* <FormSelect label="Select Template" name="template" form={form} options={options} placeholder="Select Template" disabled="true" /> */}
+                  <FormDatePicker label="Date" name="date" form={form} />
+                  <FormTextArea name="note" placeholder="Enter note here" form={form} rows="5" />
+                  <FormErrors form={form} />
+                  <Button primary type="submit" disabled={form.isSubmitting}>
+                    Submit</Button>
+                </Form>
+
+              </>
+
+            );
+          }}
+        </Formik>
+      </>
+    );
+  }
+
   return (
     <>
       <div style={{ marginLeft: "1rem" }}>
@@ -160,7 +224,7 @@ export const InProgressStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button style={{ marginLeft: "1rem" }}>Add Notes</Button>
+      <Button onClick={OpenNotes} style={{ marginLeft: "1rem" }}>Add Notes</Button>
       {hasPermission(user, 'program.add_enrollment') && isBeginEnrollment && (
         <>
           <Modal size="large" open={isBeginEnrollment}>
@@ -191,6 +255,22 @@ export const InProgressStep = (props) => {
             </Modal.Content>
             <Modal.Actions>
               <Button onClick={CloseEnrollment}>Cancel</Button>
+            </Modal.Actions>
+          </Modal>
+        </>
+      )}
+      {hasPermission(user, 'program.add_enrollment') && isNotesModel && (
+        <>
+          <Modal size="large" open={isNotesModel}>
+            <Modal.Header>Notes</Modal.Header>
+            <Modal.Content>
+              {/* <Header as="h4">Enroll to Program</Header> */}
+              <NotesForm
+                iepIndex={initIep}
+              />
+            </Modal.Content>
+            <Modal.Actions>
+              <Button onClick={() => setIsNotesModelState(false)}>Cancel</Button>
             </Modal.Actions>
           </Modal>
         </>
