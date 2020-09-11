@@ -21,9 +21,9 @@ import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
 import { hasPermission } from 'utils/permissions';
 
-function UpdateSurveyForm({ programsIndex, onSubmit, enrdata }){
+function UpdateSurveyForm({ programsIndex, onSubmit, enrData }){
   const { data, ready } = programsIndex;
-console.log(enrdata);
+//console.log(enrData);
   const [initialValues, setInitialValues] = useState({
     surveyId: null,
     program: null,
@@ -99,17 +99,17 @@ console.log(selectedProgram);
 }
 
 
-export default function AssessmentsTab({ enrolldata }) {
-    console.log(enrolldata);
+export default function AssessmentsTab({ enrollData }) {
+    console.log(enrollData);
     const history = useHistory();
     const apiClient = useApiClient();
     const [{ user }] = useContext(AppContext);
     const programsIndex = useResourceIndex(`/programs/?ordering=name`);
     const [urlParams, queryParams, hash] = useUrlParams();
     const table = usePaginatedDataTable({
-        url: `/responses/?context=${enrolldata.id}`
+        url: `/responses/?context=${enrollData.id}`
       });
-          
+      console.log(table);     
     const [modalSurveyData, setModalSurveyData] = useState();
     const { save } = useNewResource('/responses/', {});
     const { data, ready, error } = programsIndex;
@@ -119,9 +119,9 @@ export default function AssessmentsTab({ enrolldata }) {
     const handleShow = () => setShow(true);
     const [modalData, setModaData] = useState({});
     const [initialValues, setInitialValues] = useState({
-        client:enrolldata.client.id
-        ,survey:enrolldata.program.enrollment_entry_survey.id
-        ,response_context: {id: enrolldata.id, type: 'Enrollment'}
+        client:enrollData.client.id
+        ,survey:enrollData.program.enrollment_entry_survey.id
+        ,response_context: {id: enrollData.id, type: 'Enrollment'}
         ,answers:[
                 {
                     question:'3ab2f933-899c-4229-9c98-ce17e002633f'
@@ -141,10 +141,7 @@ export default function AssessmentsTab({ enrolldata }) {
         () => [
           {
             Header: 'Update Type',
-            accessor: 'sourceobject.type',
-            Cell: ({ value, row }) => (
-                <NavLink to={`/responses/${row.original.id}`}>{value}</NavLink>
-            ),
+            accessor: 'survey.name',            
           },
           {
             Header: 'Date',
@@ -161,8 +158,8 @@ export default function AssessmentsTab({ enrolldata }) {
             accessor: 'actions',
             Cell: ({ row }) => (
               <>
-                <EditActionLink disabled={enrolldata.status=='COMPLETED'} to={`/responses/${row.original.id}/edit`} />
-                <DeleteActionButton disabled={enrolldata.status=='COMPLETED'}
+                <EditActionLink disabled={enrollData.status=='COMPLETED'} to={`/responses/${row.original.id}/edit`} />
+                <DeleteActionButton disabled={enrollData.status=='COMPLETED'}
                   onClick={() => setModaData({ ...row.original })} />
               </>
             ),
@@ -175,13 +172,13 @@ export default function AssessmentsTab({ enrolldata }) {
         <>          
         {hasPermission(user, 'program.add_enrollment') && (
         <UpdateSurveyForm
-          client={enrolldata.client}
+          client={enrollData.client}
           programsIndex={programsIndex}
-          enrdata={enrolldata}
+          enrData={enrollData}
           onSubmit={async (values) => {
             const { program } = values;
             const result = await apiClient.get(
-              `/programs/enrollments/?client=${enrolldata.client.id}&program=${program.id}`
+              `/programs/enrollments/?client=${enrollData.client.id}&program=${program.id}`
             );
             if (result.data.count > 0) {
               throw new FieldError(
@@ -229,19 +226,18 @@ export default function AssessmentsTab({ enrolldata }) {
                             <Modal.Content>
                               {modalSurveyData && modalSurveyData.surveyId && (
                                 <EnrollmentSurveyModal
-                                  client={enrolldata.client}
+                                  client={enrollData.client}
                                   programId={modalSurveyData.program.id}
                                   surveyId={modalSurveyData.surveyId}
                                   onResponseSubmit={async (newResponseData) => {
-                                    const { program, start_date } = modalSurveyData;
-                                    debugger;
-                                    var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
+                                    const { program, start_date } = modalSurveyData;                                    
+                                    //let sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
                                     try {                                    
                                       
                                       await apiClient.post('/responses/', {
                                         ...newResponseData,
                                         response_context: {
-                                          id: enrolldata.id,
+                                          id: enrollData.id,
                                           type: 'Enrollment',
                                         },
                                       });

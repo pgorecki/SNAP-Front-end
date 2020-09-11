@@ -15,10 +15,11 @@ import { useHistory } from 'react-router-dom';
 import useUrlParams from 'hooks/useUrlParams';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
+import moment from 'moment';
 
-var enrollmentid = '';
-var programname = '';
-var programvalues = {};
+var enrollmentId = '';
+var programName = '';
+var programValues = {};
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready } = programsIndex;
@@ -134,9 +135,9 @@ export default function EnrollmentsTab({ client }) {
   //console.log(table);
   function toggle(enrolid, values) {
     setIsOpened((wasOpened) => !wasOpened);
-    enrollmentid = enrolid;
-    programname = values["program.name"];
-    programvalues = values;
+    enrollmentId = enrolid;
+    programName = values["program.name"];
+    programValues = values;
   }
 
   const columns = React.useMemo(
@@ -213,12 +214,12 @@ export default function EnrollmentsTab({ client }) {
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
         <Modal open={SummarytabModal}>
-          <Modal.Header>{programname}</Modal.Header>
+          <Modal.Header>{programName}</Modal.Header>
           <Modal.Content>
             <EnrollmentDetails
               title={clientFullName}
-              enrollmentid={enrollmentid}
-              pdata = {programvalues}
+              enrollmentId={enrollmentId}
+              pdata = {programValues}
             //loading={loading}
             //error={formatApiError(error)} 
             >
@@ -239,8 +240,7 @@ export default function EnrollmentsTab({ client }) {
               surveyId={modalSurveyData.surveyId}
               onResponseSubmit={async (newResponseData) => {
                 const { program, start_date } = modalSurveyData;
-                debugger;
-                var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
+                                
                 try {
                   const enrollmentResponse = await apiClient.post(
                     '/programs/enrollments/',
@@ -248,7 +248,7 @@ export default function EnrollmentsTab({ client }) {
                       client: client.id,
                       status: 'ENROLLED',
                       program: program.id,
-                      sd,
+                      start_date: moment(start_date).format('YYYY-MM-DD'),
                     }
                   );
                   const enrollment = enrollmentResponse.data;
@@ -297,16 +297,12 @@ export default function EnrollmentsTab({ client }) {
                 negative
                 onClick={async () => {
                   try {
-                    var dt =new Date();
-                    var nd = dt.getFullYear() + '-' + ("0" + (dt.getMonth() + 1)).slice(-2) + '-' + ("0" + dt.getDate()).slice(-2) ;
-                    
-                    //dt=  dt.getFullYear() + (dt.getMonth()-1) + dt.getDate() ;
                     await apiClient.patch(`/programs/enrollments/${modalData.id}/`,
                       {
                         client: client.id,
                         status: 'COMPLETED',
                         program: modalData.programId,
-                        end_date: nd
+                        end_date: moment(new Date()).format('YYYY-MM-DD'),
                       });
                     table.reload();
                   } catch (err) {
