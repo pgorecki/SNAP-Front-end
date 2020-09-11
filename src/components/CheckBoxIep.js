@@ -28,12 +28,14 @@ export const CheckBoxIep = (props) => {
     }
 
     const handleCheck = (pvalue) => {
+        console.log(pvalue);
         const currentIndex = Checked.indexOf(pvalue);
         const elements = [...Checked];
         let elem = new Object();
         let fbool = false;
         elem.id = pvalue["id"];
         elem.name = pvalue["name"];
+        elem.programsIndex = pvalue;
         elements.forEach(e => {
             if (e["id"] == elem.id)
                 fbool = true;

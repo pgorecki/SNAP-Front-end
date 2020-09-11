@@ -39,6 +39,8 @@ export default function IEPTab({ client }) {
   function toggle(row) {
     setIsOpened((wasOpened) => !wasOpened);
     //console.log(row);
+    console.log(client);
+    console.log(row);
     programvalues = row;
     //ieprow = row;
   }

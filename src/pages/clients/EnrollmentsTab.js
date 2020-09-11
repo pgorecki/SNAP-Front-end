@@ -16,9 +16,9 @@ import useUrlParams from 'hooks/useUrlParams';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
 
-var enrollmentid = '';
-var programname = '';
-var programvalues = {};
+let enrollmentId = '';
+let programName = '';
+let programValues = {};
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready } = programsIndex;
@@ -134,9 +134,9 @@ export default function EnrollmentsTab({ client }) {
   //console.log(table);
   function toggle(enrolid, values) {
     setIsOpened((wasOpened) => !wasOpened);
-    enrollmentid = enrolid;
-    programname = values["program.name"];
-    programvalues = values;
+    enrollmentId = enrolid;
+    programName = values["program.name"];
+    programValues = values;
   }
 
   const columns = React.useMemo(
@@ -213,12 +213,12 @@ export default function EnrollmentsTab({ client }) {
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
         <Modal open={SummarytabModal}>
-          <Modal.Header>{programname}</Modal.Header>
+          <Modal.Header>{programName}</Modal.Header>
           <Modal.Content>
             <EnrollmentDetails
               title={clientFullName}
-              enrollmentid={enrollmentid}
-              pdata = {programvalues}
+              enrollmentid={enrollmentId}
+              pdata = {programValues}
             //loading={loading}
             //error={formatApiError(error)} 
             >

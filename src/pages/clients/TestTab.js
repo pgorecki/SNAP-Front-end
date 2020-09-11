@@ -390,7 +390,7 @@ export default function TestTab({ ieprow }) {
       }
       {
         isInProgressActive &&
-        (<InProgressStep listPrograms={listInitialPrograms} modifyOkButtonClicked={ModifyPOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
+        (<InProgressStep client={ieprow.original} listPrograms={listInitialPrograms} modifyOkButtonClicked={ModifyPOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {/* {
         isEndActive &&
