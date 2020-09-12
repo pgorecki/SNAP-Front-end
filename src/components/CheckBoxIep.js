@@ -21,10 +21,13 @@ const programs = [
 
 export const CheckBoxIep = (props) => {
     const [data, error, loading] = useFetchData(`/programs/`, {});
-    const [Checked, setChecked] = useState(props.setPreData)
+    const [Checked, setChecked] = useState(props.setPreData == null ? [] : props.setPreData)
     const [elements, setelements] = useState([])
     if (typeof data.results === 'undefined') {
         return null;
+    }
+    if (props.setPreData != null) {
+
     }
     console.log(props);
     const handleCheck = (pvalue) => {
@@ -52,19 +55,23 @@ export const CheckBoxIep = (props) => {
         props.handleChecks(elements)
     }
 
-    // function setPreData(listInitialPrograms) {
-    //     setChecked(listInitialPrograms);
-    //     //props.setPreData(listInitialPrograms)
-    // }
+    function PopulateChecked(value) {
+        if (!!Checked) {
+            console.log(Checked);
+        }
+        return false;
+    }
 
 
     return (<>
-        {typeof data.results !== 'undefined' ? data.results.map((value, index) => (
-            <React.Fragment key={index}>
-                <Checkbox onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} />
-                <span style={{ marginLeft: "1rem" }}>{value.name}</span><br></br>
-            </React.Fragment>
+        {
+            typeof data.results !== 'undefined' ? data.results.map((value, index) => (
+                <React.Fragment key={index}>
+                    <Checkbox name={value["id"]} onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} />
+                    <span style={{ marginLeft: "1rem" }}>{value.name}</span><br></br>
+                </React.Fragment>
 
-        )) : null}
+            )) : null
+        }
     </>)
 }
