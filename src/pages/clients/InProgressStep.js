@@ -107,7 +107,8 @@ export const InProgressStep = (props) => {
     setSurveyId(id);
   }
 
-  function BeginEnrollment(programId) {
+  function BeginEnrollment(event, programId) {
+    event.preventDefault();
     setInitialProgram(programId);
     setIsBeginEnrollmentState(true);
   }
@@ -276,7 +277,7 @@ export const InProgressStep = (props) => {
               <Label basic color={p["status"] == "PLANNED" ? "blue" : ""}>Planned</Label>
               <Label basic color={p["status"] == "ENROLLED" ? "blue" : ""}>Enrolled</Label>
               <Label basic color={p["status"] == "COMPLETED" ? "blue" : ""}>Completed</Label>
-              <Button color="green" disabled={p["status"] == "PLANNED" ? false : true} onClick={() => BeginEnrollment(p.program["id"])}>Begin Enrollment</Button>
+              <Button color="green" disabled={p["status"] == "PLANNED" ? false : true} onClick={(event) => BeginEnrollment(event, p.program["id"])}>Begin Enrollment</Button>
             </Grid.Row>
           </Grid>
         ))}
@@ -379,7 +380,15 @@ export const InProgressStep = (props) => {
                     }
                   );
                   const enrollment = enrollmentResponse.data;
+                  console.log(enrollmentResponse.data)
                   toaster.success('Enrolled to program');
+                  // await apiClient.patch(`/iep/${initIep["id"]}/`,
+                  // {
+                  //   enrollments: {
+
+                  //   },
+                  // });
+
                   // console.log('xxxx', enrollment);
                   // console.log(enrollment, {
                   //   ...newResponseData,
