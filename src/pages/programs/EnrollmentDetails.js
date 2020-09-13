@@ -8,6 +8,7 @@ import useApiClient from 'hooks/useApiClient';
 import useFetchData from 'hooks/useFetchData';
 import CaseNotesTab from './CaseNotesTab';
 import AssessmentsTab from './AssessmentsTab';
+import EnrollmentServicesTab from './EnrollmentServicesTab';
 
 export default function EnrollmentDetails({ title, children, enrollmentId, pdata }) {
   //console.log(enrollmentid);
@@ -40,7 +41,7 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
             <AssessmentsTab enrollData={data} />
           </Tab.Pane>
         ),
-      }, ,
+      },
       {
         menuItem: 'Case Notes',
         key: 8,
@@ -50,6 +51,15 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
           </Tab.Pane>
         ),
       },
+      {
+        menuItem: 'Service Transactions',
+        key: 9,
+        render: () => (
+          <Tab.Pane>
+            <EnrollmentServicesTab enrollData={data} />
+          </Tab.Pane>
+        ),
+      }
     ];
 
     function renderLoading() {
