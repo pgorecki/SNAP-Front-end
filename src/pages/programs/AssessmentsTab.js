@@ -120,7 +120,7 @@ export default function AssessmentsTab({ enrollData }) {
   const [modalData, setModaData] = useState({});
   const [initialValues, setInitialValues] = useState({
     client: enrollData.client.id
-    , survey: enrollData.program.enrollment_entry_survey.id
+    , survey: enrollData.program.enrollment_entry_survey == null ? '' : enrollData.program.enrollment_entry_survey.id
     , response_context: { id: enrollData.id, type: 'Enrollment' }
     , answers: [
       {
