@@ -16,6 +16,7 @@ import SurveyList from '../surveys/SurveyList';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep'
+import moment from 'moment';
 
 export const PlanningStep = (props) => {
   const [isModidystate, setIsModifyState] = useState(false)
@@ -133,30 +134,33 @@ export const PlanningStep = (props) => {
   }
 
   function modifyOkButtonClicked() {
-    console.log(initClient);
-    console.log(checkPrograms);
-    const start_date = new Date();
     checkPrograms.forEach(async element => {
-      console.log(element);
-      var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2);
-      try {
-        const enrollmentResponse = await apiClient.post(
-          '/programs/enrollments/',
-          {
-            client: initClient.id,
-            status: 'PLANNED',
-            program: element.id,
-            sd,
-          }
-        )
-      } catch (err) {
-        const apiError = formatApiError(err.response);
-        toaster.error(apiError);
-      } finally {
-        props.modifyOkButtonClicked(checkPrograms);
-        setIsModifyState(null);
+      const result = await apiClient.get(
+        `/programs/enrollments/?client=${initClient.id}&program=${element.id}`
+      );
+      if (result.data.count > 0) {
+
+      } else {
+        try {
+          const enrollmentResponse = await apiClient.post(
+            '/programs/enrollments/',
+            {
+              client: initClient.id,
+              status: 'PLANNED',
+              program: element.id,
+              start_date: moment(new Date()).format('YYYY-MM-DD'),
+            }
+          )
+        } catch (err) {
+          const apiError = formatApiError(err.response);
+          toaster.error(apiError);
+        } finally {
+
+        }
       }
     });
+    props.modifyOkButtonClicked(checkPrograms);
+    setIsModifyState(null);
   }
 
   return (
