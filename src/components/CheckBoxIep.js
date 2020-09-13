@@ -2,6 +2,7 @@ import React from 'react'
 import { Button, Grid, Checkbox, Modal } from 'semantic-ui-react'
 import { useState } from 'react'
 import useFetchData from 'hooks/useFetchData';
+import useApiClient from 'hooks/useApiClient';
 
 const programs = [
     {
@@ -21,8 +22,25 @@ const programs = [
 
 export const CheckBoxIep = (props) => {
     const [data, error, loading] = useFetchData(`/programs/`, {});
-    const [Checked, setChecked] = useState(props.setPreData == null ? [] : props.setPreData)
-    const [elements, setelements] = useState([])
+    const [Checked, setChecked] = useState(props.setPreData == null ? [] : props.setPreData);
+    const [elements, setelements] = useState([]);
+    const apiClient = useApiClient();
+    const [existingEnrollmentPrograms, setExistingEnrollmentPrograms] = useState();
+    const exitingP = SavedPrograms();
+
+    async function SavedPrograms() {
+        console.log(existingEnrollmentPrograms);
+        if (typeof existingEnrollmentPrograms === 'undefined') {
+            const resultPrograms = await apiClient.get(
+                `/programs/enrollments/?client=${props.client.id}`
+            );
+            if (resultPrograms.data.count > 0) {
+                setExistingEnrollmentPrograms(resultPrograms.data.results);
+                console.log(existingEnrollmentPrograms);
+            }
+        }
+    }
+
     if (typeof data.results === 'undefined') {
         return null;
     }

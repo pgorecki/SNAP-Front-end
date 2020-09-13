@@ -183,7 +183,7 @@ export const PlanningStep = (props) => {
         <Modal size='tiny' open={true} >
           <Modal.Header>Select program for this IEP</Modal.Header>
           <Modal.Content scrolling={true}>
-            <CheckBoxIep handleChecks={checks => handleChecks(checks, "programs")} setPreData={checkPrograms} />
+            <CheckBoxIep handleChecks={checks => handleChecks(checks, "programs")} setPreData={checkPrograms} client={initClient} />
           </Modal.Content>
           <Modal.Actions>
             <Button onClick={modifyOkButtonClicked} primary style={{ marginTop: "1rem", marginLeft: "1rem" }}>Ok</Button>
