@@ -37,6 +37,8 @@ export const InProgressStep = (props) => {
   const apiClient = useApiClient();
   const { save } = useNewResource('/notes/', {});
   const table = usePaginatedDataTable({ url: '/surveys/' });
+  const [existingEnrollmentPrograms, setExistingEnrollmentPrograms] = useState();
+  const exitingP = SavedPrograms();
 
   const columns = React.useMemo(
     () => [
@@ -61,6 +63,19 @@ export const InProgressStep = (props) => {
   const modifyiep = () => {
     setIsModifyState(true);
     //setCheckedPrograms(listInitialPrograms);
+  }
+
+  async function SavedPrograms() {
+    console.log(existingEnrollmentPrograms);
+    if (typeof existingEnrollmentPrograms === 'undefined') {
+      const resultPrograms = await apiClient.get(
+        `/programs/enrollments/?client=${initClient.id}`
+      );
+      if (resultPrograms.data.count > 0) {
+        setExistingEnrollmentPrograms(resultPrograms.data.results);
+        console.log(existingEnrollmentPrograms);
+      }
+    }
   }
 
   function modifyOkButtonClicked() {
@@ -249,14 +264,14 @@ export const InProgressStep = (props) => {
   return (
     <>
       <div style={{ marginLeft: "1rem" }}>
-        {listInitialPrograms == null ? <h4>No programs are planned yet.Please modify IEP plan </h4> : listInitialPrograms.map((p, index) => (
+        {existingEnrollmentPrograms == null ? <h4>No programs are planned yet.Please modify IEP plan </h4> : existingEnrollmentPrograms.map((p, index) => (
           <Grid>
-            <Grid.Row key={p["id"]}>
-              <Label>{p["name"]}</Label>
-              <Label basic color="blue" >Planned</Label>
-              <Label basic>Enrolled</Label>
-              <Label basic>Completed</Label>
-              <Button color="green" onClick={() => BeginEnrollment(p["id"])}>Begin Enrollment</Button>
+            <Grid.Row key={p.program["id"]}>
+              <Label>{p.program["name"]}</Label>
+              <Label basic color={p["status"] == "PLANNED" ? "blue" : ""}>Planned</Label>
+              <Label basic color={p["status"] == "ENROLLED" ? "blue" : ""}>Enrolled</Label>
+              <Label basic color={p["status"] == "COMPLETED" ? "blue" : ""}>Completed</Label>
+              <Button color="green" disabled={p["status"] == "PLANNED" ? false : true} onClick={() => BeginEnrollment(p.program["id"])}>Begin Enrollment</Button>
             </Grid.Row>
           </Grid>
         ))}

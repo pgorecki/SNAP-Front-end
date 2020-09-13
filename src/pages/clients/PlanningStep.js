@@ -133,9 +133,30 @@ export const PlanningStep = (props) => {
   }
 
   function modifyOkButtonClicked() {
-    //console.log(checkPrograms);
-    props.modifyOkButtonClicked(checkPrograms);
-    setIsModifyState(null);
+    console.log(initClient);
+    console.log(checkPrograms);
+    const start_date = new Date();
+    checkPrograms.forEach(async element => {
+      console.log(element);
+      var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2);
+      try {
+        const enrollmentResponse = await apiClient.post(
+          '/programs/enrollments/',
+          {
+            client: initClient.id,
+            status: 'PLANNED',
+            program: element.id,
+            sd,
+          }
+        )
+      } catch (err) {
+        const apiError = formatApiError(err.response);
+        toaster.error(apiError);
+      } finally {
+        props.modifyOkButtonClicked(checkPrograms);
+        setIsModifyState(null);
+      }
+    });
   }
 
   return (
