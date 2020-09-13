@@ -17,6 +17,7 @@ import SurveyList from '../surveys/SurveyList';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep'
+import moment from 'moment';
 
 export const InProgressStep = (props) => {
   console.log(props);
@@ -63,6 +64,10 @@ export const InProgressStep = (props) => {
   const modifyiep = () => {
     setIsModifyState(true);
     //setCheckedPrograms(listInitialPrograms);
+  }
+
+  function confirmEndClicked() {
+    props.confirmEndIEPClicked();
   }
 
   async function SavedPrograms() {
@@ -283,7 +288,7 @@ export const InProgressStep = (props) => {
           <Button onClick={modifyiep} button >
             Modify IEP plan
                 </Button>
-          <Button color="red" style={{ marginLeft: "1rem" }}>End IEP</Button>
+          <Button onClick={confirmEndClicked} color="red" style={{ marginLeft: "1rem" }}>End IEP</Button>
         </Grid.Row>
       </Grid>
 
@@ -370,7 +375,7 @@ export const InProgressStep = (props) => {
                       client: initClient.id,
                       status: 'ENROLLED',
                       program: program.id,
-                      sd,
+                      start_date: moment(new Date()).format('YYYY-MM-DD'),
                     }
                   );
                   const enrollment = enrollmentResponse.data;

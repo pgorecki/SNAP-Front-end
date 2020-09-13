@@ -15,6 +15,7 @@ import useApiClient from 'hooks/useApiClient';
 import { formatApiError } from 'utils/apiUtils';
 import toaster from 'components/toaster';
 import { InProgressStep } from './InProgressStep';
+import moment from 'moment';
 
 export default function TestTab({ ieprow }) {
   console.log(ieprow);
@@ -159,11 +160,35 @@ export default function TestTab({ ieprow }) {
   async function ConfirmIEPEnd() {
     try {
       const { id } = ieprow.original;
+      const clientid = ieprow.original.client.id;
       await apiClient.patch(`/iep/${id}/`,
         {
           // orientation_completed: true,
           status: 'ended'
         });
+
+      const resultPrograms = await apiClient.get(
+        `/programs/enrollments/?client=${clientid}`
+      );
+      if (resultPrograms.data.count > 0) {
+        //console.log(resultPrograms.data.results.program["id"]);
+        resultPrograms.data.results.forEach(async element => {
+          try {
+            const enrollmentResponse = await apiClient.post(
+              '/programs/enrollments/',
+              {
+                client: clientid,
+                status: 'CANCELLED',
+                program: element.program["id"],
+                start_date: moment(new Date()).format('YYYY-MM-DD'),
+              }
+            );
+          } catch (err) {
+            const apiError = formatApiError(err.response);
+            toaster.error(apiError);
+          }
+        });
+      }
     } catch (err) {
       const apiError = formatApiError(err.response);
       toaster.error(apiError);
