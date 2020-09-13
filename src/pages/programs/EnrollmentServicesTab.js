@@ -117,7 +117,6 @@ export default function EnrollmentServicesTab({ enrollData }) {
               <Button onClick={() => setModaDataEd({ ...row.original })}>
                 Details
               </Button>
-              <Button disabled>Edit</Button>
             </>
           );
         },
@@ -300,7 +299,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
       <Modal closeIcon open={!!modalDataEd.id} onClose={() => setModaDataEd({})}>
         <Modal.Header>Service Details</Modal.Header>
         <Modal.Content>
-            Id: {modalDataEd.id}
+          <LabelField label="Service Name" value={()=> 'undefined' ? '' : modalDataEd.service_type.name} />
+          <LabelField label="Effective date" value={!!modalDataEd.effective_date} />
         </Modal.Content>
       </Modal>
 
