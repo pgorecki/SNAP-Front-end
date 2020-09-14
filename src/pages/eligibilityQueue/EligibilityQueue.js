@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { Tab, Button, Segment, Modal, Form } from 'semantic-ui-react';
 import { EligibilityStatus } from 'components/common';
@@ -12,7 +12,12 @@ import { formatApiError } from 'utils/apiUtils';
 import { clientFullName, formatUser } from 'utils/modelUtils';
 import ListPage from '../ListPage';
 import { Formik } from 'formik';
-import { FormSelect, FormDatePicker, FormErrors, FormInput } from 'components/FormFields';
+import {
+  FormSelect,
+  FormDatePicker,
+  FormErrors,
+  FormInput,
+} from 'components/FormFields';
 
 function NewClientsTab() {
   const apiClient = useApiClient();
@@ -22,7 +27,7 @@ function NewClientsTab() {
   const handleShow = () => setShow(true);
   const table = usePaginatedDataTable({ url: '/eligibility/queue/?type=new' });
   const [initialValues, setInitialValues] = useState({
-    ssn: ''
+    ssn: '',
   });
   const columns = React.useMemo(
     () => [
@@ -66,8 +71,11 @@ function NewClientsTab() {
                 const fullName = clientFullName(row.original.client);
                 setclientID(row.original.client.id);
                 console.log(row.original);
-                if(row.original.client.ssn == null || row.original.client.ssn == '' || row.original.client.ssn == "")
-                {
+                if (
+                  row.original.client.ssn == null ||
+                  row.original.client.ssn == '' ||
+                  row.original.client.ssn == ''
+                ) {
                   handleShow();
                 }
                 try {
@@ -109,7 +117,7 @@ function NewClientsTab() {
     ],
     []
   );
-  return( 
+  return (
     <>
       <PaginatedDataTable columns={columns} table={table} />
       <Formik
@@ -131,32 +139,34 @@ function NewClientsTab() {
         }}
       >
         {(form) => {
-          return(
+          return (
             <>
-            <Modal open={show} onHide={handleClose}>
-              <Modal.Header>
-                Snap ID {form.id}
-              </Modal.Header>
-              <Modal.Description>
-                <p>You have determined that this Participant is eligible. However, We currently do not have the participant's SNAP Client ID. Please enter it here</p>
-              </Modal.Description>
-              <Modal.Content>
-                <Form error onSubmit={form.handleSubmit}>
-                  <FormInput label="Snap ID:" name="ssn" form={form} />
-                  <FormErrors form={form} />
-                  <Button primary type="submit" disabled={form.isSubmitting}>
-                    Submit
-                              </Button>
-                  <Button onClick={handleClose}>Cancel</Button>
-                </Form>
-              </Modal.Content>
-            </Modal>
+              <Modal open={show} onHide={handleClose}>
+                <Modal.Header>Snap ID {form.id}</Modal.Header>
+                <Modal.Description>
+                  <p>
+                    You have determined that this Participant is eligible.
+                    However, We currently do not have the participant's SNAP
+                    Client ID. Please enter it here
+                  </p>
+                </Modal.Description>
+                <Modal.Content>
+                  <Form error onSubmit={form.handleSubmit}>
+                    <FormInput label="Snap ID:" name="snap_id" form={form} />
+                    <FormErrors form={form} />
+                    <Button primary type="submit" disabled={form.isSubmitting}>
+                      Submit
+                    </Button>
+                    <Button onClick={handleClose}>Cancel</Button>
+                  </Form>
+                </Modal.Content>
+              </Modal>
             </>
           );
-        }}      
+        }}
       </Formik>
     </>
-  )
+  );
 }
 
 function ExistingClientsTab() {

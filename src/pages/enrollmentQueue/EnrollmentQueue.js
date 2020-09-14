@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { Tab, Button, Segment } from 'semantic-ui-react';
-import { EligibilityStatus } from 'components/common';
+import { EligibilityStatus, IEPStatus } from 'components/common';
 import toaster from 'components/toaster';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import useApiClient from 'hooks/useApiClient';
@@ -13,6 +13,7 @@ import { clientFullName, formatUser } from 'utils/modelUtils';
 import ListPage from '../ListPage';
 
 function NewClientsTab() {
+  const history = useHistory();
   const apiClient = useApiClient();
   const table = usePaginatedDataTable({ url: '/iep/?type=new' });
   const columns = React.useMemo(
@@ -43,67 +44,48 @@ function NewClientsTab() {
       },
       {
         Header: 'Reviewer',
-        accessor: 'resolved_by.name',
+        accessor: 'resolved_by',
         Cell: ({ value, row }) => {
-          console.log(row);
-          return 'x';
+          return row.original.resolved_by
+            ? formatUser(row.original.resolved_by)
+            : '';
         },
       },
       {
-        Header: 'Actions',
+        Header: 'Status',
         accessor: 'status',
+        Cell: ({ value }) => <IEPStatus value={value} />,
+      },
+      {
+        Header: 'Actions',
+        accessor: 'actions',
         Cell: ({ value, row }) => {
-          switch (value) {
+          const clientId = row.original.client.id;
+          switch (row.original.status) {
             case 'in_orientation':
-              return <Button color="green">Manage Referral</Button>;
+            case 'in_planning':
+            case 'in_progress':
+              return (
+                <Button
+                  color="green"
+                  onClick={() => history.push(`clients/${clientId}#iep`)}
+                >
+                  Manage Referral
+                </Button>
+              );
             case 'not_eligible':
-              return <Button color="red">End Referral</Button>;
+              return (
+                <Button
+                  color="red"
+                  onClick={() => history.push(`clients/${clientId}#iep`)}
+                >
+                  End Referral
+                </Button>
+              );
             default:
               return value;
           }
         },
-        // value || (
-        //   <>
-        //     <Button
-        //       color="green"
-        //       onClick={async () => {
-        //         const { id } = row.original;
-        //         const fullName = clientFullName(row.original.client);
-        //         try {
-        //           await apiClient.patch(`/eligibility/queue/${id}/`, {
-        //             status: 'ELIGIBLE',
-        //           });
-        //           toaster.success(`Confirmed eligibilty for ${fullName}`);
-        //           table.reload();
-        //         } catch (err) {
-        //           const apiError = formatApiError(err.response);
-        //           toaster.error(apiError);
-        //         }
-        //       }}
-        //     >
-        //       Eligible
-        //     </Button>
-        //     <Button
-        //       color="red"
-        //       onClick={async () => {
-        //         const { id } = row.original;
-        //         const fullName = clientFullName(row.original.client);
-        //         try {
-        //           await apiClient.patch(`/eligibility/queue/${id}/`, {
-        //             status: 'NOT_ELIGIBLE',
-        //           });
-        //           toaster.success(`Denied eligibilty for ${fullName}`);
-        //           table.reload();
-        //         } catch (err) {
-        //           const apiError = formatApiError(err.response);
-        //           toaster.error(apiError);
-        //         }
-        //       }}
-        //     >
-        //       Not Eligible
-        //     </Button>
-        //   </>
-        // ),
       },
     ],
     []
@@ -112,6 +94,7 @@ function NewClientsTab() {
 }
 
 function ExistingClientsTab() {
+  const history = useHistory();
   const apiClient = useApiClient();
   const table = usePaginatedDataTable({
     url: '/iep/?type=existing',
@@ -143,54 +126,50 @@ function ExistingClientsTab() {
         accessor: 'client.address.county',
       },
       {
-        Header: 'Requestor',
-        accessor: 'requestor.name',
+        Header: 'Reviewer',
+        accessor: 'resolved_by',
+        Cell: ({ value, row }) => {
+          return row.original.resolved_by
+            ? formatUser(row.original.resolved_by)
+            : '';
+        },
       },
       {
-        Header: 'Eligiblity',
+        Header: 'Status',
+        accessor: 'status',
+        Cell: ({ value }) => <IEPStatus value={value} />,
+      },
+      {
+        Header: 'Actions',
         accessor: 'actions',
-        Cell: ({ row }) => (
-          <>
-            <Button
-              color="green"
-              onClick={async () => {
-                const { id } = row.original;
-                const fullName = clientFullName(row.original.client);
-                try {
-                  await apiClient.patch(`/eligibility/queue/${id}/`, {
-                    status: 'ELIGIBLE',
-                  });
-                  toaster.success(`Confirmed eligibilty for ${fullName}`);
-                  table.reload();
-                } catch (err) {
-                  const apiError = formatApiError(err.response);
-                  toaster.error(apiError);
-                }
-              }}
-            >
-              Eligible
-            </Button>
-            <Button
-              color="red"
-              onClick={async () => {
-                const { id } = row.original;
-                const fullName = clientFullName(row.original.client);
-                try {
-                  await apiClient.patch(`/eligibility/queue/${id}/`, {
-                    status: 'NOT_ELIGIBLE',
-                  });
-                  toaster.success(`Denied eligibilty for ${fullName}`);
-                  table.reload();
-                } catch (err) {
-                  const apiError = formatApiError(err.response);
-                  toaster.error(apiError);
-                }
-              }}
-            >
-              Not Eligible
-            </Button>
-          </>
-        ),
+        Cell: ({ value, row }) => {
+          const status = row.original.status;
+          const clientId = row.original.client.id;
+          switch (status) {
+            case 'in_orientation':
+            case 'in_planning':
+            case 'in_progress':
+              return (
+                <Button
+                  color="green"
+                  onClick={() => history.push(`clients/${clientId}#iep`)}
+                >
+                  Manage Referral
+                </Button>
+              );
+            case 'not_eligible':
+              return (
+                <Button
+                  color="red"
+                  onClick={() => history.push(`clients/${clientId}#iep`)}
+                >
+                  End Referral
+                </Button>
+              );
+            default:
+              return value;
+          }
+        },
       },
     ],
     []
@@ -205,7 +184,7 @@ function HistoricalClientsTab() {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Last Reivew Date',
+        Header: 'Last Review Date',
         accessor: 'modified_at',
         Cell: ({ value }) => formatDateTime(value, true),
       },
@@ -226,18 +205,18 @@ function HistoricalClientsTab() {
         },
       },
       {
-        Header: 'Requestor',
-        accessor: 'requestor.name',
-      },
-      {
-        Header: 'Eligiblity',
-        accessor: 'status',
-        Cell: ({ value }) => <EligibilityStatus value={value} />,
-      },
-      {
-        Header: 'Approved by',
+        Header: 'Reviewer',
         accessor: 'resolved_by',
-        Cell: ({ value }) => formatUser(value),
+        Cell: ({ value, row }) => {
+          return row.original.resolved_by
+            ? formatUser(row.original.resolved_by)
+            : '';
+        },
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: ({ value }) => <IEPStatus value={value} />,
       },
     ],
     []
