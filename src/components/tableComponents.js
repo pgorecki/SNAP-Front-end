@@ -21,3 +21,11 @@ export function DeleteActionButton({ onClick, ...props }) {
     </Button>
   );
 }
+
+export function EditActionButton({ onClick, ...props }) {
+  return (
+    <Button size="tiny" onClick={onClick} {...props}>
+      <Icon name="edit" /> Edit
+    </Button>
+  );
+}

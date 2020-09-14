@@ -7,18 +7,20 @@ import useResource from 'hooks/useResource';
 import useApiClient from 'hooks/useApiClient';
 import useFetchData from 'hooks/useFetchData';
 import CaseNotesTab from './CaseNotesTab';
+import AssessmentsTab from './AssessmentsTab';
+import EnrollmentServicesTab from './EnrollmentServicesTab';
 
-export default function EnrollmentDetails({ title, children, enrollmentid }) {
-  console.log(enrollmentid);
+export default function EnrollmentDetails({ title, children, enrollmentId, pdata }) {
+  //console.log(enrollmentid);
   const history = useHistory();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const apiClient = useApiClient();
-  const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentid}`, {});
-  console.log(data);
-  if (typeof data.program !== 'undefined') {
+  const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentId}`, {});
+  console.log(pdata);
+  if (typeof pdata !== 'undefined') {
 
     //}
-    title = data.program.name;
+    // title = data.program.name;
     //const { data } = useResource(`/programs/enrollments/?id=${urlParams.id}/`);
     //console.log(result.data);
     const tabPanesEnrollments = [
@@ -27,7 +29,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         key: 6,
         render: () => (
           <Tab.Pane>
-            <SummaryTab enrolldata={data} />
+            <SummaryTab enrollData={pdata} />
           </Tab.Pane>
         ),
       },
@@ -36,19 +38,28 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         key: 7,
         render: () => (
           <Tab.Pane>
-            <SummaryTab enrolldata={data} />
+            <AssessmentsTab enrollData={data} />
           </Tab.Pane>
         ),
-      },,
+      },
       {
         menuItem: 'Case Notes',
         key: 8,
         render: () => (
           <Tab.Pane>
-            <CaseNotesTab enrolldata={data} />
+            <CaseNotesTab enrollData={data} />
           </Tab.Pane>
         ),
       },
+      {
+        menuItem: 'Service Transactions',
+        key: 9,
+        render: () => (
+          <Tab.Pane>
+            <EnrollmentServicesTab enrollData={data} />
+          </Tab.Pane>
+        ),
+      }
     ];
 
     function renderLoading() {
@@ -68,11 +79,11 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
           background: '#fff',
           margin: 0,
           padding: 30,
-          minHeight: '50vh',
+          minHeight: '30vh',
         }}
       >
         <Grid.Column>
-          {title && <Header as="h5">{title}</Header>}
+          {/* {title && <Header as="h5">{title}</Header>} */}
           {loading ? renderLoading() : error ? renderError() : children}
         </Grid.Column>
         <Grid.Column computer={16} mobile={16}>
@@ -88,7 +99,7 @@ export default function EnrollmentDetails({ title, children, enrollmentid }) {
         </Grid.Column>
       </Grid>
     );
-  }else{
+  } else {
     return null;
   }
 }
