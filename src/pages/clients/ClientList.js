@@ -72,7 +72,7 @@ export default function ClientList() {
 
   return (
     <ListPage>
-      <Header>Clients</Header>
+      <Header>Participants</Header>
       <Grid>
         <Grid.Column width={6}>
           <ClientSearch />
@@ -88,7 +88,7 @@ export default function ClientList() {
         to={'/clients/new'}
         disabled={!hasPermission(user, 'client.add_client')}
       >
-        New Client
+        New Participant
       </Button>
       <PaginatedDataTable columns={columns} table={table} />
     </ListPage>

@@ -56,7 +56,7 @@ const navigationMenu = [
     permission: 'client.view_client',
   },
   {
-    name: 'Clients',
+    name: 'Participants',
     path: '/clients',
     iconName: 'address card outline',
     page: ClientList,

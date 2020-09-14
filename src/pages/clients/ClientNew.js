@@ -24,7 +24,7 @@ export default function ClientNew() {
             dob: moment(values.dob).format('YYYY-MM-DD'),
           });
           history.push(`/clients/${result.id}`);
-          toaster.success('Client created');
+          toaster.success('Participant created');
         } catch (err) {
           actions.setErrors(apiErrorToFormError(err));
         }
@@ -32,7 +32,7 @@ export default function ClientNew() {
       }}
     >
       {(form) => (
-        <DetailsPage title="New Client" error={formatApiError(error)}>
+        <DetailsPage title="New Participant" error={formatApiError(error)}>
           <Grid>
             <Grid.Column computer={8} mobile={16}>
               <ClientForm form={form} />
