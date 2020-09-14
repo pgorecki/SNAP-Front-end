@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Button, Grid, Checkbox, Label, Modal, Header, Form, FormTextArea } from 'semantic-ui-react';
+import {
+  Button,
+  Grid,
+  Checkbox,
+  Label,
+  Modal,
+  Header,
+  Form,
+  FormTextArea,
+} from 'semantic-ui-react';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
 import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
@@ -7,7 +16,12 @@ import IepSurveyModal from 'modals/IepSurveyModal';
 import useResourceIndex from 'hooks/useResourceIndex';
 import { AppContext } from 'AppStore';
 import { Formik } from 'formik';
-import { FormSelect, FormDatePicker, FormErrors, FormInput } from 'components/FormFields';
+import {
+  FormSelect,
+  FormDatePicker,
+  FormErrors,
+  FormInput,
+} from 'components/FormFields';
 import { formatDateTime, FieldError } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import useApiClient from 'hooks/useApiClient';
@@ -15,16 +29,18 @@ import useNewResource from 'hooks/useNewResource';
 import SurveyList from '../surveys/SurveyList';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
-import { CheckBoxIep } from '../../components/CheckBoxIep'
+import { CheckBoxIep } from '../../components/CheckBoxIep';
 import moment from 'moment';
 
 export const PlanningStep = (props) => {
-  const [isModidystate, setIsModifyState] = useState(false)
-  const [checkPrograms, setCheckedPrograms] = useState(null)
-  const [isSurveyModel, setIsSurveyModelState] = useState(false)
-  const [isBeginEnrollment, setIsBeginEnrollmentState] = useState(false)
-  const [isNotesModel, setIsNotesModelState] = useState(false)
-  const [listInitialPrograms, setListInitialPrograms] = useState(props.listPrograms);
+  const [isModidystate, setIsModifyState] = useState(false);
+  const [checkPrograms, setCheckedPrograms] = useState(null);
+  const [isSurveyModel, setIsSurveyModelState] = useState(false);
+  const [isBeginEnrollment, setIsBeginEnrollmentState] = useState(false);
+  const [isNotesModel, setIsNotesModelState] = useState(false);
+  const [listInitialPrograms, setListInitialPrograms] = useState(
+    props.listPrograms
+  );
   const [initProgram, setInitialProgram] = useState(null);
   const [initClient, setClientState] = useState(props.client.client);
   const [initIep, setIepState] = useState(props.client);
@@ -49,7 +65,9 @@ export const PlanningStep = (props) => {
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>
-            <Button onClick={() => SelectSurvey(row.original.id)}>Select</Button>
+            <Button onClick={() => SelectSurvey(row.original.id)}>
+              Select
+            </Button>
           </>
         ),
       },
@@ -64,9 +82,9 @@ export const PlanningStep = (props) => {
   function NotesForm({ iepIndex }) {
     const [initialValues, setInitialValues] = useState({
       source: {
-        id: iepIndex["id"]
-        , type: 'ClientIEP'
-      }
+        id: iepIndex['id'],
+        type: 'ClientIEP',
+      },
     });
     return (
       <>
@@ -77,7 +95,7 @@ export const PlanningStep = (props) => {
             try {
               const result = await save({
                 ...values,
-                text: values.subject
+                text: values.subject,
               });
               //history.push(`/notes/${result.id}`);
               toaster.success('Notes created');
@@ -96,14 +114,18 @@ export const PlanningStep = (props) => {
                   <FormInput label="Subject:" name="subject" form={form} />
                   {/* <FormSelect label="Select Template" name="template" form={form} options={options} placeholder="Select Template" disabled="true" /> */}
                   <FormDatePicker label="Date" name="date" form={form} />
-                  <FormTextArea name="note" placeholder="Enter note here" form={form} rows="5" />
+                  <FormTextArea
+                    name="note"
+                    placeholder="Enter note here"
+                    form={form}
+                    rows="5"
+                  />
                   <FormErrors form={form} />
                   <Button primary type="submit" disabled={form.isSubmitting}>
-                    Submit</Button>
+                    Submit
+                  </Button>
                 </Form>
-
               </>
-
             );
           }}
         </Formik>
@@ -121,25 +143,23 @@ export const PlanningStep = (props) => {
 
   const modifyiep = () => {
     setIsModifyState(true);
-  }
+  };
 
   const handleChecks = (checks, category) => {
     setCheckedPrograms(checks);
     //console.log(checks)
-  }
-
+  };
 
   function confirmEndClicked() {
     props.confirmEndIEPClicked();
   }
 
   function modifyOkButtonClicked() {
-    checkPrograms.forEach(async element => {
+    checkPrograms.forEach(async (element) => {
       const result = await apiClient.get(
         `/programs/enrollments/?client=${initClient.id}&program=${element.id}`
       );
       if (result.data.count > 0) {
-
       } else {
         try {
           const enrollmentResponse = await apiClient.post(
@@ -150,12 +170,11 @@ export const PlanningStep = (props) => {
               program: element.id,
               start_date: moment(new Date()).format('YYYY-MM-DD'),
             }
-          )
+          );
         } catch (err) {
           const apiError = formatApiError(err.response);
           toaster.error(apiError);
         } finally {
-
         }
       }
     });
@@ -168,46 +187,76 @@ export const PlanningStep = (props) => {
       <h4>No programs are planned yet.Please modify IEP plan </h4>
       <Grid>
         <Grid.Row>
-          <Button onClick={opensurveyforiep} style={{ marginLeft: "1rem" }}>Assess Client</Button>
-          <Button onClick={modifyiep} button >
+          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }}>
+            Assess Client
+          </Button>
+          <Button onClick={modifyiep} button>
             Modify IEP plan
-                </Button>
-          <Button onClick={confirmEndClicked} color="red" style={{ marginLeft: "1rem" }}>End IEP</Button>
+          </Button>
+          <Button
+            onClick={confirmEndClicked}
+            color="red"
+            style={{ marginLeft: '1rem' }}
+          >
+            End IEP
+          </Button>
         </Grid.Row>
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={OpenNotes} style={{ marginLeft: "1rem" }}>Add Notes</Button>
+      <Button onClick={OpenNotes} style={{ marginLeft: '1rem' }}>
+        Add Notes
+      </Button>
 
       {isModidystate && (
-        <Modal size='tiny' open={true} >
+        <Modal size="tiny" open={true}>
           <Modal.Header>Select program for this IEP</Modal.Header>
           <Modal.Content scrolling={true}>
-            <CheckBoxIep handleChecks={checks => handleChecks(checks, "programs")} setPreData={checkPrograms} client={initClient} />
+            <CheckBoxIep
+              handleChecks={(checks) => handleChecks(checks, 'programs')}
+              setPreData={checkPrograms}
+              client={initClient}
+            />
           </Modal.Content>
           <Modal.Actions>
-            <Button onClick={modifyOkButtonClicked} primary style={{ marginTop: "1rem", marginLeft: "1rem" }}>Ok</Button>
-            <Button style={{ marginLeft: "1rem" }} onClick={() => setIsModifyState(null)}>Cancel</Button>
+            <Button
+              onClick={modifyOkButtonClicked}
+              primary
+              style={{ marginTop: '1rem', marginLeft: '1rem' }}
+            >
+              Ok
+            </Button>
+            <Button
+              style={{ marginLeft: '1rem' }}
+              onClick={() => setIsModifyState(null)}
+            >
+              Cancel
+            </Button>
           </Modal.Actions>
         </Modal>
       )}
-      {hasPermission(user, 'program.add_enrollment') && isNotesModel && (
+      {isNotesModel && (
         <>
           <Modal size="large" open={isNotesModel}>
             <Modal.Header>Notes</Modal.Header>
             <Modal.Content>
               {/* <Header as="h4">Enroll to Program</Header> */}
-              <NotesForm
-                iepIndex={initIep}
-              />
+              <NotesForm iepIndex={initIep} />
             </Modal.Content>
             <Modal.Actions>
-              <Button onClick={() => setIsNotesModelState(false)}>Cancel</Button>
+              <Button onClick={() => setIsNotesModelState(false)}>
+                Cancel
+              </Button>
             </Modal.Actions>
           </Modal>
         </>
       )}
-      <Modal size="large" open={isSurveyModel} closeIcon onClose={() => setIsSurveyModelState(false)}>
+      <Modal
+        size="large"
+        open={isSurveyModel}
+        closeIcon
+        onClose={() => setIsSurveyModelState(false)}
+      >
         <Modal.Header>IEP Survey(s)</Modal.Header>
         <Modal.Content>
           <PaginatedDataTable columns={columns} table={table} />
@@ -216,7 +265,12 @@ export const PlanningStep = (props) => {
           <Button onClick={() => setIsSurveyModelState(false)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
-      <Modal size="large" open={!!surveyId} closeIcon onClose={() => setSurveyId()}>
+      <Modal
+        size="large"
+        open={!!surveyId}
+        closeIcon
+        onClose={() => setSurveyId()}
+      >
         <Modal.Header>IEP survey</Modal.Header>
         <Modal.Content>
           {surveyId && (
@@ -228,7 +282,7 @@ export const PlanningStep = (props) => {
                   await apiClient.post('/responses/', {
                     ...newResponseData,
                     response_context: {
-                      id: initIep["id"],
+                      id: initIep['id'],
                       type: 'ClientIEP',
                     },
                   });
@@ -246,5 +300,6 @@ export const PlanningStep = (props) => {
           <Button onClick={() => setSurveyId(null)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
-    </>);
-}
+    </>
+  );
+};

@@ -30,7 +30,7 @@ export default function DashboardPage() {
         <Grid.Column computer={4} mobile={16}>
           <DashboardStat
             icon="address card outline"
-            label="Clients"
+            label="Participants"
             value={data.clients}
             href="/clients"
           />

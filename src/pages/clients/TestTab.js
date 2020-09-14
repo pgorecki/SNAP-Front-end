@@ -19,6 +19,7 @@ import moment from 'moment';
 
 export default function TestTab({ ieprow }) {
   console.log(ieprow);
+  //console.log(handleClose);
   var values = ieprow.values;
   const apiClient = useApiClient();
 
@@ -26,32 +27,112 @@ export default function TestTab({ ieprow }) {
     url: `/iep/?client=${ieprow.original}`,
   });
 
-  const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? true : false);
-  const [isEligibleDisabled, setIsEligibleDisabled] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? false : true);
-  const [isEligibleCompleted, setIsEligibleCompleted] = useState((values.status) === "not_eligible" || (values.status) === "awaiting_approval" ? false : (values.status) === "in_orientation" ? true : true);
+  const [isEligibleActive, setIsEligibleActive] = useState(
+    values.status === 'not_eligible' || values.status === 'awaiting_approval'
+      ? true
+      : false
+  );
+  const [isEligibleDisabled, setIsEligibleDisabled] = useState(
+    values.status === 'not_eligible' || values.status === 'awaiting_approval'
+      ? false
+      : true
+  );
+  const [isEligibleCompleted, setIsEligibleCompleted] = useState(
+    values.status === 'not_eligible' || values.status === 'awaiting_approval'
+      ? false
+      : values.status === 'in_orientation'
+      ? true
+      : true
+  );
 
   // const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "awaiting_approval" ? true : false);
   // const [isEligibleDisabled, setIsEligibleDisabled] = useState((values.status) === "awaiting_approval" ? false : true);
   // const [isEligibleCompleted, setIsEligibleCompleted] = useState((values.status) === "awaiting_approval" ? false : (values.status) === "in_orientation" ? true : true);
 
-  const [isOrientOpened, setIsOrientOpened] = useState((values.status) === "in_orientation" ? true : false);
-  const [isOrientDisabled, setIsOrientDisabled] = useState((values.status) === "in_orientation" ? false : true);
-  const [isOrientCompleted, setIsOrientCompleted] = useState((values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? true : (values.status) === "not_eligible" ? false : (values.status) === "in_progress" ? true : (values.status) === "awaiting_approval" ? false : true);
+  const [isOrientOpened, setIsOrientOpened] = useState(
+    values.status === 'in_orientation' ? true : false
+  );
+  const [isOrientDisabled, setIsOrientDisabled] = useState(
+    values.status === 'in_orientation' ? false : true
+  );
+  const [isOrientCompleted, setIsOrientCompleted] = useState(
+    values.status === 'in_orientation'
+      ? false
+      : values.status === 'in_planning'
+      ? true
+      : values.status === 'not_eligible'
+      ? false
+      : values.status === 'in_progress'
+      ? true
+      : values.status === 'awaiting_approval'
+      ? false
+      : true
+  );
 
-  const [isIepOpened, setIsIepOpened] = useState((values.status) === "in_planning" ? true : false);
-  const [isIepDisabled, setIsIepDisabled] = useState((values.status) === "in_planning" ? false : true);
-  const [isIepCompleted, setIsIepCompleted] = useState((values.status) === "in_planning" ? false : (values.status) === "in_progress" ? true : (values.status) === "in_orientation" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : true);
+  const [isIepOpened, setIsIepOpened] = useState(
+    values.status === 'in_planning' ? true : false
+  );
+  const [isIepDisabled, setIsIepDisabled] = useState(
+    values.status === 'in_planning' ? false : true
+  );
+  const [isIepCompleted, setIsIepCompleted] = useState(
+    values.status === 'in_planning'
+      ? false
+      : values.status === 'in_progress'
+      ? true
+      : values.status === 'in_orientation'
+      ? false
+      : values.status === 'not_eligible'
+      ? false
+      : values.status === 'awaiting_approval'
+      ? false
+      : true
+  );
 
-  const [isInProgressActive, setIsInProgressActive] = useState((values.status) === "in_progress" ? true : false);
-  const [isInProgressDisabled, setIsInProgressDisabled] = useState((values.status) === "in_progress" ? false : true);
-  const [isInProgressCompleted, setIsInProgressCompleted] = useState((values.status) === "in_progress" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : true);
+  const [isInProgressActive, setIsInProgressActive] = useState(
+    values.status === 'in_progress' ? true : false
+  );
+  const [isInProgressDisabled, setIsInProgressDisabled] = useState(
+    values.status === 'in_progress' ? false : true
+  );
+  const [isInProgressCompleted, setIsInProgressCompleted] = useState(
+    values.status === 'in_progress'
+      ? false
+      : values.status === 'in_orientation'
+      ? false
+      : values.status === 'in_planning'
+      ? false
+      : values.status === 'not_eligible'
+      ? false
+      : values.status === 'awaiting_approval'
+      ? false
+      : true
+  );
 
-  const [isEndActive, setIsEndActive] = useState((values.status) === "ended" ? true : false);
-  const [isEndDisabled, setIsEndDisabled] = useState((values.status) === "ended" ? false : true);
-  const [isEndCompleted, setIsEndCompleted] = useState((values.status) === "ended" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : (values.status) === "in_progress" ? false : true);
+  const [isEndActive, setIsEndActive] = useState(
+    values.status === 'ended' ? true : false
+  );
+  const [isEndDisabled, setIsEndDisabled] = useState(
+    values.status === 'ended' ? false : true
+  );
+  const [isEndCompleted, setIsEndCompleted] = useState(
+    values.status === 'ended'
+      ? false
+      : values.status === 'in_orientation'
+      ? false
+      : values.status === 'in_planning'
+      ? false
+      : values.status === 'not_eligible'
+      ? false
+      : values.status === 'awaiting_approval'
+      ? false
+      : values.status === 'in_progress'
+      ? false
+      : true
+  );
 
   const [listInitialPrograms, setListInitialPrograms] = useState(null);
-  console.log(listInitialPrograms);
+  //console.log(listInitialPrograms);
   const table = usePaginatedDataTable({
     url: '/responses/',
   });
@@ -124,11 +205,10 @@ export default function TestTab({ ieprow }) {
   async function ConfirmOrientationButton() {
     try {
       const { id } = ieprow.original;
-      await apiClient.patch(`/iep/${id}/`,
-        {
-          orientation_completed: true,
-          status: 'in_planning'
-        });
+      await apiClient.patch(`/iep/${id}/`, {
+        orientation_completed: true,
+        status: 'in_planning',
+      });
     } catch (err) {
       const apiError = formatApiError(err.response);
       toaster.error(apiError);
@@ -153,7 +233,6 @@ export default function TestTab({ ieprow }) {
       setIsEndActive(false);
       setIsEndDisabled(true);
       setIsEndCompleted(false);
-
     }
   }
 
@@ -161,26 +240,25 @@ export default function TestTab({ ieprow }) {
     try {
       const { id } = ieprow.original;
       const clientid = ieprow.original.client.id;
-      await apiClient.patch(`/iep/${id}/`,
-        {
-          // orientation_completed: true,
-          status: 'ended'
-        });
+      await apiClient.patch(`/iep/${id}/`, {
+        // orientation_completed: true,
+        status: 'ended',
+      });
 
       const resultPrograms = await apiClient.get(
         `/programs/enrollments/?client=${clientid}`
       );
       if (resultPrograms.data.count > 0) {
         //console.log(resultPrograms.data.results.program["id"]);
-        resultPrograms.data.results.forEach(async element => {
+        resultPrograms.data.results.forEach(async (element) => {
           try {
-            const enrollmentResponse = await apiClient.post(
-              '/programs/enrollments/',
+            const enrollmentResponse = await apiClient.put(
+              `/programs/enrollments/${element.id}/`,
               {
                 client: clientid,
-                status: 'CANCELLED',
-                program: element.program["id"],
-                start_date: moment(new Date()).format('YYYY-MM-DD'),
+                status: 'COMPLETED',
+                program: element.program['id'],
+                end_date: moment(new Date()).format('YYYY-MM-DD'),
               }
             );
           } catch (err) {
@@ -217,16 +295,15 @@ export default function TestTab({ ieprow }) {
   }
 
   async function ModifyOkButton(checkPrograms) {
-    console.log(checkPrograms)
+    console.log(checkPrograms);
     setListInitialPrograms(checkPrograms);
     //const [listPrograms, setListPrograms] = useState(checkPrograms);
     try {
       const { id } = ieprow.original;
-      await apiClient.patch(`/iep/${id}/`,
-        {
-          orientation_completed: true,
-          status: 'in_progress'
-        });
+      await apiClient.patch(`/iep/${id}/`, {
+        orientation_completed: true,
+        status: 'in_progress',
+      });
     } catch (err) {
       const apiError = formatApiError(err.response);
       toaster.error(apiError);
@@ -253,13 +330,13 @@ export default function TestTab({ ieprow }) {
     }
   }
 
-  async function ModifyPOkButton() {
-
+  async function ModifyPOkButton(checkPrograms) {
+    setListInitialPrograms(checkPrograms);
   }
 
   function Orientation() {
     //console.log(values);
-    if ((values.status) === "not_eligible") {
+    if (values.status === 'not_eligible') {
       setIsEligibleActive(true);
       setIsEligibleDisabled(false);
       setIsEligibleCompleted(false);
@@ -279,8 +356,7 @@ export default function TestTab({ ieprow }) {
       setIsEndActive(false);
       setIsEndDisabled(true);
       setIsEndCompleted(false);
-    }
-    else if ((values.status) === "in_orientation") {
+    } else if (values.status === 'in_orientation') {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
       setIsEligibleCompleted(true);
@@ -300,8 +376,7 @@ export default function TestTab({ ieprow }) {
       setIsEndActive(false);
       setIsEndDisabled(true);
       setIsEndCompleted(false);
-
-    } else if ((values.status) === "in_planning") {
+    } else if (values.status === 'in_planning') {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
       setIsEligibleCompleted(true);
@@ -321,8 +396,7 @@ export default function TestTab({ ieprow }) {
       setIsEndActive(false);
       setIsEndDisabled(true);
       setIsEndCompleted(false);
-
-    } else if ((values.status) === "in_progress") {
+    } else if (values.status === 'in_progress') {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
       setIsEligibleCompleted(true);
@@ -342,7 +416,7 @@ export default function TestTab({ ieprow }) {
       setIsEndActive(false);
       setIsEndDisabled(true);
       setIsEndCompleted(false);
-    } else if ((values.status) === "ended") {
+    } else if (values.status === 'ended') {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
       setIsEligibleCompleted(true);
@@ -368,31 +442,56 @@ export default function TestTab({ ieprow }) {
   return (
     <>
       <Step.Group ordered fluid>
-        <Step onClick={Orientation} active={isEligibleActive} completed={isEligibleCompleted} disabled={isEligibleDisabled}>
+        <Step
+          onClick={Orientation}
+          active={isEligibleActive}
+          completed={isEligibleCompleted}
+          disabled={isEligibleDisabled}
+        >
           <Step.Content>
             <Step.Title as={'a'}>Eligibility</Step.Title>
             <Step.Description>eligible</Step.Description>
           </Step.Content>
         </Step>
-        <Step onClick={Orientation} active={isOrientOpened} completed={isOrientCompleted} disabled={isOrientDisabled}>
+        <Step
+          onClick={Orientation}
+          active={isOrientOpened}
+          completed={isOrientCompleted}
+          disabled={isOrientDisabled}
+        >
           <Step.Content>
             <Step.Title as={'a'}>Orientation</Step.Title>
             <Step.Description>in orientation</Step.Description>
           </Step.Content>
         </Step>
-        <Step onClick={Orientation} active={isIepOpened} completed={isIepCompleted} disabled={isIepDisabled}>
+        <Step
+          onClick={Orientation}
+          active={isIepOpened}
+          completed={isIepCompleted}
+          disabled={isIepDisabled}
+        >
           <Step.Content>
             <Step.Title as={'a'}>IEP Planning</Step.Title>
             <Step.Description>in planning</Step.Description>
           </Step.Content>
         </Step>
-        <Step onClick={Orientation} active={isInProgressActive} completed={isInProgressCompleted} disabled={isInProgressDisabled}>
+        <Step
+          onClick={Orientation}
+          active={isInProgressActive}
+          completed={isInProgressCompleted}
+          disabled={isInProgressDisabled}
+        >
           <Step.Content>
             <Step.Title as={'a'}>Enrolled</Step.Title>
             <Step.Description>Taking Customer service program</Step.Description>
           </Step.Content>
         </Step>
-        <Step onClick={Orientation} active={isEndActive} completed={isEndCompleted} disabled={isEndDisabled}>
+        <Step
+          onClick={Orientation}
+          active={isEndActive}
+          completed={isEndCompleted}
+          disabled={isEndDisabled}
+        >
           <Step.Content>
             <Step.Title as={'a'}>Done</Step.Title>
             <Step.Description></Step.Description>
@@ -405,23 +504,33 @@ export default function TestTab({ ieprow }) {
         // &&
         // (<OrientationStep />)
       }
-      {
-        isOrientOpened &&
-        (<OrientationStep client={ieprow.original} confirmOrientationClicked={ConfirmOrientationButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
-      }
-      {
-        isIepOpened &&
-        (<PlanningStep client={ieprow.original} modifyOkButtonClicked={ModifyOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
-      }
-      {
-        isInProgressActive &&
-        (<InProgressStep client={ieprow.original} listPrograms={listInitialPrograms} modifyOkButtonClicked={ModifyPOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
-      }
+      {isOrientOpened && (
+        <OrientationStep
+          client={ieprow.original}
+          confirmOrientationClicked={ConfirmOrientationButton}
+          confirmEndIEPClicked={ConfirmIEPEnd}
+        />
+      )}
+      {isIepOpened && (
+        <PlanningStep
+          client={ieprow.original}
+          modifyOkButtonClicked={ModifyOkButton}
+          confirmEndIEPClicked={ConfirmIEPEnd}
+        />
+      )}
+      {isInProgressActive && (
+        <InProgressStep
+          reloadOrientation={Orientation}
+          client={ieprow.original}
+          listPrograms={listInitialPrograms}
+          modifyOkButtonClicked={ModifyPOkButton}
+          confirmEndIEPClicked={ConfirmIEPEnd}
+        />
+      )}
       {/* {
         isEndActive &&
         (<PlanningStep />)
       } */}
-
     </>
   );
 }

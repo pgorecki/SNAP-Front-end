@@ -1,5 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Button, Header, Form, Grid, Modal, Tab, Loader, Message, FormTextArea, FormCheckbox } from 'semantic-ui-react';
+import {
+  Button,
+  Header,
+  Form,
+  Grid,
+  Modal,
+  Tab,
+  Loader,
+  Message,
+  FormTextArea,
+  FormCheckbox,
+} from 'semantic-ui-react';
 import { Formik } from 'formik';
 import useApiClient from 'hooks/useApiClient';
 import { AppContext } from 'AppStore';
@@ -15,8 +26,16 @@ import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import toaster from 'components/toaster';
 import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import useFetchData from 'hooks/useFetchData';
-import { FormSelect, FormDatePicker, FormErrors, FormInput } from 'components/FormFields';
-import { EditActionLink, DeleteActionButton } from '../../components/tableComponents';
+import {
+  FormSelect,
+  FormDatePicker,
+  FormErrors,
+  FormInput,
+} from 'components/FormFields';
+import {
+  EditActionLink,
+  DeleteActionButton,
+} from '../../components/tableComponents';
 import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
 import { hasPermission } from 'utils/permissions';
@@ -32,9 +51,9 @@ function UpdateSurveyForm({ programsIndex, onSubmit, enrData }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-      value: id,
-      text: name,
-    }))
+        value: id,
+        text: name,
+      }))
     : [];
 
   useEffect(() => {
@@ -73,7 +92,6 @@ function UpdateSurveyForm({ programsIndex, onSubmit, enrData }) {
             let intakeSurvey = null;
             if (selectedProgram) {
               intakeSurvey = selectedProgram.enrollment_update_survey;
-
             }
 
             return (
@@ -84,7 +102,10 @@ function UpdateSurveyForm({ programsIndex, onSubmit, enrData }) {
                   type="submit"
                   disabled={form.isSubmitting}
                   onClick={() => {
-                    form.setFieldValue('surveyId', intakeSurvey.id);
+                    form.setFieldValue(
+                      'surveyId',
+                      intakeSurvey == null ? '' : intakeSurvey.id
+                    );
                   }}
                 >
                   New Update
@@ -98,7 +119,6 @@ function UpdateSurveyForm({ programsIndex, onSubmit, enrData }) {
   );
 }
 
-
 export default function AssessmentsTab({ enrollData }) {
   console.log(enrollData);
   const history = useHistory();
@@ -107,7 +127,7 @@ export default function AssessmentsTab({ enrollData }) {
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   const [urlParams, queryParams, hash] = useUrlParams();
   const table = usePaginatedDataTable({
-    url: `/responses/?context=${enrollData.id}`
+    url: `/responses/?context=${enrollData.id}`,
   });
   console.log(table);
   const [modalSurveyData, setModalSurveyData] = useState();
@@ -119,23 +139,25 @@ export default function AssessmentsTab({ enrollData }) {
   const handleShow = () => setShow(true);
   const [modalData, setModaData] = useState({});
   const [initialValues, setInitialValues] = useState({
-    client: enrollData.client.id
-    , survey: enrollData.program.enrollment_entry_survey == null ? '' : enrollData.program.enrollment_entry_survey.id
-    , response_context: { id: enrollData.id, type: 'Enrollment' }
-    , answers: [
+    client: enrollData.client.id,
+    survey:
+      enrollData.program.enrollment_entry_survey == null
+        ? ''
+        : enrollData.program.enrollment_entry_survey.id,
+    response_context: { id: enrollData.id, type: 'Enrollment' },
+    answers: [
       {
-        question: '3ab2f933-899c-4229-9c98-ce17e002633f'
-        , value: 'TestAns'
-      }
-    ]
-  }
-  );
+        question: '3ab2f933-899c-4229-9c98-ce17e002633f',
+        value: 'TestAns',
+      },
+    ],
+  });
 
   const options = data
     ? data.map(({ id, name }) => ({
-      value: id,
-      text: name,
-    }))
+        value: id,
+        text: name,
+      }))
     : [];
   const cncolumns = React.useMemo(
     () => [
@@ -158,9 +180,14 @@ export default function AssessmentsTab({ enrollData }) {
         accessor: 'actions',
         Cell: ({ row }) => (
           <>
-            <EditActionLink disabled={enrollData.status == 'COMPLETED'} to={`/responses/${row.original.id}/edit`} />
-            <DeleteActionButton disabled={enrollData.status == 'COMPLETED'}
-              onClick={() => setModaData({ ...row.original })} />
+            <EditActionLink
+              disabled={enrollData.status == 'COMPLETED'}
+              to={`/responses/${row.original.id}/edit`}
+            />
+            <DeleteActionButton
+              disabled={enrollData.status == 'COMPLETED'}
+              onClick={() => setModaData({ ...row.original })}
+            />
           </>
         ),
       },
@@ -216,8 +243,7 @@ export default function AssessmentsTab({ enrollData }) {
             return null;
           }
           const selectedProgram =
-            data &&
-            data.find((program) => program.id === form.values.program);
+            data && data.find((program) => program.id === form.values.program);
 
           return (
             <>
@@ -233,7 +259,6 @@ export default function AssessmentsTab({ enrollData }) {
                         const { program, start_date } = modalSurveyData;
                         //let sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2) ;
                         try {
-
                           await apiClient.post('/responses/', {
                             ...newResponseData,
                             response_context: {
@@ -253,7 +278,9 @@ export default function AssessmentsTab({ enrollData }) {
                   )}
                 </Modal.Content>
                 <Modal.Actions>
-                  <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
+                  <Button onClick={() => setModalSurveyData(null)}>
+                    Cancel
+                  </Button>
                 </Modal.Actions>
               </Modal>
             </>
@@ -267,7 +294,7 @@ export default function AssessmentsTab({ enrollData }) {
             <p>
               Are you sure you want to delete assessment{' '}
               <strong>{modalData.name}</strong>?
-                </p>
+            </p>
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
@@ -286,7 +313,7 @@ export default function AssessmentsTab({ enrollData }) {
             }}
           >
             Delete assessment
-              </Button>
+          </Button>
         </Modal.Actions>
       </Modal>
     </>

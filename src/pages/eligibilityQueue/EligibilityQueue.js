@@ -152,7 +152,7 @@ function NewClientsTab() {
                 </Modal.Description>
                 <Modal.Content>
                   <Form error onSubmit={form.handleSubmit}>
-                    <FormInput label="Snap ID:" name="snap_id" form={form} />
+                    <FormInput label="Snap ID:" name="ssn" form={form} />
                     <FormErrors form={form} />
                     <Button primary type="submit" disabled={form.isSubmitting}>
                       Submit

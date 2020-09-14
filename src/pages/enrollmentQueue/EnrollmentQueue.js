@@ -13,8 +13,6 @@ import { clientFullName, formatUser } from 'utils/modelUtils';
 import ListPage from '../ListPage';
 
 function NewClientsTab() {
-  const history = useHistory();
-  const apiClient = useApiClient();
   const table = usePaginatedDataTable({ url: '/iep/?type=new' });
   const columns = React.useMemo(
     () => [
@@ -60,15 +58,15 @@ function NewClientsTab() {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ value, row }) => {
-          const clientId = row.original.client.id;
           switch (row.original.status) {
             case 'in_orientation':
             case 'in_planning':
             case 'in_progress':
               return (
                 <Button
+                  as={NavLink}
+                  to={`/clients/${row.original.client.id}#iep`}
                   color="green"
-                  onClick={() => history.push(`clients/${clientId}#iep`)}
                 >
                   Manage Referral
                 </Button>
@@ -76,8 +74,9 @@ function NewClientsTab() {
             case 'not_eligible':
               return (
                 <Button
+                  as={NavLink}
+                  to={`/clients/${row.original.client.id}#iep`}
                   color="red"
-                  onClick={() => history.push(`clients/${clientId}#iep`)}
                 >
                   End Referral
                 </Button>
@@ -94,8 +93,6 @@ function NewClientsTab() {
 }
 
 function ExistingClientsTab() {
-  const history = useHistory();
-  const apiClient = useApiClient();
   const table = usePaginatedDataTable({
     url: '/iep/?type=existing',
   });
@@ -144,15 +141,15 @@ function ExistingClientsTab() {
         accessor: 'actions',
         Cell: ({ value, row }) => {
           const status = row.original.status;
-          const clientId = row.original.client.id;
           switch (status) {
             case 'in_orientation':
             case 'in_planning':
             case 'in_progress':
               return (
                 <Button
+                  as={NavLink}
+                  to={`/clients/${row.original.client.id}#iep`}
                   color="green"
-                  onClick={() => history.push(`clients/${clientId}#iep`)}
                 >
                   Manage Referral
                 </Button>
@@ -160,8 +157,9 @@ function ExistingClientsTab() {
             case 'not_eligible':
               return (
                 <Button
+                  as={NavLink}
+                  to={`/clients/${row.original.client.id}#iep`}
                   color="red"
-                  onClick={() => history.push(`clients/${clientId}#iep`)}
                 >
                   End Referral
                 </Button>

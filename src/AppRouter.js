@@ -35,7 +35,7 @@ import { AppContext } from './AppStore';
 
 const navigationMenu = [
   {
-    name: 'Dashbooard',
+    name: 'Dashboard',
     path: '/dashboard',
     iconName: 'dashboard',
     page: DashboardPage,
@@ -56,7 +56,7 @@ const navigationMenu = [
     permission: 'client.view_client',
   },
   {
-    name: 'Clients',
+    name: 'Participants',
     path: '/clients',
     iconName: 'address card outline',
     page: ClientList,

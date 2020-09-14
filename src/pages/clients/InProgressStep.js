@@ -44,6 +44,7 @@ export const InProgressStep = (props) => {
     props.listPrograms
   );
   const [initProgram, setInitialProgram] = useState(null);
+  const [initSurveyProgram, setInitialSurveyProgram] = useState(null);
   const [initClient, setClientState] = useState(props.client.client);
   const [initIep, setIepState] = useState(props.client);
   const [modalSurveyData, setModalSurveyData] = useState();
@@ -104,10 +105,38 @@ export const InProgressStep = (props) => {
     }
   }
 
-  function modifyOkButtonClicked() {
-    //console.log(checkPrograms);
-    //props.modifyOkButtonClicked(listInitialPrograms);
-    //setCheckedPrograms(listInitialPrograms);
+  async function modifyOkButtonClicked() {
+    checkPrograms.forEach(async (element) => {
+      const result = await apiClient.get(
+        `/programs/enrollments/?client=${initClient.id}&program=${element.id}`
+      );
+      if (result.data.count > 0) {
+      } else {
+        try {
+          const enrollmentResponse = await apiClient.post(
+            '/programs/enrollments/',
+            {
+              client: initClient.id,
+              status: 'PLANNED',
+              program: element.id,
+              start_date: moment(new Date()).format('YYYY-MM-DD'),
+            }
+          );
+        } catch (err) {
+          const apiError = formatApiError(err.response);
+          toaster.error(apiError);
+        } finally {
+          const resultPrograms = await apiClient.get(
+            `/programs/enrollments/?client=${initClient.id}`
+          );
+          if (resultPrograms.data.count > 0) {
+            setExistingEnrollmentPrograms(resultPrograms.data.results);
+            console.log(existingEnrollmentPrograms);
+          }
+        }
+      }
+    });
+    //props.modifyOkButtonClicked(checkPrograms);
     setIsModifyState(null);
   }
 
@@ -134,9 +163,16 @@ export const InProgressStep = (props) => {
     setIsBeginEnrollmentState(true);
   }
 
-  function CloseEnrollment() {
+  async function CloseEnrollment() {
     setIsBeginEnrollmentState(false);
     setModalSurveyData(null);
+    const resultPrograms = await apiClient.get(
+      `/programs/enrollments/?client=${initClient.id}`
+    );
+    if (resultPrograms.data.count > 0) {
+      setExistingEnrollmentPrograms(resultPrograms.data.results);
+      console.log(existingEnrollmentPrograms);
+    }
   }
 
   function CloseNotes() {
@@ -213,6 +249,7 @@ export const InProgressStep = (props) => {
                     required
                     options={options}
                     placeholder="Select program"
+                    disabled
                   />
                   <FormDatePicker
                     label="Start Date"
@@ -316,7 +353,7 @@ export const InProgressStep = (props) => {
                 <Button
                   color="green"
                   disabled={p['status'] == 'PLANNED' ? false : true}
-                  onClick={(event) => BeginEnrollment(event, p.program['id'])}
+                  onClick={(event) => BeginEnrollment(event, p)}
                 >
                   Begin Enrollment
                 </Button>
@@ -375,7 +412,7 @@ export const InProgressStep = (props) => {
           </Modal.Actions>
         </Modal>
       )}
-      {hasPermission(user, 'program.add_enrollment') && isBeginEnrollment && (
+      {isBeginEnrollment && (
         <>
           <Modal size="tiny" open={isBeginEnrollment}>
             <Modal.Header>Enroll to Program</Modal.Header>
@@ -384,14 +421,15 @@ export const InProgressStep = (props) => {
               <EnrollmentForm
                 client={initClient}
                 programsIndex={programsIndex}
-                initP={initProgram}
+                initP={initProgram.program['id']}
                 onSubmit={async (values) => {
                   console.log(initClient);
+                  console.log(initProgram);
                   const { program } = values;
-                  const result = await apiClient.get(
-                    `/programs/enrollments/?client=${initClient.id}&program=${program.id}`
-                  );
-                  if (result.data.count > 0) {
+                  // const result = await apiClient.get(
+                  //   `/programs/enrollments/?client=${initClient.id}&program=${program.id}'`
+                  // );
+                  if (initProgram['status'] === 'ENROLLED') {
                     throw new FieldError(
                       'program',
                       `Client already enrolled to ${program.name}`
@@ -409,7 +447,7 @@ export const InProgressStep = (props) => {
           </Modal>
         </>
       )}
-      {hasPermission(user, 'program.add_enrollment') && isNotesModel && (
+      {isNotesModel && (
         <>
           <Modal size="large" open={isNotesModel}>
             <Modal.Header>Notes</Modal.Header>
@@ -443,8 +481,8 @@ export const InProgressStep = (props) => {
                   '-' +
                   ('0' + start_date.getDate()).slice(-2);
                 try {
-                  const enrollmentResponse = await apiClient.post(
-                    '/programs/enrollments/',
+                  const enrollmentResponse = await apiClient.put(
+                    `/programs/enrollments/${initProgram.id}/`,
                     {
                       client: initClient.id,
                       status: 'ENROLLED',
@@ -483,6 +521,10 @@ export const InProgressStep = (props) => {
                   toaster.error(apiError);
                 }
                 setModalSurveyData(null);
+                setIsBeginEnrollmentState(true);
+                console.log(props);
+                //props.reloadOrientation();
+                //SavedPrograms();
                 //props.confirmEndIEPClicked()
                 //table.reload();
               }}

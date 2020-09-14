@@ -30,7 +30,7 @@ export function IEPStatus({ value }) {
   }
   switch (value) {
     case 'awaiting_approval':
-      return <Label>Avaiting approval</Label>;
+      return <Label>Awaiting approval</Label>;
     case 'not_eligible':
       return <Label color="red">Not eligible</Label>;
     case 'in_orientation':
