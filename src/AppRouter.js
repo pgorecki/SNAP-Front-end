@@ -35,7 +35,7 @@ import { AppContext } from './AppStore';
 
 const navigationMenu = [
   {
-    name: 'Dashbooard',
+    name: 'Dashboard',
     path: '/dashboard',
     iconName: 'dashboard',
     page: DashboardPage,

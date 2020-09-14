@@ -55,7 +55,7 @@ function NewClientsTab() {
         Cell: ({ value, row }) => {
           switch (value) {
             case 'in_orientation':
-              return <Button color="green">Manage Referral</Button>;
+              return <Button as={NavLink} to={`/clients/${row.original.client.id}`} color="green">Manage Referral</Button>;
             case 'not_eligible':
               return <Button color="red">End Referral</Button>;
             default:

@@ -19,6 +19,7 @@ import moment from 'moment';
 
 export default function TestTab({ ieprow }) {
   console.log(ieprow);
+  //console.log(handleClose);
   var values = ieprow.values;
   const apiClient = useApiClient();
 
@@ -51,7 +52,7 @@ export default function TestTab({ ieprow }) {
   const [isEndCompleted, setIsEndCompleted] = useState((values.status) === "ended" ? false : (values.status) === "in_orientation" ? false : (values.status) === "in_planning" ? false : (values.status) === "not_eligible" ? false : (values.status) === "awaiting_approval" ? false : (values.status) === "in_progress" ? false : true);
 
   const [listInitialPrograms, setListInitialPrograms] = useState(null);
-  console.log(listInitialPrograms);
+  //console.log(listInitialPrograms);
   const table = usePaginatedDataTable({
     url: '/responses/',
   });
@@ -174,13 +175,13 @@ export default function TestTab({ ieprow }) {
         //console.log(resultPrograms.data.results.program["id"]);
         resultPrograms.data.results.forEach(async element => {
           try {
-            const enrollmentResponse = await apiClient.post(
-              '/programs/enrollments/',
+            const enrollmentResponse = await apiClient.put(
+              `/programs/enrollments/${element.id}/`,
               {
                 client: clientid,
-                status: 'CANCELLED',
+                status: 'COMPLETED',
                 program: element.program["id"],
-                start_date: moment(new Date()).format('YYYY-MM-DD'),
+                end_date: moment(new Date()).format('YYYY-MM-DD'),
               }
             );
           } catch (err) {
@@ -415,7 +416,7 @@ export default function TestTab({ ieprow }) {
       }
       {
         isInProgressActive &&
-        (<InProgressStep client={ieprow.original} listPrograms={listInitialPrograms} modifyOkButtonClicked={ModifyPOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
+        (<InProgressStep reloadOrientation={Orientation} client={ieprow.original} listPrograms={listInitialPrograms} modifyOkButtonClicked={ModifyPOkButton} confirmEndIEPClicked={ConfirmIEPEnd} />)
       }
       {/* {
         isEndActive &&

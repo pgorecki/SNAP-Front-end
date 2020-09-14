@@ -143,7 +143,7 @@ export default function IEPTab({ client }) {
         <Modal size="large" open={isOpened}>
           <Modal.Header></Modal.Header>
           <Modal.Content>
-            <TestTab ieprow={programValues}>
+            <TestTab ieprow={programValues} >
             </TestTab>
           </Modal.Content>
           <Modal.Actions>

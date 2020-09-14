@@ -72,9 +72,9 @@ export default function LoginPage() {
             <Message error>{errors.non_field_errors.join(', ')}</Message>
           )}
         </Segment>
-        <Message>
+        {/* <Message>
           New to us? <Link to="/signup">Sign up</Link>
-        </Message>
+        </Message> */}
       </Grid.Column>
     </Grid>
   );

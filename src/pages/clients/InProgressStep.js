@@ -28,6 +28,7 @@ export const InProgressStep = (props) => {
   const [isNotesModel, setIsNotesModelState] = useState(false)
   const [listInitialPrograms, setListInitialPrograms] = useState(props.listPrograms);
   const [initProgram, setInitialProgram] = useState(null);
+  const [initSurveyProgram, setInitialSurveyProgram] = useState(null);
   const [initClient, setClientState] = useState(props.client.client);
   const [initIep, setIepState] = useState(props.client);
   const [modalSurveyData, setModalSurveyData] = useState();
@@ -113,9 +114,16 @@ export const InProgressStep = (props) => {
     setIsBeginEnrollmentState(true);
   }
 
-  function CloseEnrollment() {
+  async function CloseEnrollment() {
     setIsBeginEnrollmentState(false);
     setModalSurveyData(null);
+    const resultPrograms = await apiClient.get(
+      `/programs/enrollments/?client=${initClient.id}`
+    );
+    if (resultPrograms.data.count > 0) {
+      setExistingEnrollmentPrograms(resultPrograms.data.results);
+      console.log(existingEnrollmentPrograms);
+    }
   }
 
   function CloseNotes() {
@@ -190,6 +198,7 @@ export const InProgressStep = (props) => {
                     required
                     options={options}
                     placeholder="Select program"
+                    disabled
                   />
                   <FormDatePicker
                     label="Start Date"
@@ -277,7 +286,7 @@ export const InProgressStep = (props) => {
               <Label basic color={p["status"] == "PLANNED" ? "blue" : ""}>Planned</Label>
               <Label basic color={p["status"] == "ENROLLED" ? "blue" : ""}>Enrolled</Label>
               <Label basic color={p["status"] == "COMPLETED" ? "blue" : ""}>Completed</Label>
-              <Button color="green" disabled={p["status"] == "PLANNED" ? false : true} onClick={(event) => BeginEnrollment(event, p.program["id"])}>Begin Enrollment</Button>
+              <Button color="green" disabled={p["status"] == "PLANNED" ? false : true} onClick={(event) => BeginEnrollment(event, p)}>Begin Enrollment</Button>
             </Grid.Row>
           </Grid>
         ))}
@@ -316,14 +325,15 @@ export const InProgressStep = (props) => {
               <EnrollmentForm
                 client={initClient}
                 programsIndex={programsIndex}
-                initP={initProgram}
+                initP={initProgram.program["id"]}
                 onSubmit={async (values) => {
                   console.log(initClient)
+                  console.log(initProgram)
                   const { program } = values;
-                  const result = await apiClient.get(
-                    `/programs/enrollments/?client=${initClient.id}&program=${program.id}`
-                  );
-                  if (result.data.count > 0) {
+                  // const result = await apiClient.get(
+                  //   `/programs/enrollments/?client=${initClient.id}&program=${program.id}'`
+                  // );
+                  if (initProgram["status"] === 'ENROLLED') {
                     throw new FieldError(
                       'program',
                       `Client already enrolled to ${program.name}`
@@ -370,8 +380,8 @@ export const InProgressStep = (props) => {
                 //debugger;
                 var sd = start_date.getFullYear() + '-' + ("0" + (start_date.getMonth() + 1)).slice(-2) + '-' + ("0" + start_date.getDate()).slice(-2);
                 try {
-                  const enrollmentResponse = await apiClient.post(
-                    '/programs/enrollments/',
+                  const enrollmentResponse = await apiClient.put(
+                    `/programs/enrollments/${initProgram.id}/`,
                     {
                       client: initClient.id,
                       status: 'ENROLLED',
@@ -410,6 +420,10 @@ export const InProgressStep = (props) => {
                   toaster.error(apiError);
                 }
                 setModalSurveyData(null);
+                setIsBeginEnrollmentState(true);
+                console.log(props);
+                //props.reloadOrientation();
+                //SavedPrograms();
                 //props.confirmEndIEPClicked()
                 //table.reload();
               }}
