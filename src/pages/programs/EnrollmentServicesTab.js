@@ -27,6 +27,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
   const [showTimeBased, setShowTimeBased] = useState(false);
   const [showBusTickets, setShowBusTickets] = useState(false);
   const [serviceTypeValue, setServiceTypeValue] = useState();
+  const [showDetails, setShowDetails] = useState(false);
+  const [showDetailsServiceName, setShowDetailsServiceName] = useState();
   const apiClient = useApiClient();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const clientFullName = 'Test';
@@ -106,7 +108,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
       {
         Header: 'Date Created',
         accessor: 'created_at',
-       Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
       },
       {
         Header: 'Actions',
@@ -114,7 +116,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
         Cell: ({ value, row }) => {
           return (
             <>
-              <Button onClick={() => setModaDataEd({ ...row.original })}>
+              <Button onClick={(event) => SetModalDetails(event, row.original)}>
                 Details
               </Button>
             </>
@@ -124,6 +126,13 @@ export default function EnrollmentServicesTab({ enrollData }) {
     ],
     []
   );
+
+  function SetModalDetails(event, detail) {
+    event.preventDefault();
+    setShowDetails(true);
+    setModaDataEd(detail);
+    setShowDetailsServiceName(detail.service_type.name);
+  }
 
   useEffect(() => {
     if (table.data.length) setModalData({ service: table.data[0] });
@@ -148,18 +157,18 @@ export default function EnrollmentServicesTab({ enrollData }) {
       </Button>
 
       <Header as="h4">Enrollment Services</Header>
-      <PaginatedDataTable columns={columns} table={table} />      
-      
+      <PaginatedDataTable columns={columns} table={table} />
+
       <Formik
         enableReinitialize
         initialValues={initialValues}
         onSubmit={async (values, actions) => {
           try {
             await apiClient.post(`/programs/services/`, {
-             enrollment: enrollData.id,
-             service_type: serviceTypeValue,
-             effective_date: moment(values.sDate).format('YYYY-MM-DD'),
-             values: JSON.stringify(values)
+              enrollment: enrollData.id,
+              service_type: serviceTypeValue,
+              effective_date: moment(values.sDate).format('YYYY-MM-DD'),
+              values: JSON.stringify(values)
             });
             toaster.success('Service created');
           } catch (err) {
@@ -188,7 +197,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
                         required
                         options={options}
                         placeholder="Select type"
-                        onChange={(e,{value}) => OnServiceTypeChange(e, value)}
+                        onChange={(e, { value }) => OnServiceTypeChange(e, value)}
                       />
                       <>
                         {
@@ -296,12 +305,15 @@ export default function EnrollmentServicesTab({ enrollData }) {
         }}
       </Formik>
 
-      <Modal closeIcon open={!!modalDataEd.id} onClose={() => setModaDataEd({})}>
+      <Modal open={showDetails}>
         <Modal.Header>Service Details</Modal.Header>
         <Modal.Content>
-          <LabelField label="Service Name" value={()=> 'undefined' ? '' : modalDataEd.service_type.name} />
-          <LabelField label="Effective date" value={!!modalDataEd.effective_date} />
+          <LabelField label="Service Name" value={showDetailsServiceName} />
+          <LabelField label="Effective date" value={modalDataEd.effective_date} />
         </Modal.Content>
+        <Modal.Actions>
+          <Button style={{ marginLeft: "1rem" }} onClick={() => setShowDetails(null)}>Cancel</Button>
+        </Modal.Actions>
       </Modal>
 
     </>
