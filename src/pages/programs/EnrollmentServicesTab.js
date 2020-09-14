@@ -29,6 +29,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
   const [serviceTypeValue, setServiceTypeValue] = useState();
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsServiceName, setShowDetailsServiceName] = useState();
+  const [showDetailsServiceCatg, setshowDetailsServiceCatg] = useState();
   const apiClient = useApiClient();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const clientFullName = 'Test';
@@ -132,6 +133,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setShowDetails(true);
     setModaDataEd(detail);
     setShowDetailsServiceName(detail.service_type.name);
+    setshowDetailsServiceCatg(detail.service_type.category);
+    console.log(detail);
   }
 
   useEffect(() => {
@@ -308,7 +311,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
       <Modal open={showDetails}>
         <Modal.Header>Service Details</Modal.Header>
         <Modal.Content>
-          <LabelField label="Service Name" value={showDetailsServiceName} />
+          <LabelField label="Name" value={showDetailsServiceName} />
+          <LabelField label="Category" value={showDetailsServiceCatg} />
           <LabelField label="Effective date" value={modalDataEd.effective_date} />
         </Modal.Content>
         <Modal.Actions>

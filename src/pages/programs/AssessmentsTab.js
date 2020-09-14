@@ -84,7 +84,7 @@ function UpdateSurveyForm({ programsIndex, onSubmit, enrData }) {
                   type="submit"
                   disabled={form.isSubmitting}
                   onClick={() => {
-                    form.setFieldValue('surveyId', intakeSurvey.id);
+                    form.setFieldValue('surveyId', intakeSurvey==null?'':intakeSurvey.id);
                   }}
                 >
                   New Update
