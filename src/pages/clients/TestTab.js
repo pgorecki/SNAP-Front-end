@@ -254,8 +254,8 @@ export default function TestTab({ ieprow }) {
     }
   }
 
-  async function ModifyPOkButton() {
-
+  async function ModifyPOkButton(checkPrograms) {
+    setListInitialPrograms(checkPrograms);
   }
 
   function Orientation() {

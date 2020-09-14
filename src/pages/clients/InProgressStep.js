@@ -84,10 +84,39 @@ export const InProgressStep = (props) => {
     }
   }
 
-  function modifyOkButtonClicked() {
-    //console.log(checkPrograms);
-    //props.modifyOkButtonClicked(listInitialPrograms);
-    //setCheckedPrograms(listInitialPrograms);
+  async function modifyOkButtonClicked() {
+    checkPrograms.forEach(async element => {
+      const result = await apiClient.get(
+        `/programs/enrollments/?client=${initClient.id}&program=${element.id}`
+      );
+      if (result.data.count > 0) {
+
+      } else {
+        try {
+          const enrollmentResponse = await apiClient.post(
+            '/programs/enrollments/',
+            {
+              client: initClient.id,
+              status: 'PLANNED',
+              program: element.id,
+              start_date: moment(new Date()).format('YYYY-MM-DD'),
+            }
+          )
+        } catch (err) {
+          const apiError = formatApiError(err.response);
+          toaster.error(apiError);
+        } finally {
+          const resultPrograms = await apiClient.get(
+            `/programs/enrollments/?client=${initClient.id}`
+          );
+          if (resultPrograms.data.count > 0) {
+            setExistingEnrollmentPrograms(resultPrograms.data.results);
+            console.log(existingEnrollmentPrograms);
+          }
+        }
+      }
+    });
+    //props.modifyOkButtonClicked(checkPrograms);
     setIsModifyState(null);
   }
 
@@ -316,7 +345,7 @@ export const InProgressStep = (props) => {
           </Modal.Actions>
         </Modal>
       )}
-      {hasPermission(user, 'program.add_enrollment') && isBeginEnrollment && (
+      {isBeginEnrollment && (
         <>
           <Modal size="tiny" open={isBeginEnrollment}>
             <Modal.Header>Enroll to Program</Modal.Header>
@@ -351,7 +380,7 @@ export const InProgressStep = (props) => {
           </Modal>
         </>
       )}
-      {hasPermission(user, 'program.add_enrollment') && isNotesModel && (
+      {isNotesModel && (
         <>
           <Modal size="large" open={isNotesModel}>
             <Modal.Header>Notes</Modal.Header>

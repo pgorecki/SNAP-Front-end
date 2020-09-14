@@ -191,7 +191,7 @@ export const PlanningStep = (props) => {
           </Modal.Actions>
         </Modal>
       )}
-      {hasPermission(user, 'program.add_enrollment') && isNotesModel && (
+      {isNotesModel && (
         <>
           <Modal size="large" open={isNotesModel}>
             <Modal.Header>Notes</Modal.Header>

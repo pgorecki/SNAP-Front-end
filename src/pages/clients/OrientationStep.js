@@ -133,7 +133,7 @@ export const OrientationStep = (props) => {
       <h4>Orientation is not completed </h4>
       <Grid>
         <Grid.Row>
-          <Button onClick={confirmClicked} style={{ marginLeft: "1rem" }}>Confirm orientation completed</Button>
+          <Button onClick={confirmClicked} style={{ marginLeft: "1rem" }} disabled={!hasPermission(user, 'iep.add_clientiep')}>Confirm orientation completed</Button>
         </Grid.Row>
         <Grid.Row>
           <Button onClick={opensurveyforiep} style={{ marginLeft: "1rem" }}>Assess Client</Button>
@@ -144,7 +144,7 @@ export const OrientationStep = (props) => {
 
       <h2>NOTES</h2>
       <Button onClick={OpenNotes} style={{ marginLeft: "1rem" }}>Add Notes</Button>
-      {hasPermission(user, 'program.add_enrollment') && isNotesModel && (
+      {isNotesModel && (
         <>
           <Modal size="large" open={isNotesModel}>
             <Modal.Header>Notes</Modal.Header>
