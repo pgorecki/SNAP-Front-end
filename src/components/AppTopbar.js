@@ -20,7 +20,7 @@ export default function AppTopbar({ menuWidth }) {
       </Menu.Item>
 
       <Menu.Menu position="right">
-        <Menu.Item as="a" style={{ color: 'white' }} position="right">
+        {/* <Menu.Item as="a" style={{ color: 'white' }} position="right">
           <Icon name="bell" />
           <Label
             color="red"
@@ -30,7 +30,7 @@ export default function AppTopbar({ menuWidth }) {
           >
             12
           </Label>
-        </Menu.Item>
+        </Menu.Item> */}
 
         <Dropdown item style={{ color: 'white' }} text={user.username}>
           <Dropdown.Menu>

@@ -22,7 +22,7 @@ export default function ClientEdit() {
         try {
           const result = await save(values);
           history.push(`/clients/${result.id}`);
-          toaster.success('Client updated');
+          toaster.success('Participant updated');
         } catch (err) {
           actions.setErrors(apiErrorToFormError(err));
         }
@@ -30,7 +30,7 @@ export default function ClientEdit() {
       }}
     >
       {(form) => (
-        <DetailsPage title="Edit Client" error={formatApiError(error)}>
+        <DetailsPage title="Edit Participant" error={formatApiError(error)}>
           <Grid>
             <Grid.Column computer={8} mobile={16}>
               <ClientForm form={form} />

@@ -19,14 +19,32 @@ import useResourceIndex from 'hooks/useResourceIndex';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import useApiClient from 'hooks/useApiClient';
 import { hasPermission } from 'utils/permissions';
+import TestTab from './TestTab';
+
+let programValues = {};
+let iepRow = {};
 
 export default function IEPTab({ client }) {
   const [{ user }] = useContext(AppContext);
   const apiClient = useApiClient();
   const [showNewIEPModal, setShowNewIEPModal] = useState(false);
+  const [StepModal, setStepModal] = useState(true);
   const table = usePaginatedDataTable({
     url: `/iep/?client=${client.id}`,
   });
+  const [isOpened, setIsOpened] = useState(false);
+  // const handleClose = () => setIsOpened(false);
+  // const handleShow = () => setIsOpened(true);
+
+  function toggle(row) {
+    setIsOpened(true);
+    programValues = row;
+  }
+
+  function handleClose() {
+    table.reload();
+    setIsOpened(false);
+  }
 
   const columns = React.useMemo(
     () => [
@@ -50,7 +68,8 @@ export default function IEPTab({ client }) {
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>
-            <EditActionLink disabled to={`#`} />
+            <Button onClick={() => toggle(row)}>Details</Button>
+            {/* <EditActionLink disabled to={`#`} /> */}
             {/* <Button
               onClick={(...args) => {
                 actions.updateRow(row, { created_at: new Date() });
@@ -120,6 +139,17 @@ export default function IEPTab({ client }) {
       </Modal>
       <Header as="h4">IEPs</Header>
       <PaginatedDataTable columns={columns} table={table} />
+      {isOpened && (
+        <Modal size="large" open={isOpened}>
+          <Modal.Header></Modal.Header>
+          <Modal.Content>
+            <TestTab ieprow={programValues}></TestTab>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Modal.Actions>
+        </Modal>
+      )}
     </>
   );
 }

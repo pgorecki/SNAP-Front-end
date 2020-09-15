@@ -15,11 +15,15 @@ import { useHistory } from 'react-router-dom';
 import useUrlParams from 'hooks/useUrlParams';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
+import moment from 'moment';
 
-var enrollmentid = '';
+var enrollmentId = '';
+var programName = '';
+var programValues = {};
 
 function EnrollmentForm({ programsIndex, onSubmit }) {
   const { data, ready } = programsIndex;
+
   const [initialValues, setInitialValues] = useState({
     surveyId: null,
     program: null,
@@ -28,9 +32,9 @@ function EnrollmentForm({ programsIndex, onSubmit }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
 
   useEffect(() => {
@@ -117,19 +121,23 @@ export default function EnrollmentsTab({ client }) {
   const [{ user }] = useContext(AppContext);
   const [modalSurveyData, setModalSurveyData] = useState();
   const [isOpened, setIsOpened] = useState(false);
+  const handleClose = () => setIsOpened(false);
+  const handleShow = () => setIsOpened(true);
   const apiClient = useApiClient();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const clientFullName = 'Test';
+  const [SummarytabModal, setSummarytabModal] = useState(true);
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
-
+  const [modalData, setModaData] = useState({});
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
-
-  function toggle(enrolid) {
-    console.log(enrolid);
+  //console.log(table);
+  function toggle(enrolid, values) {
     setIsOpened((wasOpened) => !wasOpened);
-    enrollmentid = enrolid;
+    enrollmentId = enrolid;
+    programName = values["program.name"];
+    programValues = values;
   }
 
   const columns = React.useMemo(
@@ -162,10 +170,11 @@ export default function EnrollmentsTab({ client }) {
         Header: 'Actions',
         accessor: 'actions',
         Cell: ({ value, row }) => {
+          // console.log(row)
           return (
             <>
-              <Button onClick={() => toggle(row.original.id)}>Edit</Button>
-              <Button disabled>Details</Button>
+              <Button onClick={() => toggle(row.original.id, row.values)}>Edit</Button>
+              <Button disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModaData({ ...row.original })}>End</Button>
             </>
           );
         },
@@ -204,13 +213,22 @@ export default function EnrollmentsTab({ client }) {
       <Header as="h4">Enrollments History</Header>
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
-        <EnrollmentDetails
-          title={clientFullName}
-          enrollmentid={enrollmentid}
-
-          //loading={loading}
-          //error={formatApiError(error)}
-        ></EnrollmentDetails>
+        <Modal open={SummarytabModal}>
+          <Modal.Header>{programName}</Modal.Header>
+          <Modal.Content>
+            <EnrollmentDetails
+              title={clientFullName}
+              enrollmentId={enrollmentId}
+              pdata={programValues}
+            //loading={loading}
+            //error={formatApiError(error)} 
+            >
+            </EnrollmentDetails>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Modal.Actions>
+        </Modal>
       )}
       <Modal size="large" open={!!modalSurveyData}>
         <Modal.Header>Enrollment survey</Modal.Header>
@@ -230,7 +248,7 @@ export default function EnrollmentsTab({ client }) {
                       client: client.id,
                       status: 'ENROLLED',
                       program: program.id,
-                      start_date,
+                      start_date: moment(start_date).format('YYYY-MM-DD'),
                     }
                   );
                   const enrollment = enrollmentResponse.data;
@@ -263,6 +281,43 @@ export default function EnrollmentsTab({ client }) {
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
+        </Modal.Actions>
+      </Modal>
+      <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
+        <Modal.Header>End Enrollment</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <p>
+              Are you sure you want to end enrollment?
+                </p>
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            negative
+            onClick={async () => {
+              try {
+                await apiClient.patch(`/programs/enrollments/${modalData.id}/`,
+                  {
+                    client: client.id,
+                    status: 'COMPLETED',
+                    program: modalData.programId,
+                    end_date: moment(new Date()).format('YYYY-MM-DD'),
+                  });
+                table.reload();
+              } catch (err) {
+                const apiError = formatApiError(err.response);
+                toaster.error(apiError);
+              } finally {
+                setModaData({});
+              }
+            }}
+          >
+            Yes
+              </Button>
+          <Button onClick={async () => { setModaData({}); }}>
+            No
+              </Button>
         </Modal.Actions>
       </Modal>
     </>

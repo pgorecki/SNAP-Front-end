@@ -110,7 +110,7 @@ export default function ClientDetails() {
 
         {hasPermission(user, 'client.change_client') && (
           <Button as={NavLink} to={`/clients/${data.id}/edit`}>
-            Edit Client
+            Edit Participant
           </Button>
         )}
 

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
-import { Tab, Button, Segment } from 'semantic-ui-react';
+import { Tab, Button, Segment, Modal, Form } from 'semantic-ui-react';
 import { EligibilityStatus } from 'components/common';
 import toaster from 'components/toaster';
 import PaginatedDataTable from 'components/PaginatedDataTable';
@@ -11,10 +11,24 @@ import { formatDateTime } from 'utils/typeUtils';
 import { formatApiError } from 'utils/apiUtils';
 import { clientFullName, formatUser } from 'utils/modelUtils';
 import ListPage from '../ListPage';
+import { Formik } from 'formik';
+import {
+  FormSelect,
+  FormDatePicker,
+  FormErrors,
+  FormInput,
+} from 'components/FormFields';
 
 function NewClientsTab() {
   const apiClient = useApiClient();
+  const [show, setShow] = useState(false);
+  const [clientID, setclientID] = useState();
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   const table = usePaginatedDataTable({ url: '/eligibility/queue/?type=new' });
+  const [initialValues, setInitialValues] = useState({
+    ssn: '',
+  });
   const columns = React.useMemo(
     () => [
       {
@@ -55,6 +69,15 @@ function NewClientsTab() {
               onClick={async () => {
                 const { id } = row.original;
                 const fullName = clientFullName(row.original.client);
+                setclientID(row.original.client.id);
+                console.log(row.original);
+                if (
+                  row.original.client.ssn == null ||
+                  row.original.client.ssn == '' ||
+                  row.original.client.ssn == ''
+                ) {
+                  handleShow();
+                }
                 try {
                   await apiClient.patch(`/eligibility/queue/${id}/`, {
                     status: 'ELIGIBLE',
@@ -94,7 +117,56 @@ function NewClientsTab() {
     ],
     []
   );
-  return <PaginatedDataTable columns={columns} table={table} />;
+  return (
+    <>
+      <PaginatedDataTable columns={columns} table={table} />
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={async (values, actions) => {
+          try {
+            await apiClient.patch(`/clients/${clientID}/`, {
+              ssn: values.ssn,
+            });
+            toaster.success('Snap ID created');
+          } catch (err) {
+            const apiError = formatApiError(err.response);
+            toaster.error(apiError);
+          }
+          actions.setSubmitting(false);
+          handleClose();
+          table.reload();
+        }}
+      >
+        {(form) => {
+          return (
+            <>
+              <Modal open={show} onHide={handleClose}>
+                <Modal.Header>Snap ID {form.id}</Modal.Header>
+                <Modal.Description>
+                  <p>
+                    You have determined that this Participant is eligible.
+                    However, We currently do not have the participant's SNAP
+                    Client ID. Please enter it here
+                  </p>
+                </Modal.Description>
+                <Modal.Content>
+                  <Form error onSubmit={form.handleSubmit}>
+                    <FormInput label="Snap ID:" name="ssn" form={form} />
+                    <FormErrors form={form} />
+                    <Button primary type="submit" disabled={form.isSubmitting}>
+                      Submit
+                    </Button>
+                    <Button onClick={handleClose}>Cancel</Button>
+                  </Form>
+                </Modal.Content>
+              </Modal>
+            </>
+          );
+        }}
+      </Formik>
+    </>
+  );
 }
 
 function ExistingClientsTab() {
