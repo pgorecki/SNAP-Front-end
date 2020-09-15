@@ -45,6 +45,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsServiceName, setShowDetailsServiceName] = useState();
   const [showDetailsServiceCatg, setshowDetailsServiceCatg] = useState();
+  const [showDetailsServiceValues, setshowDetailsServiceValues] = useState();
   const apiClient = useApiClient();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const clientFullName = 'Test';
@@ -62,6 +63,14 @@ export default function EnrollmentServicesTab({ enrollData }) {
     effective_date: '',
     values: '',
   });
+  const [showServiceDate, setShowServiceDate] = useState();
+  const [showServiceQty, setShowServiceQty] = useState();
+  const [showServiceCostPerUnit, setShowServiceCostPerUnit] = useState();
+  const [showServiceDesc, setShowServiceDesc] = useState();
+  const [showServiceHours, setShowServiceHours] = useState();
+  const [showServiceMinutes, setShowServiceMinutes] = useState();
+  const [showServiceDays, setShowServiceDays] = useState();
+
   const [serviceType, setServiceType] = useState();
   const programsIndex = useResourceIndex(
     `/programs/services/types/?ordering=name`
@@ -151,7 +160,89 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setModaDataEd(detail);
     setShowDetailsServiceName(detail.service_type.name);
     setshowDetailsServiceCatg(detail.service_type.category);
-    console.log(detail);
+
+    let valStr = detail.values.replace('}', '');
+    let valExtArray = valStr.split(',');
+    let servDate = '',
+      servQty = '',
+      servCostPerUnit = '',
+      servDesc = '',
+      servHours = 0,
+      servMinutes = 0;
+    let servMond = 0,
+      servTue = 0,
+      servWed = 0,
+      servThu = 0,
+      servFri = 0;
+    for (let i = 0; i < valExtArray.length; i++) {
+      let valIntArray = valExtArray[i].split(':');
+      for (let j = 0; j < valIntArray.length; j++) {
+        if (servDate == '') {
+          if (valIntArray[j] == '"sDate"') servDate = valIntArray[j + 1];
+        }
+        if (servQty == '') {
+          if (valIntArray[j] == '"sQTY"') servQty = valIntArray[j + 1];
+        }
+        if (servCostPerUnit == '') {
+          if (valIntArray[j] == '"sCostPerUnit"')
+            servCostPerUnit = valIntArray[j + 1];
+        }
+        if (servDesc == '') {
+          if (valIntArray[j] == '"timeBasedDesc"') {
+            servDesc = valIntArray[j + 1];
+          }
+        }
+        if (servHours == 0) {
+          if (valIntArray[j] == '"sHours"') {
+            servHours = valIntArray[j + 1];
+          }
+        }
+        if (servMinutes == 0) {
+          if (valIntArray[j] == '"sMinutes"') {
+            servMinutes = valIntArray[j + 1];
+          }
+        }
+        if (servMond == 0) {
+          if (valIntArray[j] == '"sMon"') {
+            servMond = valIntArray[j + 1];
+          }
+          if (valIntArray[j] == '"sTue"') {
+            servTue = valIntArray[j + 1];
+          }
+          if (valIntArray[j] == '"sWed"') {
+            servWed = valIntArray[j + 1];
+          }
+          if (valIntArray[j] == '"sThu"') {
+            servThu = valIntArray[j + 1];
+          }
+          if (valIntArray[j] == '"sFri"') {
+            servFri = valIntArray[j + 1];
+          }
+        }
+      }
+    }
+
+    setShowServiceDate(servDate);
+    setShowServiceQty(servQty);
+    setShowServiceCostPerUnit(servCostPerUnit);
+    setShowServiceDesc(servDesc);
+    setShowServiceHours(servHours);
+    setShowServiceMinutes(servMinutes);
+    setShowServiceDays(
+      'Monday: ' +
+        servMond +
+        ', Tuesday: ' +
+        servTue +
+        ', Wednesday: ' +
+        servWed +
+        ', Thursday: ' +
+        servThu +
+        ', Friday: ' +
+        servFri
+    );
+
+    //setshowDetailsServiceValues(detail.values);
+    //console.log(showDetailsServiceName);
   }
 
   useEffect(() => {
@@ -335,12 +426,100 @@ export default function EnrollmentServicesTab({ enrollData }) {
       <Modal open={showDetails}>
         <Modal.Header>Service Details</Modal.Header>
         <Modal.Content>
-          <LabelField label="Name" value={showDetailsServiceName} />
-          <LabelField label="Category" value={showDetailsServiceCatg} />
-          <LabelField
-            label="Effective date"
-            value={modalDataEd.effective_date}
-          />
+          <Grid>
+            <Grid.Column computer={16} mobile={16}>
+              <LabelField
+                label="Name"
+                value={showDetailsServiceName}
+                valColor="#20B2AA"
+              ></LabelField>
+            </Grid.Column>
+            <Grid.Column computer={5} mobile={16}>
+              <LabelField
+                label="Category"
+                value={showDetailsServiceCatg}
+              ></LabelField>
+            </Grid.Column>
+            <>
+              {(showDetailsServiceName == 'Bus tickets' ||
+                showDetailsServiceName == 'Training') && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Service Date"
+                    value={moment(showServiceDate).format('YYYY-MM-DD')}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {showDetailsServiceName == 'Attendance' && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Week Start"
+                    value={moment(showServiceDate).format('YYYY-MM-DD')}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {showDetailsServiceName == 'Bus tickets' && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Quantity"
+                    value={showServiceQty}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {showDetailsServiceName == 'Bus tickets' && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Cost per unit"
+                    value={showServiceCostPerUnit}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {(showDetailsServiceName == 'Bus tickets' ||
+                showDetailsServiceName == 'Training') && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Description"
+                    value={showServiceDesc}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {showDetailsServiceName == 'Training' && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Hours"
+                    value={showServiceHours}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {showDetailsServiceName == 'Training' && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField
+                    label="Minutes"
+                    value={showServiceMinutes}
+                  ></LabelField>
+                </Grid.Column>
+              )}
+            </>
+            <>
+              {showDetailsServiceName == 'Attendance' && (
+                <Grid.Column computer={5} mobile={16}>
+                  <LabelField label="Days" value={showServiceDays}></LabelField>
+                </Grid.Column>
+              )}
+            </>
+          </Grid>
         </Modal.Content>
         <Modal.Actions>
           <Button
