@@ -65,7 +65,7 @@ function NewClientsTab() {
               return (
                 <Button
                   as={NavLink}
-                  to={`/clients/${row.original.client.id}#iep`}
+                  to={`/clients/${row.original.client.id}?iep=${row.original.id}#iep`}
                   color="green"
                 >
                   Manage Referral
@@ -75,7 +75,7 @@ function NewClientsTab() {
               return (
                 <Button
                   as={NavLink}
-                  to={`/clients/${row.original.client.id}#iep`}
+                  to={`/clients/${row.original.client.id}?iep=${row.original.id}#iep`}
                   color="red"
                 >
                   End Referral
@@ -148,7 +148,7 @@ function ExistingClientsTab() {
               return (
                 <Button
                   as={NavLink}
-                  to={`/clients/${row.original.client.id}#iep`}
+                  to={`/clients/${row.original.client.id}?iep=${row.original.id}#iep`}
                   color="green"
                 >
                   Manage Referral
@@ -158,7 +158,7 @@ function ExistingClientsTab() {
               return (
                 <Button
                   as={NavLink}
-                  to={`/clients/${row.original.client.id}#iep`}
+                  to={`/clients/${row.original.client.id}?iep=${row.original.id}#iep`}
                   color="red"
                 >
                   End Referral
