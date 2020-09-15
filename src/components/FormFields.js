@@ -4,10 +4,18 @@ import { Form, Message, Checkbox } from 'semantic-ui-react';
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import moment from 'moment';
 
+function getValueFromDotNotation(obj, name) {
+  const parts = name.split('.');
+  return parts.reduce(
+    (currentNode, name) => currentNode && currentNode[name],
+    obj
+  );
+}
+
 export const FormInput = ({ form, name, ...props }) => (
   <Form.Input
     name={name}
-    value={form.values[name] || ''}
+    value={getValueFromDotNotation(form.values, name) || ''}
     onChange={form.handleChange}
     onBlur={form.handleBlur}
     error={
