@@ -17,7 +17,7 @@ import toaster from 'components/toaster';
 import { InProgressStep } from './InProgressStep';
 import moment from 'moment';
 
-export default function TestTab({ ieprow }) {
+export default function IepSteps({ ieprow }) {
   console.log(ieprow);
   //console.log(handleClose);
   var values = ieprow.values;
@@ -295,7 +295,7 @@ export default function TestTab({ ieprow }) {
   }
 
   async function ModifyOkButton(checkPrograms) {
-    console.log(checkPrograms);
+    //console.log(checkPrograms);
     setListInitialPrograms(checkPrograms);
     //const [listPrograms, setListPrograms] = useState(checkPrograms);
     try {

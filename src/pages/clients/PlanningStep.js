@@ -31,8 +31,10 @@ import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep';
 import moment from 'moment';
+import useFetchData from 'hooks/useFetchData';
 
 export const PlanningStep = (props) => {
+  const [data, error, loading] = useFetchData(`/programs/`, {});
   const [isModidystate, setIsModifyState] = useState(false);
   const [checkPrograms, setCheckedPrograms] = useState(null);
   const [isSurveyModel, setIsSurveyModelState] = useState(false);
@@ -52,6 +54,24 @@ export const PlanningStep = (props) => {
   const apiClient = useApiClient();
   const { save } = useNewResource('/notes/', {});
   const table = usePaginatedDataTable({ url: '/surveys/' });
+  const [
+    existingEnrollmentPrograms,
+    setExistingEnrollmentPrograms,
+  ] = useState();
+  const exitingP = SavedPrograms();
+
+  async function SavedPrograms() {
+    if (typeof existingEnrollmentPrograms === 'undefined') {
+      const clientIEP = await apiClient.get(
+        `/iep/${initIep["id"]}`
+      );
+      const existingEnrolmments = clientIEP.data.enrollments;
+      if (typeof existingEnrolmments !== 'undefined') {
+        setExistingEnrollmentPrograms(existingEnrolmments);
+        //console.log(existingEnrollmentPrograms);
+      }
+    }
+  }
 
   const columns = React.useMemo(
     () => [
@@ -154,37 +174,53 @@ export const PlanningStep = (props) => {
     props.confirmEndIEPClicked();
   }
 
-  function modifyOkButtonClicked() {
+  async function modifyOkButtonClicked() {
+    let updatedEnrollments = [];
+    const clientIEP = await apiClient.get(
+      `/iep/${initIep["id"]}`
+    );
+    const existingEnrolmments = clientIEP.data.enrollments;
     checkPrograms.forEach(async (element) => {
-      const result = await apiClient.get(
-        `/programs/enrollments/?client=${initClient.id}&program=${element.id}`
-      );
-      if (result.data.count > 0) {
-      } else {
-        try {
-          const enrollmentResponse = await apiClient.post(
-            '/programs/enrollments/',
-            {
-              client: initClient.id,
-              status: 'PLANNED',
-              program: element.id,
-              start_date: moment(new Date()).format('YYYY-MM-DD'),
-            }
-          );
-        } catch (err) {
-          const apiError = formatApiError(err.response);
-          toaster.error(apiError);
-        } finally {
+      if (existingEnrolmments.findIndex(x => x.program == element.id) == -1) {
+        let newEnrollments = {
+          program: element.id,
+          status: "PLANNED"
         }
+        updatedEnrollments = [...existingEnrolmments, newEnrollments]
       }
     });
-    props.modifyOkButtonClicked(checkPrograms);
+    await apiClient.patch(`/iep/${initIep["id"]}/`,
+      {
+        enrollments: updatedEnrollments
+      });
+    props.modifyOkButtonClicked(updatedEnrollments);
     setIsModifyState(null);
   }
 
   return (
     <>
-      <h4>No programs are planned yet.Please modify IEP plan </h4>
+      <div style={{ marginLeft: '1rem' }}>
+        {existingEnrollmentPrograms == null || (typeof existingEnrollmentPrograms == 'undefined') || existingEnrollmentPrograms.length == 0 ? (
+          <h4>No programs are planned yet.Please modify IEP plan </h4>
+        ) : (
+            existingEnrollmentPrograms.map((p, index) => (
+              <Grid>
+                <Grid.Row key={p.program}>
+                  <Label>{data.results.find(q => q.id == p.program).name}</Label>
+                  <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
+                    Planned
+                </Label>
+                  <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
+                    Enrolled
+                </Label>
+                  <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
+                    Completed
+                </Label>
+                </Grid.Row>
+              </Grid>
+            ))
+          )}
+      </div>
       <Grid>
         <Grid.Row>
           <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }}>
@@ -214,7 +250,7 @@ export const PlanningStep = (props) => {
           <Modal.Content scrolling={true}>
             <CheckBoxIep
               handleChecks={(checks) => handleChecks(checks, 'programs')}
-              setPreData={checkPrograms}
+              setPreData={existingEnrollmentPrograms}
               client={initClient}
             />
           </Modal.Content>

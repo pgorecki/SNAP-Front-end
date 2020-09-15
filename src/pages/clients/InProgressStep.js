@@ -32,9 +32,11 @@ import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep';
 import moment from 'moment';
+import useFetchData from 'hooks/useFetchData';
 
 export const InProgressStep = (props) => {
-  console.log(props);
+  //console.log(props);
+  const [data, error, loading] = useFetchData(`/programs/`, {});
   const [checkPrograms, setCheckedPrograms] = useState(null);
   const [isModidystate, setIsModifyState] = useState(false);
   const [isSurveyModel, setIsSurveyModelState] = useState(false);
@@ -93,50 +95,38 @@ export const InProgressStep = (props) => {
   }
 
   async function SavedPrograms() {
-    console.log(existingEnrollmentPrograms);
     if (typeof existingEnrollmentPrograms === 'undefined') {
-      const resultPrograms = await apiClient.get(
-        `/programs/enrollments/?client=${initClient.id}`
+      const clientIEP = await apiClient.get(
+        `/iep/${initIep["id"]}`
       );
-      if (resultPrograms.data.count > 0) {
-        setExistingEnrollmentPrograms(resultPrograms.data.results);
-        console.log(existingEnrollmentPrograms);
+      const existingEnrolmments = clientIEP.data.enrollments;
+      if (typeof existingEnrolmments !== 'undefined') {
+        setExistingEnrollmentPrograms(existingEnrolmments);
+        //console.log(existingEnrollmentPrograms);
       }
     }
   }
 
   async function modifyOkButtonClicked() {
+    let updatedEnrollments = [];
+    const clientIEP = await apiClient.get(
+      `/iep/${initIep["id"]}`
+    );
+    const existingEnrolmments = clientIEP.data.enrollments;
     checkPrograms.forEach(async (element) => {
-      const result = await apiClient.get(
-        `/programs/enrollments/?client=${initClient.id}&program=${element.id}`
-      );
-      if (result.data.count > 0) {
-      } else {
-        try {
-          const enrollmentResponse = await apiClient.post(
-            '/programs/enrollments/',
-            {
-              client: initClient.id,
-              status: 'PLANNED',
-              program: element.id,
-              start_date: moment(new Date()).format('YYYY-MM-DD'),
-            }
-          );
-        } catch (err) {
-          const apiError = formatApiError(err.response);
-          toaster.error(apiError);
-        } finally {
-          const resultPrograms = await apiClient.get(
-            `/programs/enrollments/?client=${initClient.id}`
-          );
-          if (resultPrograms.data.count > 0) {
-            setExistingEnrollmentPrograms(resultPrograms.data.results);
-            console.log(existingEnrollmentPrograms);
-          }
+      if (existingEnrolmments.findIndex(x => x.program == element.id) == -1) {
+        let newEnrollments = {
+          program: element.id,
+          status: "PLANNED"
         }
+        updatedEnrollments = [...existingEnrolmments, newEnrollments]
       }
     });
-    //props.modifyOkButtonClicked(checkPrograms);
+    const resultEnrollments = await apiClient.patch(`/iep/${initIep["id"]}/`,
+      {
+        enrollments: updatedEnrollments
+      });
+    setExistingEnrollmentPrograms(resultEnrollments.data.enrollments);
     setIsModifyState(null);
   }
 
@@ -166,12 +156,13 @@ export const InProgressStep = (props) => {
   async function CloseEnrollment() {
     setIsBeginEnrollmentState(false);
     setModalSurveyData(null);
-    const resultPrograms = await apiClient.get(
-      `/programs/enrollments/?client=${initClient.id}`
+    const clientIEP = await apiClient.get(
+      `/iep/${initIep["id"]}`
     );
-    if (resultPrograms.data.count > 0) {
-      setExistingEnrollmentPrograms(resultPrograms.data.results);
-      console.log(existingEnrollmentPrograms);
+    const existingEnrolmments = clientIEP.data.enrollments;
+    if (typeof existingEnrolmments !== 'undefined') {
+      setExistingEnrollmentPrograms(existingEnrolmments);
+      //console.log(existingEnrollmentPrograms);
     }
   }
 
@@ -196,9 +187,9 @@ export const InProgressStep = (props) => {
 
     const options = data
       ? data.map(({ id, name }) => ({
-          value: id,
-          text: name,
-        }))
+        value: id,
+        text: name,
+      }))
       : [];
 
     useEffect(() => {
@@ -337,30 +328,30 @@ export const InProgressStep = (props) => {
         {existingEnrollmentPrograms == null ? (
           <h4>No programs are planned yet.Please modify IEP plan </h4>
         ) : (
-          existingEnrollmentPrograms.map((p, index) => (
-            <Grid>
-              <Grid.Row key={p.program['id']}>
-                <Label>{p.program['name']}</Label>
-                <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
-                  Planned
+            existingEnrollmentPrograms.map((p, index) => (
+              <Grid>
+                <Grid.Row key={p.program}>
+                  <Label>{data.results.find(q => q.id == p.program).name}</Label>
+                  <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
+                    Planned
                 </Label>
-                <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
-                  Enrolled
+                  <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
+                    Enrolled
                 </Label>
-                <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
-                  Completed
+                  <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
+                    Completed
                 </Label>
-                <Button
-                  color="green"
-                  disabled={p['status'] == 'PLANNED' ? false : true}
-                  onClick={(event) => BeginEnrollment(event, p)}
-                >
-                  Begin Enrollment
+                  <Button
+                    color="green"
+                    disabled={p['status'] == 'PLANNED' ? false : true}
+                    onClick={(event) => BeginEnrollment(event, p)}
+                  >
+                    Begin Enrollment
                 </Button>
-              </Grid.Row>
-            </Grid>
-          ))
-        )}
+                </Grid.Row>
+              </Grid>
+            ))
+          )}
       </div>
       {/* <h4>No programs are planned yet.Please modify IEP plan </h4> */}
       <Grid>
@@ -391,7 +382,7 @@ export const InProgressStep = (props) => {
           <Modal.Content scrolling={true}>
             <CheckBoxIep
               handleChecks={(checks) => handleChecks(checks, 'programs')}
-              setPreData={listInitialPrograms}
+              setPreData={existingEnrollmentPrograms}
               client={initClient}
             />
           </Modal.Content>
@@ -421,10 +412,10 @@ export const InProgressStep = (props) => {
               <EnrollmentForm
                 client={initClient}
                 programsIndex={programsIndex}
-                initP={initProgram.program['id']}
+                initP={initProgram.program}
                 onSubmit={async (values) => {
-                  console.log(initClient);
-                  console.log(initProgram);
+                  //console.log(initClient);
+                  //console.log(initProgram);
                   const { program } = values;
                   // const result = await apiClient.get(
                   //   `/programs/enrollments/?client=${initClient.id}&program=${program.id}'`
@@ -491,7 +482,7 @@ export const InProgressStep = (props) => {
                     }
                   );
                   const enrollment = enrollmentResponse.data;
-                  console.log(enrollmentResponse.data);
+                  //console.log(enrollmentResponse.data);
                   toaster.success('Enrolled to program');
                   // await apiClient.patch(`/iep/${initIep["id"]}/`,
                   // {
@@ -522,7 +513,7 @@ export const InProgressStep = (props) => {
                 }
                 setModalSurveyData(null);
                 setIsBeginEnrollmentState(true);
-                console.log(props);
+                //console.log(props);
                 //props.reloadOrientation();
                 //SavedPrograms();
                 //props.confirmEndIEPClicked()

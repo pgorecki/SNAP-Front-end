@@ -15,7 +15,7 @@ import ResponsesTab from './ResponsesTab';
 import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
 import ReferralsTab from './ReferralsTab';
-import TestTab from './TestTab';
+import IepSteps from './IepSteps';
 import { hasPermission } from 'utils/permissions';
 
 function findTabIndex(tabPanes, tabName) {

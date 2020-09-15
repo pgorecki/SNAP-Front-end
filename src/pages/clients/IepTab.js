@@ -19,7 +19,7 @@ import useResourceIndex from 'hooks/useResourceIndex';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import useApiClient from 'hooks/useApiClient';
 import { hasPermission } from 'utils/permissions';
-import TestTab from './TestTab';
+import IepSteps from './IepSteps';
 
 let programValues = {};
 let iepRow = {};
@@ -143,7 +143,7 @@ export default function IEPTab({ client }) {
         <Modal size="large" open={isOpened}>
           <Modal.Header></Modal.Header>
           <Modal.Content>
-            <TestTab ieprow={programValues}></TestTab>
+            <IepSteps ieprow={programValues}></IepSteps>
           </Modal.Content>
           <Modal.Actions>
             <Button onClick={handleClose}>Cancel</Button>

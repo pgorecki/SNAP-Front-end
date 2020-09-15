@@ -22,24 +22,10 @@ const programs = [
 
 export const CheckBoxIep = (props) => {
     const [data, error, loading] = useFetchData(`/programs/`, {});
-    const [Checked, setChecked] = useState(props.setPreData == null ? [] : props.setPreData);
+    const [Checked, setChecked] = useState([]);
     const [elements, setelements] = useState([]);
     const apiClient = useApiClient();
-    const [existingEnrollmentPrograms, setExistingEnrollmentPrograms] = useState();
-    const exitingP = SavedPrograms();
-
-    async function SavedPrograms() {
-        console.log(existingEnrollmentPrograms);
-        if (typeof existingEnrollmentPrograms === 'undefined') {
-            const resultPrograms = await apiClient.get(
-                `/programs/enrollments/?client=${props.client.id}`
-            );
-            if (resultPrograms.data.count > 0) {
-                setExistingEnrollmentPrograms(resultPrograms.data.results);
-                console.log(existingEnrollmentPrograms);
-            }
-        }
-    }
+    const existingEnrolmments = props.setPreData == null ? [] : props.setPreData;
 
     if (typeof data.results === 'undefined') {
         return null;
@@ -47,9 +33,10 @@ export const CheckBoxIep = (props) => {
     if (props.setPreData != null) {
 
     }
-    console.log(props);
+    //console.log(props);
     const handleCheck = (pvalue) => {
-        console.log(pvalue);
+        //setChecked(existingEnrolmments);
+        //console.log(pvalue);
         const currentIndex = Checked.indexOf(pvalue);
         const elements = [...Checked];
         let elem = new Object();
@@ -75,7 +62,7 @@ export const CheckBoxIep = (props) => {
 
     function PopulateChecked(value) {
         if (!!Checked) {
-            console.log(Checked);
+            //console.log(Checked);
         }
         return false;
     }
@@ -85,7 +72,7 @@ export const CheckBoxIep = (props) => {
         {
             typeof data.results !== 'undefined' ? data.results.map((value, index) => (
                 <React.Fragment key={index}>
-                    <Checkbox name={value["id"]} onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} />
+                    <Checkbox name={value["id"]} onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} disabled={(existingEnrolmments.findIndex(x => x.program == value.id) === -1) ? false : true} />
                     <span style={{ marginLeft: "1rem" }}>{value.name}</span><br></br>
                 </React.Fragment>
 
