@@ -14,6 +14,7 @@ import IEPTab from './IepTab';
 import ResponsesTab from './ResponsesTab';
 import EligibilityTab from './EligibilityTab';
 import EnrollmentsTab from './EnrollmentsTab';
+import ProfileTab from './ProfileTab';
 import ReferralsTab from './ReferralsTab';
 import TestTab from './TestTab';
 import { hasPermission } from 'utils/permissions';
@@ -45,8 +46,6 @@ export default function ClientDetails() {
     status: eligibilityResurce.loading ? null : 'unknown',
   };
 
-  console.log('eee', latestEligiblity);
-
   const {
     first_name: firstName,
     middle_name: middleName,
@@ -59,6 +58,16 @@ export default function ClientDetails() {
   const clientFullName = fullName({ firstName, middleName, lastName });
 
   const tabPanes = [
+    {
+      name: 'profile',
+      menuItem: 'Profile',
+      render: () => (
+        <Tab.Pane>
+          <ProfileTab client={data} />
+        </Tab.Pane>
+      ),
+      permission: 'client.view_client',
+    },
     {
       name: 'iep',
       menuItem: 'IEP',
@@ -128,13 +137,8 @@ export default function ClientDetails() {
             )}
           </ClientField>
           <ClientField label="Date of Birth">{formatDate(dob)}</ClientField>
-
-          {/* <ClientField label="First Name">{firstName}</ClientField>
-          <ClientField label="Middle Name">{middleName || '-'}</ClientField>
-          <ClientField label="Last Name">{lastName}</ClientField> */}
         </Grid.Column>
         <Grid.Column computer={7} mobile={16}>
-          {/* <ClientField label="Date of Birth">{formatDate(dob)}</ClientField> */}
           <ClientField label="Snap ID">{snap_id || '-'}</ClientField>
           <ClientField label="SSN">{ssn || '-'}</ClientField>
         </Grid.Column>
