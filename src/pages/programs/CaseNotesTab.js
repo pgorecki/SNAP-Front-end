@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Header, Form, Grid, Modal, Tab, Loader, Message, FormTextArea } from 'semantic-ui-react';
+import { Button, Header, Form, Grid, Modal, Tab, Loader, Message } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import useApiClient from 'hooks/useApiClient';
 import useResourceIndex from 'hooks/useResourceIndex';
@@ -14,21 +14,21 @@ import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import toaster from 'components/toaster';
 import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import useFetchData from 'hooks/useFetchData';
-import { FormSelect, FormDatePicker, FormErrors, FormInput } from 'components/FormFields';
+import { FormSelect, FormDatePicker, FormErrors, FormInput, FormTextArea } from 'components/FormFields';
 import { EditActionLink, DeleteActionButton, EditActionButton } from '../../components/tableComponents';
 import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
 
 
 export default function CaseNotesTab({ enrollData }) {
-  console.log(enrollData);
+  //console.log(enrollData);
   const history = useHistory();
   const apiClient = useApiClient();
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   const table = usePaginatedDataTable({
     url: `/notes/?source_id=${enrollData.id}`,
   });
-  console.log(table);
+  //console.log(table);
   const { save } = useNewResource('/notes/', {});
   const { data, ready, error } = programsIndex;
   //Modal related
@@ -37,7 +37,7 @@ export default function CaseNotesTab({ enrollData }) {
   const handleShow = () => setShow(true);
   const [modalData, setModaData] = useState({});
   const [modalDataEd, setModaDataEd] = useState({});
-
+  //console.log(modalDataEd);
   const [initialValues, setInitialValues] = useState({
     source: {
       id: enrollData.id
@@ -52,7 +52,7 @@ export default function CaseNotesTab({ enrollData }) {
       text: name,
     }))
     : [];
-  console.log(options);
+  //console.log(options);
   const cncolumns = React.useMemo(
     () => [
       {
@@ -96,11 +96,12 @@ export default function CaseNotesTab({ enrollData }) {
       <Formik
         enableReinitialize
         initialValues={initialValues}
-        onSubmit={async (values, actions) => {
+        onSubmit={async (values, actions) => {debugger;
           try {
             const result = await save({
               ...values,
-              text: values.subject
+              title: values.subject,
+              text: values.noteDesc
             });
             //history.push(`/notes/${result.id}`);
             toaster.success('Notes created');
@@ -136,7 +137,7 @@ export default function CaseNotesTab({ enrollData }) {
                     <FormInput label="Subject:" name="subject" form={form} />
                     <FormSelect label="Select Template" name="template" form={form} options={options} placeholder="Select Template" disabled="true" />
                     <FormDatePicker label="Date" name="date" form={form} />
-                    <FormTextArea name="note" placeholder="Enter note here" form={form} rows="5" />
+                    <FormTextArea name="noteDesc" placeholder="Enter note here" form={form} />
                     <FormErrors form={form} />
                     <Button primary type="submit" disabled={form.isSubmitting}>
                       Submit
@@ -184,12 +185,13 @@ export default function CaseNotesTab({ enrollData }) {
         <Modal.Content>
           <Formik
             enableReinitialize
-            initialValues={initialValues}
+            initialValues={modalDataEd}
             onSubmit={async (values, actions) => {
               try {
-                const result = await save({
+                const result = await apiClient.patch({
                   ...values,
-                  text: values.subject
+                  title: values.subject,
+                  text: values.note
                 });
                 toaster.success('Notes updated');
               } catch (err) {
@@ -200,19 +202,15 @@ export default function CaseNotesTab({ enrollData }) {
               table.reload();
             }}
           >
-            {(formed) => {
+            {(formEdit) => {
               return (
                 <>
-
-                  <Form error onSubmit={formed.handleSubmit}>
-                    <FormInput label="Subject:" name="subject" form={formed} value={modalDataEd.text} />
-
-                    <FormDatePicker label="Date" name="date" form={formed} />
-                    <FormTextArea name="note" placeholder="Enter note here" form={formed} rows="5" />
-                    <FormErrors form={formed} />
-
+                  <Form error initialValues={modalDataEd} onSubmit={formEdit.handleSubmit}>
+                    <FormInput label="Subject:" name="subject" form={formEdit} value={modalDataEd.title} />
+                    <FormDatePicker label="Date" name="date" form={formEdit} />
+                    <FormTextArea name="note" placeholder="Enter note here" form={formEdit} value={modalDataEd.text}  />
+                    <FormErrors form={formEdit} />
                   </Form>
-
                 </>
               );
             }}
