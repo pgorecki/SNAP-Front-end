@@ -17,6 +17,7 @@ import EnrollmentsTab from './EnrollmentsTab';
 import ReferralsTab from './ReferralsTab';
 import TestTab from './TestTab';
 import { hasPermission } from 'utils/permissions';
+import { EligibilityStatus } from 'components/common';
 
 function findTabIndex(tabPanes, tabName) {
   if (!tabName) {
@@ -34,6 +35,17 @@ export default function ClientDetails() {
   const [{ user }] = useContext(AppContext);
   const [urlParams, queryParams, fragment] = useUrlParams();
   const { data, error, loading } = useResource(`/clients/${urlParams.id}/`);
+  const eligibilityResurce = useResource(
+    `/eligibility/clients/?client=${urlParams.id}`
+  );
+
+  const latestEligiblity = (eligibilityResurce.data &&
+    eligibilityResurce.data.results &&
+    eligibilityResurce.data.results[0]) || {
+    status: eligibilityResurce.loading ? null : 'unknown',
+  };
+
+  console.log('eee', latestEligiblity);
 
   const {
     first_name: firstName,
@@ -41,6 +53,7 @@ export default function ClientDetails() {
     last_name: lastName,
     dob,
     ssn,
+    snap_id,
   } = data;
 
   const clientFullName = fullName({ firstName, middleName, lastName });
@@ -99,12 +112,30 @@ export default function ClientDetails() {
           <ClientAvatar client={data} />
         </Grid.Column>
         <Grid.Column computer={7} mobile={16}>
-          <ClientField label="First Name">{firstName}</ClientField>
+          <ClientField
+            label={
+              latestEligiblity.modified_at
+                ? `Status (updated: ${formatDate(
+                    latestEligiblity.modified_at
+                  )})`
+                : 'Status'
+            }
+          >
+            {latestEligiblity.status && (
+              <>
+                <EligibilityStatus value={latestEligiblity.status} />
+              </>
+            )}
+          </ClientField>
+          <ClientField label="Date of Birth">{formatDate(dob)}</ClientField>
+
+          {/* <ClientField label="First Name">{firstName}</ClientField>
           <ClientField label="Middle Name">{middleName || '-'}</ClientField>
-          <ClientField label="Last Name">{lastName}</ClientField>
+          <ClientField label="Last Name">{lastName}</ClientField> */}
         </Grid.Column>
         <Grid.Column computer={7} mobile={16}>
-          <ClientField label="Date of Birth">{formatDate(dob)}</ClientField>
+          {/* <ClientField label="Date of Birth">{formatDate(dob)}</ClientField> */}
+          <ClientField label="Snap ID">{snap_id || '-'}</ClientField>
           <ClientField label="SSN">{ssn || '-'}</ClientField>
         </Grid.Column>
 
