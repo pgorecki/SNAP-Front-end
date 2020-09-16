@@ -121,7 +121,7 @@ export const InProgressStep = (props) => {
     );
     const existingEnrolmments = clientIEP.data.enrollments;
     checkPrograms.forEach(async (element) => {
-      if (existingEnrolmments.findIndex(x => x.program == element.id) == -1) {
+      if (existingEnrolmments.findIndex(x => x.program == element.id && (x.status == 'ENROLLED' || x.status == 'PLANNED')) == -1) {
         //updatedEnrollments = [...updatedEnrollments, ]
         newEnrollments = {
           program: element.id,
@@ -635,10 +635,10 @@ export const InProgressStep = (props) => {
               <EnrollmentSurveyModal
                 client={initClient}
                 programId={modalEndSurveyData.id}
-                surveyId={modalEndSurveyData.enrollment_entry_survey == null ? '' : modalEndSurveyData.enrollment_entry_survey.id}
+                surveyId={modalEndSurveyData.enrollment_exit_survey == null ? '' : modalEndSurveyData.enrollment_exit_survey.id}
                 onResponseSubmit={async (newResponseData) => {
                   const { program, end_date } = modalEndSurveyData;
-                  console.log(modalEndSurveyData.id);
+                  //console.log(modalEndSurveyData.id);
                   try {
                     const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
                       {

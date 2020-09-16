@@ -72,7 +72,7 @@ export const CheckBoxIep = (props) => {
         {
             typeof data.results !== 'undefined' ? data.results.map((value, index) => (
                 <React.Fragment key={index}>
-                    <Checkbox name={value["id"]} onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} disabled={(existingEnrolmments.findIndex(x => x.program == value.id) === -1) ? false : true} />
+                    <Checkbox name={value["id"]} onChange={() => handleCheck(value)} style={{ marginTop: "1rem" }} disabled={(existingEnrolmments.findIndex(x => x.program == value.id && (x.status == 'ENROLLED' || x.status == 'PLANNED')) === -1) ? false : true} />
                     <span style={{ marginLeft: "1rem" }}>{value.name}</span><br></br>
                 </React.Fragment>
 
