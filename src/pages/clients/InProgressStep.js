@@ -397,13 +397,13 @@ export const InProgressStep = (props) => {
                   >
                     Begin Enrollment
                 </Button>
-                  <Button
+                  {/* <Button
                     color="green"
                     disabled={p['status'] == 'ENROLLED' ? false : true}
                     onClick={(event) => CompleteEnrollment(event, p)}
                   >
                     Complete Enrollment
-                </Button>
+                </Button> */}
                 </Grid.Row>
               </Grid>
             ))
