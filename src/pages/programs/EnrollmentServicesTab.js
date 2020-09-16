@@ -78,9 +78,9 @@ export default function EnrollmentServicesTab({ enrollData }) {
   const { data, ready } = programsIndex;
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
 
   const [modalDataEd, setModaDataEd] = useState({});
@@ -230,15 +230,15 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setShowServiceMinutes(servMinutes);
     setShowServiceDays(
       'Monday: ' +
-        servMond +
-        ', Tuesday: ' +
-        servTue +
-        ', Wednesday: ' +
-        servWed +
-        ', Thursday: ' +
-        servThu +
-        ', Friday: ' +
-        servFri
+      servMond +
+      ', Tuesday: ' +
+      servTue +
+      ', Wednesday: ' +
+      servWed +
+      ', Thursday: ' +
+      servThu +
+      ', Friday: ' +
+      servFri
     );
 
     //setshowDetailsServiceValues(detail.values);
@@ -443,13 +443,13 @@ export default function EnrollmentServicesTab({ enrollData }) {
             <>
               {(showDetailsServiceName == 'Bus tickets' ||
                 showDetailsServiceName == 'Training') && (
-                <Grid.Column computer={5} mobile={16}>
-                  <LabelField
-                    label="Service Date"
-                    value={moment(showServiceDate).format('YYYY-MM-DD')}
-                  ></LabelField>
-                </Grid.Column>
-              )}
+                  <Grid.Column computer={5} mobile={16}>
+                    <LabelField
+                      label="Service Date"
+                      value={moment(showServiceDate).format('YYYY-MM-DD')}
+                    ></LabelField>
+                  </Grid.Column>
+                )}
             </>
             <>
               {showDetailsServiceName == 'Attendance' && (
@@ -484,13 +484,13 @@ export default function EnrollmentServicesTab({ enrollData }) {
             <>
               {(showDetailsServiceName == 'Bus tickets' ||
                 showDetailsServiceName == 'Training') && (
-                <Grid.Column computer={5} mobile={16}>
-                  <LabelField
-                    label="Description"
-                    value={showServiceDesc}
-                  ></LabelField>
-                </Grid.Column>
-              )}
+                  <Grid.Column computer={5} mobile={16}>
+                    <LabelField
+                      label="Description"
+                      value={showServiceDesc}
+                    ></LabelField>
+                  </Grid.Column>
+                )}
             </>
             <>
               {showDetailsServiceName == 'Training' && (

@@ -65,9 +65,9 @@ export default function CaseNotesTab({ enrollData }) {
   });
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
   //console.log(options);
   const cncolumns = React.useMemo(
@@ -114,7 +114,7 @@ export default function CaseNotesTab({ enrollData }) {
         enableReinitialize
         initialValues={initialValues}
         onSubmit={async (values, actions) => {
-          debugger;
+          //debugger;
           try {
             const result = await save({
               ...values,
@@ -218,7 +218,7 @@ export default function CaseNotesTab({ enrollData }) {
             initialValues={modalDataEd}
             onSubmit={async (values, actions) => {
               try {
-                debugger;
+                //debugger;
                 await apiClient.patch(`/notes/${values.id}/`, {
                   source: {
                     id: values.source.id,
