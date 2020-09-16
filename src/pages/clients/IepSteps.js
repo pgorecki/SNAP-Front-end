@@ -22,6 +22,10 @@ export default function IepSteps({ ieprow }) {
   //console.log(handleClose);
   var values = ieprow.values;
   const apiClient = useApiClient();
+  const [
+    existingEnrollmentPrograms,
+    setExistingEnrollmentPrograms,
+  ] = useState();
 
   const ieptable = usePaginatedDataTable({
     url: `/iep/?client=${ieprow.original}`,
@@ -41,8 +45,8 @@ export default function IepSteps({ ieprow }) {
     values.status === 'not_eligible' || values.status === 'awaiting_approval'
       ? false
       : values.status === 'in_orientation'
-      ? true
-      : true
+        ? true
+        : true
   );
 
   // const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "awaiting_approval" ? true : false);
@@ -59,14 +63,14 @@ export default function IepSteps({ ieprow }) {
     values.status === 'in_orientation'
       ? false
       : values.status === 'in_planning'
-      ? true
-      : values.status === 'not_eligible'
-      ? false
-      : values.status === 'in_progress'
-      ? true
-      : values.status === 'awaiting_approval'
-      ? false
-      : true
+        ? true
+        : values.status === 'not_eligible'
+          ? false
+          : values.status === 'in_progress'
+            ? true
+            : values.status === 'awaiting_approval'
+              ? false
+              : true
   );
 
   const [isIepOpened, setIsIepOpened] = useState(
@@ -79,14 +83,14 @@ export default function IepSteps({ ieprow }) {
     values.status === 'in_planning'
       ? false
       : values.status === 'in_progress'
-      ? true
-      : values.status === 'in_orientation'
-      ? false
-      : values.status === 'not_eligible'
-      ? false
-      : values.status === 'awaiting_approval'
-      ? false
-      : true
+        ? true
+        : values.status === 'in_orientation'
+          ? false
+          : values.status === 'not_eligible'
+            ? false
+            : values.status === 'awaiting_approval'
+              ? false
+              : true
   );
 
   const [isInProgressActive, setIsInProgressActive] = useState(
@@ -99,14 +103,14 @@ export default function IepSteps({ ieprow }) {
     values.status === 'in_progress'
       ? false
       : values.status === 'in_orientation'
-      ? false
-      : values.status === 'in_planning'
-      ? false
-      : values.status === 'not_eligible'
-      ? false
-      : values.status === 'awaiting_approval'
-      ? false
-      : true
+        ? false
+        : values.status === 'in_planning'
+          ? false
+          : values.status === 'not_eligible'
+            ? false
+            : values.status === 'awaiting_approval'
+              ? false
+              : true
   );
 
   const [isEndActive, setIsEndActive] = useState(
@@ -119,16 +123,16 @@ export default function IepSteps({ ieprow }) {
     values.status === 'ended'
       ? false
       : values.status === 'in_orientation'
-      ? false
-      : values.status === 'in_planning'
-      ? false
-      : values.status === 'not_eligible'
-      ? false
-      : values.status === 'awaiting_approval'
-      ? false
-      : values.status === 'in_progress'
-      ? false
-      : true
+        ? false
+        : values.status === 'in_planning'
+          ? false
+          : values.status === 'not_eligible'
+            ? false
+            : values.status === 'awaiting_approval'
+              ? false
+              : values.status === 'in_progress'
+                ? false
+                : true
   );
 
   const [listInitialPrograms, setListInitialPrograms] = useState(null);
@@ -237,60 +241,45 @@ export default function IepSteps({ ieprow }) {
   }
 
   async function ConfirmIEPEnd() {
-    try {
-      const { id } = ieprow.original;
-      const clientid = ieprow.original.client.id;
-      await apiClient.patch(`/iep/${id}/`, {
-        // orientation_completed: true,
-        status: 'ended',
-      });
+    const { id } = ieprow.original;
+    const clientIEP = await apiClient.get(
+      `/iep/${id}`
+    );
+    const existingEnrolmments = clientIEP.data.enrollments;
 
-      const resultPrograms = await apiClient.get(
-        `/programs/enrollments/?client=${clientid}`
-      );
-      if (resultPrograms.data.count > 0) {
-        //console.log(resultPrograms.data.results.program["id"]);
-        resultPrograms.data.results.forEach(async (element) => {
-          try {
-            const enrollmentResponse = await apiClient.put(
-              `/programs/enrollments/${element.id}/`,
-              {
-                client: clientid,
-                status: 'COMPLETED',
-                program: element.program['id'],
-                end_date: moment(new Date()).format('YYYY-MM-DD'),
-              }
-            );
-          } catch (err) {
-            const apiError = formatApiError(err.response);
-            toaster.error(apiError);
-          }
+    if (existingEnrolmments.find(x => x.status === 'ENROLLED')) {
+      toaster.error("Please end your individual enrollments first");
+    } else {
+      try {
+        await apiClient.patch(`/iep/${id}/`, {
+          end_date: moment(new Date()).format('YYYY-MM-DD'),
+          status: 'ended',
         });
+      } catch (err) {
+        const apiError = formatApiError(err.response);
+        toaster.error(apiError);
+      } finally {
+        //ieptable.reload();
+        setIsEligibleActive(false);
+        setIsEligibleDisabled(true);
+        setIsEligibleCompleted(true);
+
+        setIsOrientOpened(false);
+        setIsOrientDisabled(true);
+        setIsOrientCompleted(true);
+
+        setIsIepOpened(false);
+        setIsIepDisabled(true);
+        setIsIepCompleted(true);
+
+        setIsInProgressActive(false);
+        setIsInProgressDisabled(true);
+        setIsInProgressCompleted(true);
+
+        setIsEndActive(true);
+        setIsEndDisabled(true);
+        setIsEndCompleted(true);
       }
-    } catch (err) {
-      const apiError = formatApiError(err.response);
-      toaster.error(apiError);
-    } finally {
-      //ieptable.reload();
-      setIsEligibleActive(false);
-      setIsEligibleDisabled(true);
-      setIsEligibleCompleted(true);
-
-      setIsOrientOpened(false);
-      setIsOrientDisabled(true);
-      setIsOrientCompleted(true);
-
-      setIsIepOpened(false);
-      setIsIepDisabled(true);
-      setIsIepCompleted(true);
-
-      setIsInProgressActive(false);
-      setIsInProgressDisabled(true);
-      setIsInProgressCompleted(true);
-
-      setIsEndActive(true);
-      setIsEndDisabled(true);
-      setIsEndCompleted(true);
     }
   }
 

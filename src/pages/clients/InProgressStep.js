@@ -52,6 +52,7 @@ export const InProgressStep = (props) => {
   const [initClient, setClientState] = useState(props.client.client);
   const [initIep, setIepState] = useState(props.client);
   const [modalSurveyData, setModalSurveyData] = useState();
+  const [modalEndSurveyData, setModalEndSurveyData] = useState();
   const [surveyId, setSurveyId] = useState();
   // const [surveyIep, setsurveyIep] = useState(false);
   const [{ user }] = useContext(AppContext);
@@ -161,9 +162,21 @@ export const InProgressStep = (props) => {
     setIsBeginEnrollmentState(true);
   }
 
-  async function CompleteEnrollment(event, p) {
+  async function CompleteEnrollment(event, initP, programsIndex) {
     event.preventDefault();
-    setInitialProgram(p);
+    const { data, ready } = programsIndex;
+
+    ///useEffect(() => {
+    if (data && data.length > 0) {
+      const selectedProgram =
+        data &&
+        data.find((program) => program.id === initP.program);
+      //setInitialValues({ ...initialValues, program: initP });
+      setInitialProgram(initP);
+      setModalEndSurveyData(selectedProgram);
+    }
+    // }, [ready]);
+
     setIsCompleteEnrollmentState(true);
   }
 
@@ -397,13 +410,13 @@ export const InProgressStep = (props) => {
                   >
                     Begin Enrollment
                 </Button>
-                  {/* <Button
+                  <Button
                     color="green"
                     disabled={p['status'] == 'ENROLLED' ? false : true}
-                    onClick={(event) => CompleteEnrollment(event, p)}
+                    onClick={(event) => CompleteEnrollment(event, p, programsIndex)}
                   >
                     Complete Enrollment
-                </Button> */}
+                </Button>
                 </Grid.Row>
               </Grid>
             ))
@@ -517,8 +530,7 @@ export const InProgressStep = (props) => {
                 const { program, start_date } = modalSurveyData;
 
                 try {
-                  const enrollmentResponse = await apiClient.put(
-                    `/programs/enrollments/${initProgram.id}/`,
+                  const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
                     {
                       client: initClient.id,
                       status: 'ENROLLED',
@@ -615,41 +627,49 @@ export const InProgressStep = (props) => {
           <Button onClick={() => setSurveyId(null)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
-      <Modal closeIcon open={isCompleteEnrollment} onClose={() => setIsCompleteEnrollmentState(false)}>
-        <Modal.Header>End Enrollment</Modal.Header>
+      <Modal size="large" open={!!modalEndSurveyData}>
+        <Modal.Header>Exit survey</Modal.Header>
         <Modal.Content>
-          <Modal.Description>
-            <p>
-              Are you sure you want to end enrollment?
-                </p>
-          </Modal.Description>
+          {modalEndSurveyData &&
+            (modalEndSurveyData.enrollment_exit_survey == null ? '' : modalEndSurveyData.enrollment_exit_survey.id) && (
+              <EnrollmentSurveyModal
+                client={initClient}
+                programId={modalEndSurveyData.id}
+                surveyId={modalEndSurveyData.enrollment_entry_survey == null ? '' : modalEndSurveyData.enrollment_entry_survey.id}
+                onResponseSubmit={async (newResponseData) => {
+                  const { program, end_date } = modalEndSurveyData;
+                  console.log(modalEndSurveyData.id);
+                  try {
+                    const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
+                      {
+                        client: initClient.id,
+                        status: 'COMPLETED',
+                        program: modalEndSurveyData.id,
+                        end_date: moment(new Date()).format('YYYY-MM-DD'),
+                      });
+                    const enrollment = enrollmentResponse.data;
+                    toaster.success('Enrollment completed');
+
+                    await apiClient.post('/responses/', {
+                      ...newResponseData,
+                      response_context: {
+                        id: enrollment.id,
+                        type: 'Enrollment',
+                      },
+                    });
+                    toaster.success('Exit response saved');
+                  } catch (err) {
+                    const apiError = formatApiError(err.response);
+                    toaster.error(apiError);
+                  }
+                  setModalEndSurveyData(null);
+                  CloseEnrollment();
+                }}
+              />
+            )}
         </Modal.Content>
         <Modal.Actions>
-          <Button
-            negative
-            onClick={async () => {
-              try {
-                await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
-                  {
-                    client: initClient.id,
-                    status: 'COMPLETED',
-                    program: initProgram.program,
-                    end_date: moment(new Date()).format('YYYY-MM-DD'),
-                  });
-                //table.reload();
-              } catch (err) {
-                const apiError = formatApiError(err.response);
-                toaster.error(apiError);
-              } finally {
-                //setModaData({});
-              }
-            }}
-          >
-            Yes
-              </Button>
-          <Button onClick={async () => { setIsCompleteEnrollmentState(false); }}>
-            No
-              </Button>
+          <Button onClick={() => setModalEndSurveyData(null)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
     </>
