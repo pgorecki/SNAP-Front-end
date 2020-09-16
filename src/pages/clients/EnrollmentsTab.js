@@ -328,11 +328,11 @@ export default function EnrollmentsTab({ client }) {
             }}
           </Formik>
           {modalEndSurveyData && showEndSurveyForm &&
-            (modalEndSurveyData.program.enrollment_entry_survey == null ? '' : modalEndSurveyData.program.enrollment_entry_survey.id) && (
+            (modalEndSurveyData.program.enrollment_exit_survey == null ? '' : modalEndSurveyData.program.enrollment_exit_survey.id) && (
               <EnrollmentSurveyModal
                 client={client}
                 programId={modalEndSurveyData.program.id}
-                surveyId={modalEndSurveyData.program.enrollment_entry_survey == null ? '' : modalEndSurveyData.program.enrollment_entry_survey.id}
+                surveyId={modalEndSurveyData.program.enrollment_exit_survey == null ? '' : modalEndSurveyData.program.enrollment_exit_survey.id}
                 onResponseSubmit={async (newResponseData) => {
                   const { program, end_date } = modalEndSurveyData;
 
