@@ -23,7 +23,7 @@ import {
   FormErrors,
   FormInput,
 } from 'components/FormFields';
-import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import useApiClient from 'hooks/useApiClient';
 import useNewResource from 'hooks/useNewResource';
@@ -31,6 +31,7 @@ import SurveyList from '../surveys/SurveyList';
 import PaginatedDataTable from 'components/PaginatedDataTable';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep';
+import { formatOwner } from 'utils/modelUtils';
 
 export const OrientationStep = (props) => {
   const [checkPrograms, setCheckedPrograms] = useState(null);
@@ -52,6 +53,9 @@ export const OrientationStep = (props) => {
   const apiClient = useApiClient();
   const { save } = useNewResource('/notes/', {});
   const table = usePaginatedDataTable({ url: '/surveys/' });
+  const notestable = usePaginatedDataTable({
+    url: `/notes/?source_id=${initIep.id}`,
+  });
 
   const columns = React.useMemo(
     () => [
@@ -91,7 +95,8 @@ export const OrientationStep = (props) => {
     props.confirmEndIEPClicked();
   }
 
-  function OpenNotes() {
+  function OpenNotes(event) {
+    event.preventDefault();
     setIsNotesModelState(true);
   }
 
@@ -120,7 +125,7 @@ export const OrientationStep = (props) => {
             }
             actions.setSubmitting(false);
             setIsNotesModelState(false);
-            //table.reload();
+            notestable.reload();
           }}
         >
           {(form) => {
@@ -148,6 +153,40 @@ export const OrientationStep = (props) => {
       </>
     );
   }
+
+  const notescolumns = React.useMemo(
+    () => [
+      {
+        Header: 'Case Note Type',
+        accessor: 'text',
+      },
+      {
+        Header: 'Date',
+        accessor: 'created_at',
+        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+      },
+      {
+        Header: 'User Creating',
+        accessor: 'created_by',
+        Cell: ({ value }) => formatOwner(value),
+      },
+      // {
+      //   Header: 'Actions',
+      //   accessor: 'actions',
+      //   Cell: ({ row }) => (
+      //     <>
+      //       <EditActionButton
+      //         onClick={() => setModaDataEd({ ...row.original })}
+      //       />
+      //       <DeleteActionButton
+      //         onClick={() => setModaData({ ...row.original })}
+      //       />
+      //     </>
+      //   ),
+      // },
+    ],
+    []
+  );
 
   return (
     <>
@@ -180,9 +219,10 @@ export const OrientationStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={OpenNotes} >
+      <Button onClick={(event) => OpenNotes(event)} >
         Add Notes
       </Button>
+      <PaginatedDataTable columns={notescolumns} table={notestable} />
       {isNotesModel && (
         <>
           <Modal size="large" open={isNotesModel}>

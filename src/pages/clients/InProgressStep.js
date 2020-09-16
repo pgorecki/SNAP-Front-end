@@ -23,7 +23,7 @@ import {
   FormErrors,
   FormInput,
 } from 'components/FormFields';
-import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import useApiClient from 'hooks/useApiClient';
 import useNewResource from 'hooks/useNewResource';
@@ -33,6 +33,7 @@ import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep';
 import moment from 'moment';
 import useFetchData from 'hooks/useFetchData';
+import { formatOwner } from 'utils/modelUtils';
 
 export const InProgressStep = (props) => {
   //console.log(props);
@@ -41,6 +42,7 @@ export const InProgressStep = (props) => {
   const [isModidystate, setIsModifyState] = useState(false);
   const [isSurveyModel, setIsSurveyModelState] = useState(false);
   const [isBeginEnrollment, setIsBeginEnrollmentState] = useState(false);
+  const [isCompleteEnrollment, setIsCompleteEnrollmentState] = useState(false);
   const [isNotesModel, setIsNotesModelState] = useState(false);
   const [listInitialPrograms, setListInitialPrograms] = useState(
     props.listPrograms
@@ -57,6 +59,9 @@ export const InProgressStep = (props) => {
   const apiClient = useApiClient();
   const { save } = useNewResource('/notes/', {});
   const table = usePaginatedDataTable({ url: '/surveys/' });
+  const notestable = usePaginatedDataTable({
+    url: `/notes/?source_id=${initIep.id}`,
+  });
   const [
     existingEnrollmentPrograms,
     setExistingEnrollmentPrograms,
@@ -156,6 +161,12 @@ export const InProgressStep = (props) => {
     setIsBeginEnrollmentState(true);
   }
 
+  async function CompleteEnrollment(event, p) {
+    event.preventDefault();
+    setInitialProgram(p);
+    setIsCompleteEnrollmentState(true);
+  }
+
   async function CloseEnrollment() {
     setIsBeginEnrollmentState(false);
     setModalSurveyData(null);
@@ -174,7 +185,8 @@ export const InProgressStep = (props) => {
     //setModalSurveyData(null);
   }
 
-  function OpenNotes() {
+  function OpenNotes(event) {
+    event.preventDefault();
     setIsNotesModelState(true);
   }
 
@@ -296,7 +308,7 @@ export const InProgressStep = (props) => {
             }
             actions.setSubmitting(false);
             setIsNotesModelState(false);
-            //table.reload();
+            notestable.reload();
           }}
         >
           {(form) => {
@@ -325,6 +337,40 @@ export const InProgressStep = (props) => {
     );
   }
 
+  const notescolumns = React.useMemo(
+    () => [
+      {
+        Header: 'Case Note Type',
+        accessor: 'text',
+      },
+      {
+        Header: 'Date',
+        accessor: 'created_at',
+        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+      },
+      {
+        Header: 'User Creating',
+        accessor: 'created_by',
+        Cell: ({ value }) => formatOwner(value),
+      },
+      // {
+      //   Header: 'Actions',
+      //   accessor: 'actions',
+      //   Cell: ({ row }) => (
+      //     <>
+      //       <EditActionButton
+      //         onClick={() => setModaDataEd({ ...row.original })}
+      //       />
+      //       <DeleteActionButton
+      //         onClick={() => setModaData({ ...row.original })}
+      //       />
+      //     </>
+      //   ),
+      // },
+    ],
+    []
+  );
+
   return (
     <>
       <div style={{ marginLeft: '1rem' }}>
@@ -351,6 +397,13 @@ export const InProgressStep = (props) => {
                   >
                     Begin Enrollment
                 </Button>
+                  <Button
+                    color="green"
+                    disabled={p['status'] == 'ENROLLED' ? false : true}
+                    onClick={(event) => CompleteEnrollment(event, p)}
+                  >
+                    Complete Enrollment
+                </Button>
                 </Grid.Row>
               </Grid>
             ))
@@ -376,9 +429,10 @@ export const InProgressStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={OpenNotes} >
+      <Button onClick={(event) => OpenNotes(event)} >
         Add Notes
       </Button>
+      <PaginatedDataTable columns={notescolumns} table={notestable} />
       {isModidystate && (
         <Modal size="tiny" open={true}>
           <Modal.Header>Select program for this IEP</Modal.Header>
@@ -411,18 +465,12 @@ export const InProgressStep = (props) => {
           <Modal size="tiny" open={isBeginEnrollment}>
             <Modal.Header>Enroll to Program</Modal.Header>
             <Modal.Content>
-              {/* <Header as="h4">Enroll to Program</Header> */}
               <EnrollmentForm
                 client={initClient}
                 programsIndex={programsIndex}
                 initP={initProgram.program}
                 onSubmit={async (values) => {
-                  //console.log(initClient);
-                  //console.log(initProgram);
                   const { program } = values;
-                  // const result = await apiClient.get(
-                  //   `/programs/enrollments/?client=${initClient.id}&program=${program.id}'`
-                  // );
                   if (initProgram['status'] === 'ENROLLED') {
                     throw new FieldError(
                       'program',
@@ -467,13 +515,7 @@ export const InProgressStep = (props) => {
               surveyId={modalSurveyData.surveyId}
               onResponseSubmit={async (newResponseData) => {
                 const { program, start_date } = modalSurveyData;
-                //debugger;
-                var sd =
-                  start_date.getFullYear() +
-                  '-' +
-                  ('0' + (start_date.getMonth() + 1)).slice(-2) +
-                  '-' +
-                  ('0' + start_date.getDate()).slice(-2);
+
                 try {
                   const enrollmentResponse = await apiClient.put(
                     `/programs/enrollments/${initProgram.id}/`,
@@ -571,6 +613,43 @@ export const InProgressStep = (props) => {
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={() => setSurveyId(null)}>Cancel</Button>
+        </Modal.Actions>
+      </Modal>
+      <Modal closeIcon open={isCompleteEnrollment} onClose={() => setIsCompleteEnrollmentState(false)}>
+        <Modal.Header>End Enrollment</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <p>
+              Are you sure you want to end enrollment?
+                </p>
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            negative
+            onClick={async () => {
+              try {
+                await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
+                  {
+                    client: initClient.id,
+                    status: 'COMPLETED',
+                    program: initProgram.program,
+                    end_date: moment(new Date()).format('YYYY-MM-DD'),
+                  });
+                //table.reload();
+              } catch (err) {
+                const apiError = formatApiError(err.response);
+                toaster.error(apiError);
+              } finally {
+                //setModaData({});
+              }
+            }}
+          >
+            Yes
+              </Button>
+          <Button onClick={async () => { setIsCompleteEnrollmentState(false); }}>
+            No
+              </Button>
         </Modal.Actions>
       </Modal>
     </>

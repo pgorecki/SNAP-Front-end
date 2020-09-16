@@ -22,7 +22,7 @@ import {
   FormErrors,
   FormInput,
 } from 'components/FormFields';
-import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import useApiClient from 'hooks/useApiClient';
 import useNewResource from 'hooks/useNewResource';
@@ -32,6 +32,7 @@ import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import { CheckBoxIep } from '../../components/CheckBoxIep';
 import moment from 'moment';
 import useFetchData from 'hooks/useFetchData';
+import { formatOwner } from 'utils/modelUtils';
 
 export const PlanningStep = (props) => {
   const [data, error, loading] = useFetchData(`/programs/`, {});
@@ -59,6 +60,9 @@ export const PlanningStep = (props) => {
     setExistingEnrollmentPrograms,
   ] = useState();
   const exitingP = SavedPrograms();
+  const notestable = usePaginatedDataTable({
+    url: `/notes/?source_id=${initIep.id}`,
+  });
 
   async function SavedPrograms() {
     if (typeof existingEnrollmentPrograms === 'undefined') {
@@ -95,7 +99,8 @@ export const PlanningStep = (props) => {
     []
   );
 
-  function OpenNotes() {
+  function OpenNotes(event) {
+    event.preventDefault();
     setIsNotesModelState(true);
   }
 
@@ -124,7 +129,7 @@ export const PlanningStep = (props) => {
             }
             actions.setSubmitting(false);
             setIsNotesModelState(false);
-            //table.reload();
+            notestable.reload();
           }}
         >
           {(form) => {
@@ -200,6 +205,40 @@ export const PlanningStep = (props) => {
     setIsModifyState(null);
   }
 
+  const notescolumns = React.useMemo(
+    () => [
+      {
+        Header: 'Case Note Type',
+        accessor: 'text',
+      },
+      {
+        Header: 'Date',
+        accessor: 'created_at',
+        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+      },
+      {
+        Header: 'User Creating',
+        accessor: 'created_by',
+        Cell: ({ value }) => formatOwner(value),
+      },
+      // {
+      //   Header: 'Actions',
+      //   accessor: 'actions',
+      //   Cell: ({ row }) => (
+      //     <>
+      //       <EditActionButton
+      //         onClick={() => setModaDataEd({ ...row.original })}
+      //       />
+      //       <DeleteActionButton
+      //         onClick={() => setModaData({ ...row.original })}
+      //       />
+      //     </>
+      //   ),
+      // },
+    ],
+    []
+  );
+
   return (
     <>
       <div style={{ marginLeft: '1rem' }}>
@@ -243,10 +282,10 @@ export const PlanningStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={OpenNotes} >
+      <Button onClick={(event) => OpenNotes(event)} >
         Add Notes
       </Button>
-
+      <PaginatedDataTable columns={notescolumns} table={notestable} />
       {isModidystate && (
         <Modal size="tiny" open={true}>
           <Modal.Header>Select program for this IEP</Modal.Header>
