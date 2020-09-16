@@ -77,10 +77,10 @@ export default function EnrollmentServicesTab({ enrollData }) {
   );
   const { data, ready } = programsIndex;
   const options = data
-    ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+    ? data.map(({ id, category }) => ({
+      value: id,
+      text: category,
+    }))
     : [];
 
   const [modalDataEd, setModaDataEd] = useState({});
@@ -230,15 +230,15 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setShowServiceMinutes(servMinutes);
     setShowServiceDays(
       'Monday: ' +
-        servMond +
-        ', Tuesday: ' +
-        servTue +
-        ', Wednesday: ' +
-        servWed +
-        ', Thursday: ' +
-        servThu +
-        ', Friday: ' +
-        servFri
+      servMond +
+      ', Tuesday: ' +
+      servTue +
+      ', Wednesday: ' +
+      servWed +
+      ', Thursday: ' +
+      servThu +
+      ', Friday: ' +
+      servFri
     );
 
     //setshowDetailsServiceValues(detail.values);
@@ -443,13 +443,13 @@ export default function EnrollmentServicesTab({ enrollData }) {
             <>
               {(showDetailsServiceName == 'Bus tickets' ||
                 showDetailsServiceName == 'Training') && (
-                <Grid.Column computer={5} mobile={16}>
-                  <LabelField
-                    label="Service Date"
-                    value={moment(showServiceDate).format('YYYY-MM-DD')}
-                  ></LabelField>
-                </Grid.Column>
-              )}
+                  <Grid.Column computer={5} mobile={16}>
+                    <LabelField
+                      label="Service Date"
+                      value={moment(showServiceDate).format('YYYY-MM-DD')}
+                    ></LabelField>
+                  </Grid.Column>
+                )}
             </>
             <>
               {showDetailsServiceName == 'Attendance' && (
@@ -484,13 +484,13 @@ export default function EnrollmentServicesTab({ enrollData }) {
             <>
               {(showDetailsServiceName == 'Bus tickets' ||
                 showDetailsServiceName == 'Training') && (
-                <Grid.Column computer={5} mobile={16}>
-                  <LabelField
-                    label="Description"
-                    value={showServiceDesc}
-                  ></LabelField>
-                </Grid.Column>
-              )}
+                  <Grid.Column computer={5} mobile={16}>
+                    <LabelField
+                      label="Description"
+                      value={showServiceDesc}
+                    ></LabelField>
+                  </Grid.Column>
+                )}
             </>
             <>
               {showDetailsServiceName == 'Training' && (
@@ -536,17 +536,17 @@ export default function EnrollmentServicesTab({ enrollData }) {
   function OnServiceTypeChange(event, value) {
     event.preventDefault();
     setServiceTypeValue(value);
-    if (event.target.textContent !== 'Training') {
+    if (event.target.textContent !== 'time_based') {
       setShowTimeBased(false);
     } else {
       setShowTimeBased(true);
     }
-    if (event.target.textContent !== 'Attendance') {
+    if (event.target.textContent !== 'attendance') {
       setShowAttendance(false);
     } else {
       setShowAttendance(true);
     }
-    if (event.target.textContent !== 'Bus tickets') {
+    if (event.target.textContent !== 'direct') {
       setShowBusTickets(false);
     } else {
       setShowBusTickets(true);

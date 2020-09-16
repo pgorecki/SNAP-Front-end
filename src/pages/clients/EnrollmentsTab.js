@@ -135,6 +135,7 @@ export default function EnrollmentsTab({ client }) {
     url: `/programs/enrollments/?client=${client.id}`,
   });
   console.log(table);
+  const [showEndSurveyForm, setshowEndSurveyForm] = useState();
   const [modalData, setModaData] = useState({});
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   //console.log(table);
@@ -291,22 +292,58 @@ export default function EnrollmentsTab({ client }) {
       <Modal size="large" open={!!modalEndSurveyData}>
         <Modal.Header>Exit survey</Modal.Header>
         <Modal.Content>
-          {modalEndSurveyData &&
-            (modalEndSurveyData.program.enrollment_exit_survey == null ? '' : modalEndSurveyData.program.enrollment_exit_survey.id) && (
+          <Formik
+            enableReinitialize
+            initialValues={initialValues}
+            onSubmit={async (values, actions) => {
+              try {
+                initialValues.end_date = values.end_date;
+              } catch (err) {
+                actions.setErrors(apiErrorToFormError(err));
+              }
+              actions.setSubmitting(false);
+            }}
+          >
+            {(form) => {
+              return (
+                <Form error onSubmit={form.handleSubmit}>
+                  <FormDatePicker
+                    label="End Date"
+                    name="end_date"
+                    form={form}
+                    required
+                  />
+                  <FormErrors form={form} />
+                  <Button
+                    primary
+                    type="submit"
+                    onClick={() => {
+                      setshowEndSurveyForm(true);
+                    }}
+                  >
+                    Fill Survey
+                </Button>
+                </Form>
+              );
+            }}
+          </Formik>
+          {modalEndSurveyData && showEndSurveyForm &&
+            (modalEndSurveyData.program.enrollment_entry_survey == null ? '' : modalEndSurveyData.program.enrollment_entry_survey.id) && (
               <EnrollmentSurveyModal
                 client={client}
                 programId={modalEndSurveyData.program.id}
-                surveyId={modalEndSurveyData.program.enrollment_exit_survey == null ? '' : modalEndSurveyData.program.enrollment_exit_survey.id}
+                surveyId={modalEndSurveyData.program.enrollment_entry_survey == null ? '' : modalEndSurveyData.program.enrollment_entry_survey.id}
                 onResponseSubmit={async (newResponseData) => {
                   const { program, end_date } = modalEndSurveyData;
 
                   try {
+                    //debugger;
                     const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${modalEndSurveyData.id}/`,
                       {
                         client: client.id,
                         status: 'COMPLETED',
                         program: modalEndSurveyData.programId,
-                        end_date: moment(new Date()).format('YYYY-MM-DD'),
+                        end_date: moment(initialValues.end_date).format('YYYY-MM-DD'),
                       });
                     const enrollment = enrollmentResponse.data;
                     toaster.success('Enrollment completed');
@@ -323,6 +360,7 @@ export default function EnrollmentsTab({ client }) {
                     const apiError = formatApiError(err.response);
                     toaster.error(apiError);
                   }
+                  setshowEndSurveyForm(false);
                   setModalEndSurveyData(null);
                   table.reload();
                 }}
@@ -330,7 +368,13 @@ export default function EnrollmentsTab({ client }) {
             )}
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={() => setModalEndSurveyData(null)}>Cancel</Button>
+          <Button onClick={() => {
+            setshowEndSurveyForm(false);
+            setModalEndSurveyData(null);
+          }}
+          >
+            Cancel
+            </Button>
         </Modal.Actions>
       </Modal>
     </>
