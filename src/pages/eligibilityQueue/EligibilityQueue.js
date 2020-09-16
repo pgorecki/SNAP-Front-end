@@ -27,7 +27,7 @@ function NewClientsTab() {
   const handleShow = () => setShow(true);
   const table = usePaginatedDataTable({ url: '/eligibility/queue/?type=new' });
   const [initialValues, setInitialValues] = useState({
-    ssn: '',
+    snap_id: '',
   });
   const columns = React.useMemo(
     () => [
@@ -126,7 +126,7 @@ function NewClientsTab() {
         onSubmit={async (values, actions) => {
           try {
             await apiClient.patch(`/clients/${clientID}/`, {
-              ssn: values.ssn,
+              snap_id: values.ssn,
             });
             toaster.success('Snap ID created');
           } catch (err) {
