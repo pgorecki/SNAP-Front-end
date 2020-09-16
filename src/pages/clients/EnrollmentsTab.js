@@ -17,6 +17,8 @@ import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
 import moment from 'moment';
 import { date } from 'yup';
+import { EditActionButton } from '../../components/tableComponents';
+import { EndActionButton } from '../../components/tableComponents';
 
 var enrollmentId = '';
 var programName = '';
@@ -175,8 +177,8 @@ export default function EnrollmentsTab({ client }) {
           // console.log(row)
           return (
             <>
-              <Button onClick={() => toggle(row.original.id, row.values)}>Edit</Button>
-              <Button disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModalEndSurveyData({ ...row.original })}>End</Button>
+              <EditActionButton onClick={() => toggle(row.original.id, row.values)}></EditActionButton>
+              <EndActionButton disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModalEndSurveyData({ ...row.original })}></EndActionButton>
             </>
           );
         },

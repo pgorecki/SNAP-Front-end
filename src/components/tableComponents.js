@@ -22,6 +22,14 @@ export function DeleteActionButton({ onClick, ...props }) {
   );
 }
 
+export function EndActionButton({ onClick, ...props }) {
+  return (
+    <Button size="tiny" negative onClick={onClick} {...props}>
+      <Icon name="close" /> End
+    </Button>
+  );
+}
+
 export function EditActionButton({ onClick, ...props }) {
   return (
     <Button size="tiny" onClick={onClick} {...props}>
