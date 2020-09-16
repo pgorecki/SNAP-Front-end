@@ -77,9 +77,9 @@ export default function EnrollmentServicesTab({ enrollData }) {
   );
   const { data, ready } = programsIndex;
   const options = data
-    ? data.map(({ id, category }) => ({
+    ? data.map(({ id, name }) => ({
       value: id,
-      text: category,
+      text: name,
     }))
     : [];
 
@@ -536,17 +536,17 @@ export default function EnrollmentServicesTab({ enrollData }) {
   function OnServiceTypeChange(event, value) {
     event.preventDefault();
     setServiceTypeValue(value);
-    if (event.target.textContent !== 'time_based') {
+    if (event.target.textContent !== 'Training') {
       setShowTimeBased(false);
     } else {
       setShowTimeBased(true);
     }
-    if (event.target.textContent !== 'attendance') {
+    if (event.target.textContent !== 'Attendance') {
       setShowAttendance(false);
     } else {
       setShowAttendance(true);
     }
-    if (event.target.textContent !== 'direct') {
+    if (event.target.textContent !== 'Bus tickets') {
       setShowBusTickets(false);
     } else {
       setShowBusTickets(true);
