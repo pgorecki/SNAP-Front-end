@@ -180,7 +180,7 @@ export const OrientationStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={OpenNotes} style={{ marginLeft: '1rem' }}>
+      <Button onClick={OpenNotes} >
         Add Notes
       </Button>
       {isNotesModel && (

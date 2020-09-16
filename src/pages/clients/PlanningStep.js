@@ -176,19 +176,22 @@ export const PlanningStep = (props) => {
 
   async function modifyOkButtonClicked() {
     let updatedEnrollments = [];
+    let newEnrollments = [];
     const clientIEP = await apiClient.get(
       `/iep/${initIep["id"]}`
     );
     const existingEnrolmments = clientIEP.data.enrollments;
     checkPrograms.forEach(async (element) => {
       if (existingEnrolmments.findIndex(x => x.program == element.id) == -1) {
-        let newEnrollments = {
+        //updatedEnrollments = [...updatedEnrollments, ]
+        newEnrollments = {
           program: element.id,
           status: "PLANNED"
         }
-        updatedEnrollments = [...existingEnrolmments, newEnrollments]
+        updatedEnrollments = [...updatedEnrollments, newEnrollments]
       }
     });
+    updatedEnrollments = [...existingEnrolmments, ...updatedEnrollments]
     await apiClient.patch(`/iep/${initIep["id"]}/`,
       {
         enrollments: updatedEnrollments
@@ -240,7 +243,7 @@ export const PlanningStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={OpenNotes} style={{ marginLeft: '1rem' }}>
+      <Button onClick={OpenNotes} >
         Add Notes
       </Button>
 
