@@ -16,6 +16,7 @@ import useUrlParams from 'hooks/useUrlParams';
 import EnrollmentDetails from '../programs/EnrollmentDetails';
 import { hasPermission } from 'utils/permissions';
 import moment from 'moment';
+import { date } from 'yup';
 
 var enrollmentId = '';
 var programName = '';
@@ -120,6 +121,7 @@ export default function EnrollmentsTab({ client }) {
   const history = useHistory();
   const [{ user }] = useContext(AppContext);
   const [modalSurveyData, setModalSurveyData] = useState();
+  const [modalEndSurveyData, setModalEndSurveyData] = useState();
   const [isOpened, setIsOpened] = useState(false);
   const handleClose = () => setIsOpened(false);
   const handleShow = () => setIsOpened(true);
@@ -130,6 +132,7 @@ export default function EnrollmentsTab({ client }) {
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
+  console.log(table);
   const [modalData, setModaData] = useState({});
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   //console.log(table);
@@ -139,7 +142,11 @@ export default function EnrollmentsTab({ client }) {
     programName = values["program.name"];
     programValues = values;
   }
-
+  const [initialValues, setInitialValues] = useState({
+    surveyId: null,
+    program: null,
+    end_date: new Date(),
+  });
   const columns = React.useMemo(
     () => [
       {
@@ -147,24 +154,19 @@ export default function EnrollmentsTab({ client }) {
         accessor: 'program.name',
       },
       {
-        Header: 'Status',
-        accessor: 'status',
-        Cell: ({ value }) => value || 'n/a',
-      },
-      {
-        Header: 'Date Created',
+        Header: 'Start Date',
         accessor: 'created_at',
         Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
       },
       {
-        Header: 'Date Modified',
-        accessor: 'modified_at',
+        Header: 'End Date',
+        accessor: 'end_date',
         Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
       },
       {
-        Header: 'Created By',
-        accessor: 'created_by',
-        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+        Header: 'Status',
+        accessor: 'status',
+        Cell: ({ value }) => value || 'n/a',
       },
       {
         Header: 'Actions',
@@ -174,7 +176,7 @@ export default function EnrollmentsTab({ client }) {
           return (
             <>
               <Button onClick={() => toggle(row.original.id, row.values)}>Edit</Button>
-              <Button disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModaData({ ...row.original })}>End</Button>
+              <Button disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModalEndSurveyData({ ...row.original })}>End</Button>
             </>
           );
         },
@@ -283,41 +285,50 @@ export default function EnrollmentsTab({ client }) {
           <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
-      <Modal closeIcon open={!!modalData.id} onClose={() => setModaData({})}>
-        <Modal.Header>End Enrollment</Modal.Header>
+
+      <Modal size="large" open={!!modalEndSurveyData}>
+        <Modal.Header>Exit survey</Modal.Header>
         <Modal.Content>
-          <Modal.Description>
-            <p>
-              Are you sure you want to end enrollment?
-                </p>
-          </Modal.Description>
+          {modalEndSurveyData &&
+            (modalEndSurveyData.program.enrollment_exit_survey == null ? '' : modalEndSurveyData.program.enrollment_exit_survey.id) && (
+              <EnrollmentSurveyModal
+                client={client}
+                programId={modalEndSurveyData.program.id}
+                surveyId={modalEndSurveyData.program.enrollment_exit_survey == null ? '' : modalEndSurveyData.program.enrollment_exit_survey.id}
+                onResponseSubmit={async (newResponseData) => {
+                  const { program, end_date } = modalEndSurveyData;
+
+                  try {
+                    const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${modalEndSurveyData.id}/`,
+                      {
+                        client: client.id,
+                        status: 'COMPLETED',
+                        program: modalEndSurveyData.programId,
+                        end_date: moment(new Date()).format('YYYY-MM-DD'),
+                      });
+                    const enrollment = enrollmentResponse.data;
+                    toaster.success('Enrollment completed');
+
+                    await apiClient.post('/responses/', {
+                      ...newResponseData,
+                      response_context: {
+                        id: enrollment.id,
+                        type: 'Enrollment',
+                      },
+                    });
+                    toaster.success('Exit response saved');
+                  } catch (err) {
+                    const apiError = formatApiError(err.response);
+                    toaster.error(apiError);
+                  }
+                  setModalEndSurveyData(null);
+                  table.reload();
+                }}
+              />
+            )}
         </Modal.Content>
         <Modal.Actions>
-          <Button
-            negative
-            onClick={async () => {
-              try {
-                await apiClient.patch(`/programs/enrollments/${modalData.id}/`,
-                  {
-                    client: client.id,
-                    status: 'COMPLETED',
-                    program: modalData.programId,
-                    end_date: moment(new Date()).format('YYYY-MM-DD'),
-                  });
-                table.reload();
-              } catch (err) {
-                const apiError = formatApiError(err.response);
-                toaster.error(apiError);
-              } finally {
-                setModaData({});
-              }
-            }}
-          >
-            Yes
-              </Button>
-          <Button onClick={async () => { setModaData({}); }}>
-            No
-              </Button>
+          <Button onClick={() => setModalEndSurveyData(null)}>Cancel</Button>
         </Modal.Actions>
       </Modal>
     </>
