@@ -6,8 +6,7 @@ import {
   Label,
   Modal,
   Header,
-  Form,
-  FormTextArea,
+  Form
 } from 'semantic-ui-react';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
@@ -21,6 +20,7 @@ import {
   FormDatePicker,
   FormErrors,
   FormInput,
+  FormTextArea
 } from 'components/FormFields';
 import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
@@ -120,7 +120,8 @@ export const PlanningStep = (props) => {
             try {
               const result = await save({
                 ...values,
-                text: values.subject,
+                title: values.subject,
+                text: values.noteDesc,
               });
               //history.push(`/notes/${result.id}`);
               toaster.success('Notes created');
@@ -140,10 +141,9 @@ export const PlanningStep = (props) => {
                   {/* <FormSelect label="Select Template" name="template" form={form} options={options} placeholder="Select Template" disabled="true" /> */}
                   <FormDatePicker label="Date" name="date" form={form} />
                   <FormTextArea
-                    name="note"
+                    name="noteDesc"
                     placeholder="Enter note here"
                     form={form}
-                    rows="5"
                   />
                   <FormErrors form={form} />
                   <Button primary type="submit" disabled={form.isSubmitting}>
@@ -208,13 +208,17 @@ export const PlanningStep = (props) => {
   const notescolumns = React.useMemo(
     () => [
       {
-        Header: 'Case Note Type',
+        Header: 'Subject',
+        accessor: 'title',
+      },
+      {
+        Header: 'Note',
         accessor: 'text',
       },
       {
         Header: 'Date',
         accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'User Creating',

@@ -6,8 +6,7 @@ import {
   Label,
   Modal,
   Header,
-  Form,
-  FormTextArea,
+  Form
 } from 'semantic-ui-react';
 import { handleChecks, PlanningStep } from './PlanningStep';
 import { hasPermission } from 'utils/permissions';
@@ -22,6 +21,7 @@ import {
   FormDatePicker,
   FormErrors,
   FormInput,
+  FormTextArea
 } from 'components/FormFields';
 import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
@@ -54,6 +54,7 @@ export const InProgressStep = (props) => {
   const [modalSurveyData, setModalSurveyData] = useState();
   const [modalEndSurveyData, setModalEndSurveyData] = useState();
   const [surveyId, setSurveyId] = useState();
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState();
   // const [surveyIep, setsurveyIep] = useState(false);
   const [{ user }] = useContext(AppContext);
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
@@ -63,6 +64,7 @@ export const InProgressStep = (props) => {
   const notestable = usePaginatedDataTable({
     url: `/notes/?source_id=${initIep.id}`,
   });
+  console.log(notestable);
   const [
     existingEnrollmentPrograms,
     setExistingEnrollmentPrograms,
@@ -205,6 +207,7 @@ export const InProgressStep = (props) => {
 
   function EnrollmentForm({ programsIndex, onSubmit, initP }) {
     //console.log(initP)
+    //preventDefault();
     const { data, ready } = programsIndex;
 
     const [initialValues, setInitialValues] = useState({
@@ -282,6 +285,8 @@ export const InProgressStep = (props) => {
                     type="submit"
                     disabled={!intakeSurvey || form.isSubmitting}
                     onClick={() => {
+                      //event.preventDefault();
+                      //setEnrollmentStartDate(form.values.start_date);
                       form.setFieldValue('surveyId', intakeSurvey.id);
                     }}
                   >
@@ -312,7 +317,8 @@ export const InProgressStep = (props) => {
             try {
               const result = await save({
                 ...values,
-                text: values.subject,
+                title: values.subject,
+                text: values.noteDesc,
               });
               //history.push(`/notes/${result.id}`);
               toaster.success('Notes created');
@@ -321,6 +327,7 @@ export const InProgressStep = (props) => {
             }
             actions.setSubmitting(false);
             setIsNotesModelState(false);
+            //actions.resetForm();
             notestable.reload();
           }}
         >
@@ -332,10 +339,9 @@ export const InProgressStep = (props) => {
                   {/* <FormSelect label="Select Template" name="template" form={form} options={options} placeholder="Select Template" disabled="true" /> */}
                   <FormDatePicker label="Date" name="date" form={form} />
                   <FormTextArea
-                    name="note"
+                    name="noteDesc"
                     placeholder="Enter note here"
                     form={form}
-                    rows="5"
                   />
                   <FormErrors form={form} />
                   <Button primary type="submit" disabled={form.isSubmitting}>
@@ -353,13 +359,17 @@ export const InProgressStep = (props) => {
   const notescolumns = React.useMemo(
     () => [
       {
-        Header: 'Case Note Type',
+        Header: 'Subject',
+        accessor: 'title',
+      },
+      {
+        Header: 'Note',
         accessor: 'text',
       },
       {
         Header: 'Date',
         accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'User Creating',
@@ -483,6 +493,7 @@ export const InProgressStep = (props) => {
                 programsIndex={programsIndex}
                 initP={initProgram.program}
                 onSubmit={async (values) => {
+                  //event.preventDefault();
                   const { program } = values;
                   if (initProgram['status'] === 'ENROLLED') {
                     throw new FieldError(
