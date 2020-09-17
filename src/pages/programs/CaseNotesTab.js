@@ -79,7 +79,7 @@ export default function CaseNotesTab({ enrollData }) {
       {
         Header: 'Date',
         accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'User Creating',
