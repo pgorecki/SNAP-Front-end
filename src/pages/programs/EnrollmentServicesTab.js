@@ -77,9 +77,9 @@ export default function EnrollmentServicesTab({ enrollData }) {
   );
   const { data, ready } = programsIndex;
   const options = data
-    ? data.map(({ id, name }) => ({
+    ? data.map(({ id, category, name }) => ({
       value: id,
-      text: name,
+      text: category + ':' + name,
     }))
     : [];
 
@@ -130,12 +130,12 @@ export default function EnrollmentServicesTab({ enrollData }) {
       {
         Header: 'Effective Date',
         accessor: 'effective_date',
-        Cell: ({ value }) => (value ? formatDate(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'Date Created',
         accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'Actions',
@@ -536,21 +536,22 @@ export default function EnrollmentServicesTab({ enrollData }) {
   function OnServiceTypeChange(event, value) {
     event.preventDefault();
     setServiceTypeValue(value);
-    if (event.target.textContent !== 'Training') {
+    let txtVal = event.target.textContent.split(':');
+    let catg = txtVal[0];
+    if (catg.toLowerCase() !== 'time_based') {
       setShowTimeBased(false);
     } else {
       setShowTimeBased(true);
     }
-    if (event.target.textContent !== 'Attendance') {
+    if (catg.toLowerCase() !== 'attendance') {
       setShowAttendance(false);
     } else {
       setShowAttendance(true);
     }
-    if (event.target.textContent !== 'Bus tickets') {
+    if (catg.toLowerCase() !== 'direct') {
       setShowBusTickets(false);
     } else {
       setShowBusTickets(true);
     }
-    //console.log(event.target.textContent);
   }
 }
