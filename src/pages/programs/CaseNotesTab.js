@@ -128,6 +128,7 @@ export default function CaseNotesTab({ enrollData }) {
           }
           actions.setSubmitting(false);
           handleClose();
+          actions.resetForm();
           table.reload();
         }}
       >
@@ -168,7 +169,12 @@ export default function CaseNotesTab({ enrollData }) {
                     <Button primary type="submit" disabled={form.isSubmitting}>
                       Submit
                     </Button>
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={() => {
+                      handleClose();
+                      form.resetForm();
+                    }}>
+                      Cancel
+                        </Button>
                   </Form>
                 </Modal.Content>
               </Modal>

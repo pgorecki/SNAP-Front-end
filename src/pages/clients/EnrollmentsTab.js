@@ -190,7 +190,7 @@ export default function EnrollmentsTab({ client }) {
 
   return (
     <>
-      {hasPermission(user, 'program.add_enrollment') && (
+      {/* {hasPermission(user, 'program.add_enrollment') && (
         <>
           <Header as="h4">Enroll to Program</Header>
           <EnrollmentForm
@@ -213,7 +213,7 @@ export default function EnrollmentsTab({ client }) {
             }}
           />
         </>
-      )}
+      )} */}
 
       <Header as="h4">Enrollments History</Header>
       <PaginatedDataTable columns={columns} table={table} />

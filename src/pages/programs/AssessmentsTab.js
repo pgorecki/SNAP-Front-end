@@ -51,9 +51,9 @@ function UpdateSurveyForm({ programsIndex, onSubmit, enrData }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
 
   useEffect(() => {
@@ -141,9 +141,7 @@ export default function AssessmentsTab({ enrollData }) {
   const [initialValues, setInitialValues] = useState({
     client: enrollData.client.id,
     survey:
-      enrollData.program.enrollment_entry_survey == null
-        ? ''
-        : enrollData.program.enrollment_entry_survey.id,
+      enrollData.program.enrollment_entry_survey == null ? '' : enrollData.program.enrollment_entry_survey.id,
     response_context: { id: enrollData.id, type: 'Enrollment' },
     answers: [
       {
@@ -155,9 +153,9 @@ export default function AssessmentsTab({ enrollData }) {
 
   const options = data
     ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+      value: id,
+      text: name,
+    }))
     : [];
   const cncolumns = React.useMemo(
     () => [
@@ -204,15 +202,6 @@ export default function AssessmentsTab({ enrollData }) {
           enrData={enrollData}
           onSubmit={async (values) => {
             const { program } = values;
-            const result = await apiClient.get(
-              `/programs/enrollments/?client=${enrollData.client.id}&program=${program.id}`
-            );
-            if (result.data.count > 0) {
-              throw new FieldError(
-                'program',
-                `Client already enrolled to ${program.name}`
-              );
-            }
 
             // open the survey modal
             setModalSurveyData(values);
