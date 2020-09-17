@@ -20,6 +20,7 @@ import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import useApiClient from 'hooks/useApiClient';
 import { hasPermission } from 'utils/permissions';
 import IepSteps from './IepSteps';
+import JobPlacement from './JobPlacement';
 
 let programValues = {};
 let iepRow = {};
@@ -144,6 +145,7 @@ export default function IEPTab({ client }) {
           <Modal.Header></Modal.Header>
           <Modal.Content>
             <IepSteps ieprow={programValues}></IepSteps>
+            <JobPlacement iep={programValues.original} />
           </Modal.Content>
           <Modal.Actions>
             <Button onClick={handleClose}>Cancel</Button>
