@@ -74,7 +74,7 @@ export default function CaseNotesTab({ enrollData }) {
     () => [
       {
         Header: 'Case Note Type',
-        accessor: 'text',
+        accessor: 'title',
       },
       {
         Header: 'Date',

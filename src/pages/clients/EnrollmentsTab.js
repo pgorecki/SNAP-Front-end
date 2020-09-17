@@ -7,7 +7,7 @@ import toaster from 'components/toaster';
 import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import useApiClient from 'hooks/useApiClient';
 import useResourceIndex from 'hooks/useResourceIndex';
-import { formatDateTime, FieldError } from 'utils/typeUtils';
+import { formatDate, formatDateTime, FieldError } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
 import usePaginatedDataTable from 'hooks/usePaginatedDataTable';
 import PaginatedDataTable from 'components/PaginatedDataTable';
@@ -164,7 +164,7 @@ export default function EnrollmentsTab({ client }) {
       {
         Header: 'End Date',
         accessor: 'end_date',
-        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'Status',
