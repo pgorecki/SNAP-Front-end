@@ -22,14 +22,14 @@ export default function IepSteps({ ieprow }) {
   //console.log(handleClose);
   var values = ieprow.values;
   const apiClient = useApiClient();
-  const [
-    existingEnrollmentPrograms,
-    setExistingEnrollmentPrograms,
-  ] = useState();
+  // const [
+  //   existingEnrollmentPrograms,
+  //   setExistingEnrollmentPrograms,
+  // ] = useState();
 
-  const ieptable = usePaginatedDataTable({
-    url: `/iep/?client=${ieprow.original}`,
-  });
+  // const ieptable = usePaginatedDataTable({
+  //   url: `/iep/?client=${ieprow.original}`,
+  // });
 
   const [isEligibleActive, setIsEligibleActive] = useState(
     values.status === 'not_eligible' || values.status === 'awaiting_approval'
@@ -136,75 +136,6 @@ export default function IepSteps({ ieprow }) {
   );
 
   const [listInitialPrograms, setListInitialPrograms] = useState(null);
-  //console.log(listInitialPrograms);
-  const table = usePaginatedDataTable({
-    url: '/responses/',
-  });
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Survey',
-        accessor: 'id',
-        Cell: ({ value, row }) => {
-          return (
-            <NavLink to={`/responses/${value}`}>
-              {row.original.survey.name}
-            </NavLink>
-          );
-        },
-      },
-      {
-        Header: 'Answers',
-        accessor: 'answers',
-        Cell: ({ value, row }) => {
-          return value.length;
-        },
-      },
-      {
-        Header: 'Date Created',
-        accessor: 'created_at',
-        Cell: ({ value }) => formatDateTime(value, true),
-      },
-      {
-        Header: 'Date Modified',
-        accessor: 'modified_at',
-        sortType: 'basic',
-        Cell: ({ value }) => formatDateTime(value, true),
-      },
-      {
-        Header: 'Created By',
-        accessor: 'created_by',
-        Cell: ({ value }) => formatOwner(value),
-      },
-      {
-        Header: 'Actions',
-        disableSortBy: true,
-        accessor: 'actions',
-        Cell: ({ row, actions }) => (
-          <>
-            <Button
-              onClick={(...args) => {
-                table.updateRow(row, {
-                  answers: [...row.original.answers, {}],
-                  modified_at: new Date(),
-                });
-              }}
-            >
-              Update row
-            </Button>
-            <Button
-              onClick={(...args) => {
-                table.reload();
-              }}
-            >
-              Reload
-            </Button>
-          </>
-        ),
-      },
-    ],
-    []
-  );
 
   async function ConfirmOrientationButton() {
     try {

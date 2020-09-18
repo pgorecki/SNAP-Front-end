@@ -52,6 +52,7 @@ export const InProgressStep = (props) => {
   const [initClient, setClientState] = useState(props.client.client);
   const [initIep, setIepState] = useState(props.client);
   const [modalSurveyData, setModalSurveyData] = useState();
+  const [modalSurveyDataOpen, setModalSurveyDataOpen] = useState(false);
   const [modalEndSurveyData, setModalEndSurveyData] = useState();
   const [surveyId, setSurveyId] = useState();
   const [enrollmentStartDate, setEnrollmentStartDate] = useState();
@@ -225,7 +226,7 @@ export const InProgressStep = (props) => {
 
     useEffect(() => {
       if (data && data.length > 0 && initialValues.program === null) {
-        setInitialValues({ ...initialValues, program: initP });
+        setInitialValues({ ...initialValues, program: initP.program });
       }
     }, [ready]);
 
@@ -237,6 +238,7 @@ export const InProgressStep = (props) => {
             initialValues={initialValues}
             onSubmit={async (values, actions) => {
               try {
+                setInitialValues({ ...initialValues, ...values });
                 await onSubmit({
                   ...values,
                   program: data.find(
@@ -286,8 +288,17 @@ export const InProgressStep = (props) => {
                     disabled={!intakeSurvey || form.isSubmitting}
                     onClick={() => {
                       //event.preventDefault();
-                      //setEnrollmentStartDate(form.values.start_date);
+                      if (initP['status'] === 'ENROLLED') {
+                        throw new FieldError(
+                          'program',
+                          `Client already enrolled to ${selectedProgram.name}`
+                        );
+                      }
+                      setEnrollmentStartDate(form.values.start_date);
                       form.setFieldValue('surveyId', intakeSurvey.id);
+                      setModalSurveyData(selectedProgram);
+                      setIsBeginEnrollmentState(false);
+                      setModalSurveyDataOpen(true);
                     }}
                   >
                     Start enrollment
@@ -491,19 +502,11 @@ export const InProgressStep = (props) => {
               <EnrollmentForm
                 client={initClient}
                 programsIndex={programsIndex}
-                initP={initProgram.program}
+                initP={initProgram}
                 onSubmit={async (values) => {
                   //event.preventDefault();
                   const { program } = values;
-                  if (initProgram['status'] === 'ENROLLED') {
-                    throw new FieldError(
-                      'program',
-                      `Client already enrolled to ${program.name}`
-                    );
-                  }
 
-                  // open the survey modal
-                  setModalSurveyData(values);
                 }}
               />
             </Modal.Content>
@@ -529,14 +532,15 @@ export const InProgressStep = (props) => {
           </Modal>
         </>
       )}
-      <Modal size="large" open={!!modalSurveyData}>
-        <Modal.Header>Enrollment survey</Modal.Header>
-        <Modal.Content>
-          {modalSurveyData && modalSurveyData.surveyId && (
+      {modalSurveyDataOpen && !!modalSurveyData && (
+        <Modal size="large" open={modalSurveyDataOpen}>
+          <Modal.Header>Enrollment survey</Modal.Header>
+          <Modal.Content>
+
             <EnrollmentSurveyModal
               client={initClient}
-              programId={modalSurveyData.program.id}
-              surveyId={modalSurveyData.surveyId}
+              programId={modalSurveyData.id}
+              surveyId={modalSurveyData.enrollment_entry_survey.id}
               onResponseSubmit={async (newResponseData) => {
                 const { program, start_date } = modalSurveyData;
 
@@ -545,8 +549,8 @@ export const InProgressStep = (props) => {
                     {
                       client: initClient.id,
                       status: 'ENROLLED',
-                      program: program.id,
-                      start_date: moment(new Date()).format('YYYY-MM-DD'),
+                      program: modalSurveyData.id,
+                      start_date: moment(enrollmentStartDate).format('YYYY-MM-DD'),
                     }
                   );
                   const enrollment = enrollmentResponse.data;
@@ -580,15 +584,16 @@ export const InProgressStep = (props) => {
                   toaster.error(apiError);
                 }
                 setModalSurveyData(null);
+                setModalSurveyDataOpen(false);
                 CloseEnrollment();
               }}
             />
-          )}
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setModalSurveyData(null)}>Cancel</Button>
-        </Modal.Actions>
-      </Modal>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button onClick={() => setModalSurveyDataOpen(false)}>Cancel</Button>
+          </Modal.Actions>
+        </Modal>
+      )}
       <Modal
         size="large"
         open={isSurveyModel}

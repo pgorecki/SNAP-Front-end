@@ -158,8 +158,8 @@ export default function EnrollmentsTab({ client }) {
       },
       {
         Header: 'Start Date',
-        accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDateTime(value, true) : ''),
+        accessor: 'start_date',
+        Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
         Header: 'End Date',
