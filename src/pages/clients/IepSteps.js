@@ -32,21 +32,23 @@ export default function IepSteps({ ieprow }) {
   // });
 
   const [isEligibleActive, setIsEligibleActive] = useState(
-    values.status === 'not_eligible' || values.status === 'awaiting_approval'
+    values.status === 'awaiting_approval'
       ? true
       : false
   );
   const [isEligibleDisabled, setIsEligibleDisabled] = useState(
-    values.status === 'not_eligible' || values.status === 'awaiting_approval'
+    values.status === 'awaiting_approval'
       ? false
       : true
   );
   const [isEligibleCompleted, setIsEligibleCompleted] = useState(
-    values.status === 'not_eligible' || values.status === 'awaiting_approval'
+    values.status === 'awaiting_approval'
       ? false
       : values.status === 'in_orientation'
         ? true
-        : true
+        : values.status === 'not_eligible'
+          ? false
+          : true
   );
 
   // const [isEligibleActive, setIsEligibleActive] = useState((values.status) === "awaiting_approval" ? true : false);
@@ -114,25 +116,23 @@ export default function IepSteps({ ieprow }) {
   );
 
   const [isEndActive, setIsEndActive] = useState(
-    values.status === 'ended' ? true : false
+    values.status === 'not_eligible' || values.status === 'ended' ? true : false
   );
   const [isEndDisabled, setIsEndDisabled] = useState(
-    values.status === 'ended' ? false : true
+    values.status === 'not_eligible' || values.status === 'ended' ? false : true
   );
   const [isEndCompleted, setIsEndCompleted] = useState(
-    values.status === 'ended'
-      ? false
+    values.status === 'not_eligible' || values.status === 'ended'
+      ? true
       : values.status === 'in_orientation'
         ? false
         : values.status === 'in_planning'
           ? false
-          : values.status === 'not_eligible'
+          : values.status === 'awaiting_approval'
             ? false
-            : values.status === 'awaiting_approval'
+            : values.status === 'in_progress'
               ? false
-              : values.status === 'in_progress'
-                ? false
-                : true
+              : true
   );
 
   const [listInitialPrograms, setListInitialPrograms] = useState(null);
@@ -257,8 +257,8 @@ export default function IepSteps({ ieprow }) {
   function Orientation() {
     //console.log(values);
     if (values.status === 'not_eligible') {
-      setIsEligibleActive(true);
-      setIsEligibleDisabled(false);
+      setIsEligibleActive(false);
+      setIsEligibleDisabled(true);
       setIsEligibleCompleted(false);
 
       setIsOrientOpened(false);
@@ -273,9 +273,9 @@ export default function IepSteps({ ieprow }) {
       setIsInProgressDisabled(true);
       setIsInProgressCompleted(false);
 
-      setIsEndActive(false);
+      setIsEndActive(true);
       setIsEndDisabled(true);
-      setIsEndCompleted(false);
+      setIsEndCompleted(true);
     } else if (values.status === 'in_orientation') {
       setIsEligibleActive(false);
       setIsEligibleDisabled(true);
