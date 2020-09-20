@@ -79,7 +79,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
   const options = data
     ? data.map(({ id, category, name }) => ({
       value: id,
-      text: category + ':' + name,
+      text: name,
+      catg: category
     }))
     : [];
 
@@ -536,8 +537,14 @@ export default function EnrollmentServicesTab({ enrollData }) {
   function OnServiceTypeChange(event, value) {
     event.preventDefault();
     setServiceTypeValue(value);
-    let txtVal = event.target.textContent.split(':');
-    let catg = txtVal[0];
+    let catg = "";
+    for (let i = 0; i < options.length; i++) {
+      if (value == options[i].value)
+        catg = options[i].catg;
+    }
+
+    //let txtVal = event.target.textContent.split(':');
+    //let catg = txtVal[0];
     if (catg.toLowerCase() !== 'time_based') {
       setShowTimeBased(false);
     } else {
