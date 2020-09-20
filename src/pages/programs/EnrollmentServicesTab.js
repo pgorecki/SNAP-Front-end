@@ -442,8 +442,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
               ></LabelField>
             </Grid.Column>
             <>
-              {(showDetailsServiceName == 'Bus tickets' ||
-                showDetailsServiceName == 'Training') && (
+              {(showDetailsServiceCatg == 'direct' ||
+                showDetailsServiceCatg == 'time_based') && (
                   <Grid.Column computer={5} mobile={16}>
                     <LabelField
                       label="Service Date"
@@ -453,7 +453,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
                 )}
             </>
             <>
-              {showDetailsServiceName == 'Attendance' && (
+              {showDetailsServiceCatg == 'attendance' && (
                 <Grid.Column computer={5} mobile={16}>
                   <LabelField
                     label="Week Start"
@@ -463,7 +463,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
               )}
             </>
             <>
-              {showDetailsServiceName == 'Bus tickets' && (
+              {showDetailsServiceCatg == 'direct' && (
                 <Grid.Column computer={5} mobile={16}>
                   <LabelField
                     label="Quantity"
@@ -473,7 +473,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
               )}
             </>
             <>
-              {showDetailsServiceName == 'Bus tickets' && (
+              {showDetailsServiceCatg == 'direct' && (
                 <Grid.Column computer={5} mobile={16}>
                   <LabelField
                     label="Cost per unit"
@@ -483,8 +483,8 @@ export default function EnrollmentServicesTab({ enrollData }) {
               )}
             </>
             <>
-              {(showDetailsServiceName == 'Bus tickets' ||
-                showDetailsServiceName == 'Training') && (
+              {(showDetailsServiceCatg == 'direct' ||
+                showDetailsServiceCatg == 'time_based') && (
                   <Grid.Column computer={5} mobile={16}>
                     <LabelField
                       label="Description"
@@ -494,7 +494,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
                 )}
             </>
             <>
-              {showDetailsServiceName == 'Training' && (
+              {showDetailsServiceCatg == 'time_based' && (
                 <Grid.Column computer={5} mobile={16}>
                   <LabelField
                     label="Hours"
@@ -504,7 +504,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
               )}
             </>
             <>
-              {showDetailsServiceName == 'Training' && (
+              {showDetailsServiceCatg == 'time_based' && (
                 <Grid.Column computer={5} mobile={16}>
                   <LabelField
                     label="Minutes"
@@ -514,7 +514,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
               )}
             </>
             <>
-              {showDetailsServiceName == 'Attendance' && (
+              {showDetailsServiceCatg == 'attendance' && (
                 <Grid.Column computer={5} mobile={16}>
                   <LabelField label="Days" value={showServiceDays}></LabelField>
                 </Grid.Column>
