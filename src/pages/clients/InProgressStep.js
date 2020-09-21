@@ -330,6 +330,7 @@ export const InProgressStep = (props) => {
                 ...values,
                 title: values.subject,
                 text: values.noteDesc,
+                effective_date: values.date
               });
               //history.push(`/notes/${result.id}`);
               toaster.success('Notes created');
@@ -379,7 +380,7 @@ export const InProgressStep = (props) => {
       },
       {
         Header: 'Date',
-        accessor: 'created_at',
+        accessor: 'effective_date',
         Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {

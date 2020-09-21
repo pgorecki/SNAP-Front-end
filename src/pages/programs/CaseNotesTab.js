@@ -37,6 +37,7 @@ import {
 } from '../../components/tableComponents';
 import ListPage from '../ListPage';
 import { formatOwner } from '../../utils/modelUtils';
+import moment from 'moment';
 
 export default function CaseNotesTab({ enrollData }) {
   //console.log(enrollData);
@@ -78,7 +79,7 @@ export default function CaseNotesTab({ enrollData }) {
       },
       {
         Header: 'Date',
-        accessor: 'created_at',
+        accessor: 'effective_date',
         Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
@@ -120,11 +121,13 @@ export default function CaseNotesTab({ enrollData }) {
               ...values,
               title: values.subject,
               text: values.noteDesc,
+              effective_date: values.effDate
             });
             //history.push(`/notes/${result.id}`);
             toaster.success('Notes created');
           } catch (err) {
             actions.setErrors(apiErrorToFormError(err));
+            toaster.error(err);
           }
           actions.setSubmitting(false);
           handleClose();
@@ -159,7 +162,7 @@ export default function CaseNotesTab({ enrollData }) {
                       placeholder="Select Template"
                       disabled="true"
                     />
-                    <FormDatePicker label="Date" name="date" form={form} />
+                    <FormDatePicker label="Date" name="effDate" form={form} />
                     <FormTextArea
                       name="noteDesc"
                       placeholder="Enter note here"
@@ -221,17 +224,18 @@ export default function CaseNotesTab({ enrollData }) {
         <Modal.Content>
           <Formik
             enableReinitialize
-            initialValues={modalDataEd}
+            initialValues={{ modalDataEd, effDt: modalDataEd.effective_date }}
             onSubmit={async (values, actions) => {
               try {
                 //debugger;
-                await apiClient.patch(`/notes/${values.id}/`, {
+                await apiClient.patch(`/notes/${values.modalDataEd.id}/`, {
                   source: {
-                    id: values.source.id,
+                    id: values.modalDataEd.source.id,
                     type: 'Enrollment',
                   },
-                  title: values.title,
-                  text: values.text,
+                  title: values.modalDataEd.title,
+                  text: values.modalDataEd.text,
+                  effective_date: moment(values.effDt).format('YYYY-MM-DD')
                 });
                 setModaDataEd({});
                 toaster.success('Notes updated');
@@ -248,7 +252,7 @@ export default function CaseNotesTab({ enrollData }) {
                 <>
                   <Form
                     error
-                    initialValues={modalDataEd}
+                    initialvalues={modalDataEd}
                     onSubmit={formEdit.handleSubmit}
                   >
                     <FormInput
@@ -257,17 +261,19 @@ export default function CaseNotesTab({ enrollData }) {
                       form={formEdit}
                       value={modalDataEd.title}
                       onChange={(e) =>
-                        setModaDataEd({ ...modalDataEd, title: e.target.value })
+                        setModaDataEd({ ...modalDataEd, title: e.target.value, effective_date: formEdit.values.effDt })
                       }
                     />
-                    <FormDatePicker label="Date" name="date" form={formEdit} />
+                    <FormDatePicker label="Date" name="effDt" form={formEdit}
+
+                    />
                     <FormTextArea
                       name="note"
                       placeholder="Enter note here"
                       form={formEdit}
                       value={modalDataEd.text}
                       onChange={(e) =>
-                        setModaDataEd({ ...modalDataEd, text: e.target.value })
+                        setModaDataEd({ ...modalDataEd, text: e.target.value, effective_date: formEdit.values.effDt })
                       }
                     />
                     <Button
