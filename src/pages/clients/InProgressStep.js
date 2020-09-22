@@ -6,7 +6,7 @@ import {
   Label,
   Modal,
   Header,
-  Form
+  Form,
 } from 'semantic-ui-react';
 import { handleChecks, PlanningStep } from './PlanningStep';
 import { hasPermission } from 'utils/permissions';
@@ -21,7 +21,7 @@ import {
   FormDatePicker,
   FormErrors,
   FormInput,
-  FormTextArea
+  FormTextArea,
 } from 'components/FormFields';
 import { formatDateTime, FieldError, formatDate } from 'utils/typeUtils';
 import { formatApiError, apiErrorToFormError } from 'utils/apiUtils';
@@ -105,9 +105,7 @@ export const InProgressStep = (props) => {
 
   async function SavedPrograms() {
     if (typeof existingEnrollmentPrograms === 'undefined') {
-      const clientIEP = await apiClient.get(
-        `/iep/${initIep["id"]}`
-      );
+      const clientIEP = await apiClient.get(`/iep/${initIep['id']}`);
       const existingEnrolmments = clientIEP.data.enrollments;
       if (typeof existingEnrolmments !== 'undefined') {
         setExistingEnrollmentPrograms(existingEnrolmments);
@@ -119,25 +117,28 @@ export const InProgressStep = (props) => {
   async function modifyOkButtonClicked() {
     let updatedEnrollments = [];
     let newEnrollments = [];
-    const clientIEP = await apiClient.get(
-      `/iep/${initIep["id"]}`
-    );
+    const clientIEP = await apiClient.get(`/iep/${initIep['id']}`);
     const existingEnrolmments = clientIEP.data.enrollments;
     checkPrograms.forEach(async (element) => {
-      if (existingEnrolmments.findIndex(x => x.program == element.id && (x.status == 'ENROLLED' || x.status == 'PLANNED')) == -1) {
+      if (
+        existingEnrolmments.findIndex(
+          (x) =>
+            x.program == element.id &&
+            (x.status == 'ENROLLED' || x.status == 'PLANNED')
+        ) == -1
+      ) {
         //updatedEnrollments = [...updatedEnrollments, ]
         newEnrollments = {
           program: element.id,
-          status: "PLANNED"
-        }
-        updatedEnrollments = [...updatedEnrollments, newEnrollments]
+          status: 'PLANNED',
+        };
+        updatedEnrollments = [...updatedEnrollments, newEnrollments];
       }
     });
-    updatedEnrollments = [...existingEnrolmments, ...updatedEnrollments]
-    const resultEnrollments = await apiClient.patch(`/iep/${initIep["id"]}/`,
-      {
-        enrollments: updatedEnrollments
-      });
+    updatedEnrollments = [...existingEnrolmments, ...updatedEnrollments];
+    const resultEnrollments = await apiClient.patch(`/iep/${initIep['id']}/`, {
+      enrollments: updatedEnrollments,
+    });
     setExistingEnrollmentPrograms(resultEnrollments.data.enrollments);
     setIsModifyState(null);
   }
@@ -172,8 +173,7 @@ export const InProgressStep = (props) => {
     ///useEffect(() => {
     if (data && data.length > 0) {
       const selectedProgram =
-        data &&
-        data.find((program) => program.id === initP.program);
+        data && data.find((program) => program.id === initP.program);
       //setInitialValues({ ...initialValues, program: initP });
       setInitialProgram(initP);
       setModalEndSurveyData(selectedProgram);
@@ -186,9 +186,7 @@ export const InProgressStep = (props) => {
   async function CloseEnrollment() {
     setIsBeginEnrollmentState(false);
     setModalSurveyData(null);
-    const clientIEP = await apiClient.get(
-      `/iep/${initIep["id"]}`
-    );
+    const clientIEP = await apiClient.get(`/iep/${initIep['id']}`);
     const existingEnrolmments = clientIEP.data.enrollments;
     if (typeof existingEnrolmments !== 'undefined') {
       setExistingEnrollmentPrograms(existingEnrolmments);
@@ -219,9 +217,9 @@ export const InProgressStep = (props) => {
 
     const options = data
       ? data.map(({ id, name }) => ({
-        value: id,
-        text: name,
-      }))
+          value: id,
+          text: name,
+        }))
       : [];
 
     useEffect(() => {
@@ -330,7 +328,7 @@ export const InProgressStep = (props) => {
                 ...values,
                 title: values.subject,
                 text: values.noteDesc,
-                effective_date: values.date
+                effective_date: values.date,
               });
               //history.push(`/notes/${result.id}`);
               toaster.success('Notes created');
@@ -412,37 +410,43 @@ export const InProgressStep = (props) => {
         {existingEnrollmentPrograms == null ? (
           <h4>No programs are planned yet.Please modify IEP plan </h4>
         ) : (
-            existingEnrollmentPrograms.map((p, index) => (
-              <Grid>
-                <Grid.Row key={p.program}>
-                  <Label>{data.results.find(q => q.id == p.program).name}</Label>
-                  <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
-                    Planned
+          existingEnrollmentPrograms.map((p, index) => (
+            <Grid>
+              <Grid.Row key={p.program}>
+                <Label>
+                  {data.results
+                    ? data.results.find((q) => q.id == p.program).name
+                    : p.program}
                 </Label>
-                  <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
-                    Enrolled
+                <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
+                  Planned
                 </Label>
-                  <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
-                    Completed
+                <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
+                  Enrolled
                 </Label>
-                  <Button
-                    color="green"
-                    disabled={p['status'] == 'PLANNED' ? false : true}
-                    onClick={(event) => BeginEnrollment(event, p)}
-                  >
-                    Begin Enrollment
+                <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
+                  Completed
+                </Label>
+                <Button
+                  color="green"
+                  disabled={p['status'] == 'PLANNED' ? false : true}
+                  onClick={(event) => BeginEnrollment(event, p)}
+                >
+                  Begin Enrollment
                 </Button>
-                  <Button
-                    color="green"
-                    disabled={p['status'] == 'ENROLLED' ? false : true}
-                    onClick={(event) => CompleteEnrollment(event, p, programsIndex)}
-                  >
-                    Complete Enrollment
+                <Button
+                  color="green"
+                  disabled={p['status'] == 'ENROLLED' ? false : true}
+                  onClick={(event) =>
+                    CompleteEnrollment(event, p, programsIndex)
+                  }
+                >
+                  Complete Enrollment
                 </Button>
-                </Grid.Row>
-              </Grid>
-            ))
-          )}
+              </Grid.Row>
+            </Grid>
+          ))
+        )}
       </div>
       {/* <h4>No programs are planned yet.Please modify IEP plan </h4> */}
       <Grid>
@@ -464,9 +468,7 @@ export const InProgressStep = (props) => {
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={(event) => OpenNotes(event)} >
-        Add Notes
-      </Button>
+      <Button onClick={(event) => OpenNotes(event)}>Add Notes</Button>
       <PaginatedDataTable columns={notescolumns} table={notestable} />
       {isModidystate && (
         <Modal size="tiny" open={true}>
@@ -507,7 +509,6 @@ export const InProgressStep = (props) => {
                 onSubmit={async (values) => {
                   //event.preventDefault();
                   const { program } = values;
-
                 }}
               />
             </Modal.Content>
@@ -537,7 +538,6 @@ export const InProgressStep = (props) => {
         <Modal size="large" open={modalSurveyDataOpen}>
           <Modal.Header>Enrollment survey</Modal.Header>
           <Modal.Content>
-
             <EnrollmentSurveyModal
               client={initClient}
               programId={modalSurveyData.id}
@@ -546,12 +546,15 @@ export const InProgressStep = (props) => {
                 const { program, start_date } = modalSurveyData;
 
                 try {
-                  const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
+                  const enrollmentResponse = await apiClient.patch(
+                    `/programs/enrollments/${initProgram.id}/`,
                     {
                       client: initClient.id,
                       status: 'ENROLLED',
                       program: modalSurveyData.id,
-                      start_date: moment(enrollmentStartDate).format('YYYY-MM-DD'),
+                      start_date: moment(enrollmentStartDate).format(
+                        'YYYY-MM-DD'
+                      ),
                     }
                   );
                   const enrollment = enrollmentResponse.data;
@@ -591,7 +594,9 @@ export const InProgressStep = (props) => {
             />
           </Modal.Content>
           <Modal.Actions>
-            <Button onClick={() => setModalSurveyDataOpen(false)}>Cancel</Button>
+            <Button onClick={() => setModalSurveyDataOpen(false)}>
+              Cancel
+            </Button>
           </Modal.Actions>
         </Modal>
       )}
@@ -648,22 +653,30 @@ export const InProgressStep = (props) => {
         <Modal.Header>Exit survey</Modal.Header>
         <Modal.Content>
           {modalEndSurveyData &&
-            (modalEndSurveyData.enrollment_exit_survey == null ? '' : modalEndSurveyData.enrollment_exit_survey.id) && (
+            (modalEndSurveyData.enrollment_exit_survey == null
+              ? ''
+              : modalEndSurveyData.enrollment_exit_survey.id) && (
               <EnrollmentSurveyModal
                 client={initClient}
                 programId={modalEndSurveyData.id}
-                surveyId={modalEndSurveyData.enrollment_exit_survey == null ? '' : modalEndSurveyData.enrollment_exit_survey.id}
+                surveyId={
+                  modalEndSurveyData.enrollment_exit_survey == null
+                    ? ''
+                    : modalEndSurveyData.enrollment_exit_survey.id
+                }
                 onResponseSubmit={async (newResponseData) => {
                   const { program, end_date } = modalEndSurveyData;
                   //console.log(modalEndSurveyData.id);
                   try {
-                    const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${initProgram.id}/`,
+                    const enrollmentResponse = await apiClient.patch(
+                      `/programs/enrollments/${initProgram.id}/`,
                       {
                         client: initClient.id,
                         status: 'COMPLETED',
                         program: modalEndSurveyData.id,
                         end_date: moment(new Date()).format('YYYY-MM-DD'),
-                      });
+                      }
+                    );
                     const enrollment = enrollmentResponse.data;
                     toaster.success('Enrollment completed');
 
