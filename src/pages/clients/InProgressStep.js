@@ -56,6 +56,7 @@ export const InProgressStep = (props) => {
   const [modalEndSurveyData, setModalEndSurveyData] = useState();
   const [surveyId, setSurveyId] = useState();
   const [enrollmentStartDate, setEnrollmentStartDate] = useState();
+  const [enrollmentPendDate, setEnrollmentPendDate] = useState();
   // const [surveyIep, setsurveyIep] = useState(false);
   const [{ user }] = useContext(AppContext);
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
@@ -217,9 +218,9 @@ export const InProgressStep = (props) => {
 
     const options = data
       ? data.map(({ id, name }) => ({
-          value: id,
-          text: name,
-        }))
+        value: id,
+        text: name,
+      }))
       : [];
 
     useEffect(() => {
@@ -279,6 +280,11 @@ export const InProgressStep = (props) => {
                     form={form}
                     required
                   />
+                  <FormDatePicker
+                    label="Projected End Date"
+                    name="projected_end_date"
+                    form={form}
+                  />
                   <FormErrors form={form} />
                   <Button
                     primary
@@ -293,6 +299,7 @@ export const InProgressStep = (props) => {
                         );
                       }
                       setEnrollmentStartDate(form.values.start_date);
+                      setEnrollmentPendDate(form.values.projected_end_date);
                       form.setFieldValue('surveyId', intakeSurvey.id);
                       setModalSurveyData(selectedProgram);
                       setIsBeginEnrollmentState(false);
@@ -410,43 +417,43 @@ export const InProgressStep = (props) => {
         {existingEnrollmentPrograms == null ? (
           <h4>No programs are planned yet.Please modify IEP plan </h4>
         ) : (
-          existingEnrollmentPrograms.map((p, index) => (
-            <Grid>
-              <Grid.Row key={p.program}>
-                <Label>
-                  {data.results
-                    ? data.results.find((q) => q.id == p.program).name
-                    : p.program}
+            existingEnrollmentPrograms.map((p, index) => (
+              <Grid>
+                <Grid.Row key={p.program}>
+                  <Label>
+                    {data.results
+                      ? data.results.find((q) => q.id == p.program).name
+                      : p.program}
+                  </Label>
+                  <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
+                    Planned
                 </Label>
-                <Label basic color={p['status'] == 'PLANNED' ? 'blue' : ''}>
-                  Planned
+                  <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
+                    Enrolled
                 </Label>
-                <Label basic color={p['status'] == 'ENROLLED' ? 'blue' : ''}>
-                  Enrolled
+                  <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
+                    Completed
                 </Label>
-                <Label basic color={p['status'] == 'COMPLETED' ? 'blue' : ''}>
-                  Completed
-                </Label>
-                <Button
-                  color="green"
-                  disabled={p['status'] == 'PLANNED' ? false : true}
-                  onClick={(event) => BeginEnrollment(event, p)}
-                >
-                  Begin Enrollment
+                  <Button
+                    color="green"
+                    disabled={p['status'] == 'PLANNED' ? false : true}
+                    onClick={(event) => BeginEnrollment(event, p)}
+                  >
+                    Begin Enrollment
                 </Button>
-                <Button
-                  color="green"
-                  disabled={p['status'] == 'ENROLLED' ? false : true}
-                  onClick={(event) =>
-                    CompleteEnrollment(event, p, programsIndex)
-                  }
-                >
-                  Complete Enrollment
+                  <Button
+                    color="green"
+                    disabled={p['status'] == 'ENROLLED' ? false : true}
+                    onClick={(event) =>
+                      CompleteEnrollment(event, p, programsIndex)
+                    }
+                  >
+                    Complete Enrollment
                 </Button>
-              </Grid.Row>
-            </Grid>
-          ))
-        )}
+                </Grid.Row>
+              </Grid>
+            ))
+          )}
       </div>
       {/* <h4>No programs are planned yet.Please modify IEP plan </h4> */}
       <Grid>
@@ -555,6 +562,8 @@ export const InProgressStep = (props) => {
                       start_date: moment(enrollmentStartDate).format(
                         'YYYY-MM-DD'
                       ),
+                      projected_end_date: moment(enrollmentPendDate).format(
+                        'YYYY-MM-DD')
                     }
                   );
                   const enrollment = enrollmentResponse.data;

@@ -15,7 +15,7 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
   const history = useHistory();
   const [urlParams, queryParams, fragment] = useUrlParams();
   const apiClient = useApiClient();
-  const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentId}`, {});
+  //const [data, error, loading] = useFetchData(`/programs/enrollments/${enrollmentId}`, {});
   console.log(pdata);
   if (typeof pdata !== 'undefined') {
 
@@ -38,7 +38,7 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
         key: 7,
         render: () => (
           <Tab.Pane>
-            <AssessmentsTab enrollData={data} />
+            <AssessmentsTab enrollData={pdata} />
           </Tab.Pane>
         ),
       },
@@ -47,7 +47,7 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
         key: 8,
         render: () => (
           <Tab.Pane>
-            <CaseNotesTab enrollData={data} />
+            <CaseNotesTab enrollData={pdata} />
           </Tab.Pane>
         ),
       },
@@ -56,7 +56,7 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
         key: 9,
         render: () => (
           <Tab.Pane>
-            <EnrollmentServicesTab enrollData={data} />
+            <EnrollmentServicesTab enrollData={pdata} />
           </Tab.Pane>
         ),
       }
@@ -65,13 +65,13 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
     function renderLoading() {
       return <Loader active inline="centered" />;
     }
-    function renderError() {
-      let message = error;
-      if (typeof error !== 'string') {
-        message = JSON.stringify(error);
-      }
-      return <Message error>{`${message}`}</Message>;
-    }
+    // function renderError() {
+    //   let message = error;
+    //   if (typeof error !== 'string') {
+    //     message = JSON.stringify(error);
+    //   }
+    //   return <Message error>{`${message}`}</Message>;
+    // }
 
     return (
       <Grid
@@ -84,7 +84,7 @@ export default function EnrollmentDetails({ title, children, enrollmentId, pdata
       >
         <Grid.Column>
           {/* {title && <Header as="h5">{title}</Header>} */}
-          {loading ? renderLoading() : error ? renderError() : children}
+          {/* {loading ? renderLoading() : error ? renderError() : children} */}
         </Grid.Column>
         <Grid.Column computer={16} mobile={16}>
           <Tab

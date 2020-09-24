@@ -178,7 +178,7 @@ export default function EnrollmentsTab({ client }) {
           // console.log(row)
           return (
             <>
-              <EditActionButton onClick={() => toggle(row.original.id, row.values)}></EditActionButton>
+              <EditActionButton onClick={() => toggle(row.original.id, row.original)}></EditActionButton>
               <EndActionButton disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModalEndSurveyData({ ...row.original })}></EndActionButton>
             </>
           );
