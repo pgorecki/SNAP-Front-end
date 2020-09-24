@@ -23,9 +23,12 @@ function NewClientsTab() {
   const apiClient = useApiClient();
   const [show, setShow] = useState(false);
   const [clientID, setclientID] = useState();
+  const [snapID, setSnapID] = useState();
+  const [eligibilityID, setEligibilityID] = useState();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const table = usePaginatedDataTable({ url: '/eligibility/queue/?type=new' });
+  console.log(table);
   const [initialValues, setInitialValues] = useState({
     snap_id: '',
   });
@@ -70,23 +73,24 @@ function NewClientsTab() {
                 const { id } = row.original;
                 const fullName = clientFullName(row.original.client);
                 setclientID(row.original.client.id);
+                const clientSnapId = row.original.client.snap_id;
+                setEligibilityID(row.original);
+                setSnapID(clientSnapId);
                 console.log(row.original);
-                if (
-                  row.original.client.ssn == null ||
-                  row.original.client.ssn == '' ||
-                  row.original.client.ssn == ''
-                ) {
+                if (clientSnapId == null || clientSnapId == '' || clientSnapId == "") {
                   handleShow();
                 }
-                try {
-                  await apiClient.patch(`/eligibility/queue/${id}/`, {
-                    status: 'ELIGIBLE',
-                  });
-                  toaster.success(`Confirmed eligibilty for ${fullName}`);
-                  table.reload();
-                } catch (err) {
-                  const apiError = formatApiError(err.response);
-                  toaster.error(apiError);
+                else {
+                  try {
+                    await apiClient.patch(`/eligibility/queue/${id}/`, {
+                      status: 'ELIGIBLE',
+                    });
+                    toaster.success(`Confirmed eligibilty for ${fullName}`);
+                    table.reload();
+                  } catch (err) {
+                    const apiError = formatApiError(err.response);
+                    toaster.error(apiError);
+                  }
                 }
               }}
             >
@@ -126,9 +130,15 @@ function NewClientsTab() {
         onSubmit={async (values, actions) => {
           try {
             await apiClient.patch(`/clients/${clientID}/`, {
-              snap_id: values.ssn,
+              snap_id: values.snapId,
             });
+            setSnapID(values.snapId);
             toaster.success('Snap ID created');
+
+            await apiClient.patch(`/eligibility/queue/${eligibilityID.id}/`, {
+              status: 'ELIGIBLE',
+            });
+            toaster.success(`Eligibilty confirmed`);
           } catch (err) {
             const apiError = formatApiError(err.response);
             toaster.error(apiError);
@@ -141,8 +151,8 @@ function NewClientsTab() {
         {(form) => {
           return (
             <>
-              <Modal open={show} onHide={handleClose}>
-                <Modal.Header>Snap ID {form.id}</Modal.Header>
+              <Modal size="tiny" open={show} onHide={handleClose}>
+                <Modal.Header>Snap ID</Modal.Header>
                 <Modal.Description>
                   <p>
                     You have determined that this Participant is eligible.
@@ -152,7 +162,7 @@ function NewClientsTab() {
                 </Modal.Description>
                 <Modal.Content>
                   <Form error onSubmit={form.handleSubmit}>
-                    <FormInput label="Snap ID:" name="ssn" form={form} />
+                    <FormInput label="Snap ID:" name="snapId" form={form} required />
                     <FormErrors form={form} />
                     <Button primary type="submit" disabled={form.isSubmitting}>
                       Submit
