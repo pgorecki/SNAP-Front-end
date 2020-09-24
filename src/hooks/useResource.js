@@ -25,6 +25,9 @@ export default function useResource(url, initialData = {}) {
     async (payload) => {
       setSaving(true);
       try {
+        if (payload.address === null) {
+          delete payload.address;
+        }
         const request = apiClient.put(url, payload);
         const result = await request;
         setData(result.data);
