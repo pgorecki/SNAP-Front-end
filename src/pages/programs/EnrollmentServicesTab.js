@@ -53,6 +53,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
     url: `/programs/services/?enrollment=${enrollData.id}`,
   });
   console.log(table);
+  AddCostAndHourInfo(table);
   const [show, setShow] = useState(false);
   const [showService, setShowService] = useState(false);
   // const handleClose = () => setShow(false);
@@ -113,9 +114,9 @@ export default function EnrollmentServicesTab({ enrollData }) {
   ];
 
   const minuteOptions = [
-    { value: 1, text: '15' },
-    { value: 2, text: '30' },
-    { value: 3, text: '45' },
+    { value: 15, text: '15' },
+    { value: 30, text: '30' },
+    { value: 45, text: '45' },
   ];
 
   const columns = React.useMemo(
@@ -129,14 +130,16 @@ export default function EnrollmentServicesTab({ enrollData }) {
       //  accessor: 'service_type.category',
       //},
       {
-        Header: 'Effective Date',
+        Header: 'Date',
         accessor: 'effective_date',
         Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
-        Header: 'Date Created',
-        accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDate(value) : ''),
+        Header: 'Hours/Cost',
+        accessor: 'values',
+        Cell: ({ value }) => (
+          value ? value.substring(value.indexOf("totCost") + 9, value.length - 1) : ''
+        ),
       },
       {
         Header: 'Actions',
@@ -161,7 +164,6 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setModaDataEd(detail);
     setShowDetailsServiceName(detail.service_type.name);
     setshowDetailsServiceCatg(detail.service_type.category);
-
     let valStr = detail.values.replace('}', '');
     let valExtArray = valStr.split(',');
     let servDate = '',
@@ -207,15 +209,23 @@ export default function EnrollmentServicesTab({ enrollData }) {
           if (valIntArray[j] == '"sMon"') {
             servMond = valIntArray[j + 1];
           }
+        }
+        if (servTue == 0) {
           if (valIntArray[j] == '"sTue"') {
             servTue = valIntArray[j + 1];
           }
+        }
+        if (servWed == 0) {
           if (valIntArray[j] == '"sWed"') {
             servWed = valIntArray[j + 1];
           }
-          if (valIntArray[j] == '"sThu"') {
+        }
+        if (servThu == 0) {
+          if (valIntArray[j] == '"sThur"') {
             servThu = valIntArray[j + 1];
           }
+        }
+        if (servFri == 0) {
           if (valIntArray[j] == '"sFri"') {
             servFri = valIntArray[j + 1];
           }
@@ -435,12 +445,12 @@ export default function EnrollmentServicesTab({ enrollData }) {
                 valColor="#20B2AA"
               ></LabelField>
             </Grid.Column>
-            <Grid.Column computer={5} mobile={16}>
+            {/* <Grid.Column computer={5} mobile={16}>
               <LabelField
                 label="Category"
                 value={showDetailsServiceCatg}
               ></LabelField>
-            </Grid.Column>
+            </Grid.Column> */}
             <>
               {(showDetailsServiceCatg == 'direct' ||
                 showDetailsServiceCatg == 'time_based') && (
@@ -454,7 +464,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
             </>
             <>
               {showDetailsServiceCatg == 'attendance' && (
-                <Grid.Column computer={5} mobile={16}>
+                <Grid.Column computer={16} mobile={16}>
                   <LabelField
                     label="Week Start"
                     value={moment(showServiceDate).format('YYYY-MM-DD')}
@@ -515,7 +525,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
             </>
             <>
               {showDetailsServiceCatg == 'attendance' && (
-                <Grid.Column computer={5} mobile={16}>
+                <Grid.Column computer={16} mobile={16}>
                   <LabelField label="Days" value={showServiceDays}></LabelField>
                 </Grid.Column>
               )}
@@ -560,5 +570,86 @@ export default function EnrollmentServicesTab({ enrollData }) {
     } else {
       setShowBusTickets(true);
     }
+  }
+}
+
+function AddCostAndHourInfo(tbl) {
+  if (tbl.data.length > 0) {
+    for (let n = 0; n < tbl.data.length; n++) {
+      let catg = tbl.data[n].service_type.category;
+      let totCost = '';
+      let valStr = tbl.data[n].values.replace("}", "");
+      let valExtArray = valStr.split(',');
+      let servMond = 0, servTue = 0, servWed = 0, servThu = 0, servFri = 0;
+      let servQty = 0, servCostPerUnit = 0;
+      let servHours = 0, servMinutes = 0;
+      for (let i = 0; i < valExtArray.length; i++) {
+        let valIntArray = valExtArray[i].split(':');
+        for (let j = 0; j < valIntArray.length; j++) {
+          if (catg == 'attendance') {
+            if (servMond == 0) {
+              if (valIntArray[j] == '"sMon"') {
+                servMond = valIntArray[j + 1];
+              }
+            }
+            if (servTue == 0) {
+              if (valIntArray[j] == '"sTue"') {
+                servTue = valIntArray[j + 1];
+              }
+            }
+            if (servWed == 0) {
+              if (valIntArray[j] == '"sWed"') {
+                servWed = valIntArray[j + 1];
+              }
+            }
+            if (servThu == 0) {
+              if (valIntArray[j] == '"sThur"') {
+                servThu = valIntArray[j + 1];
+              }
+            }
+            if (servFri == 0) {
+              if (valIntArray[j] == '"sFri"') {
+                servFri = valIntArray[j + 1];
+              }
+            }
+            totCost = ((parseInt(servMond) + parseInt(servTue) + parseInt(servWed) + parseInt(servThu) + parseInt(servFri)));
+          }
+          else if (catg == 'direct') {
+            debugger;
+
+            if (servQty == 0) {
+              if (valIntArray[j] == '"sQTY"')
+                servQty = parseInt(valIntArray[j + 1]);
+            }
+            if (servCostPerUnit == 0) {
+              if (valIntArray[j] == '"sCostPerUnit"') {
+                servCostPerUnit = (valIntArray[j + 1]).replace(/['"]+/g, '');
+              }
+            }
+            totCost = '$' + (parseInt(servQty) * (Number.isNaN(parseInt(servCostPerUnit)) ? 0 : parseInt(servCostPerUnit))).toFixed(2);
+          }
+          else if (catg == 'time_based') {
+            debugger;
+            if (servHours == 0) {
+              if (valIntArray[j] == '"sHours"') {
+                servHours = valIntArray[j + 1];
+              }
+            }
+            if (servMinutes == 0) {
+              if (valIntArray[j] == '"sMinutes"') {
+                servMinutes = valIntArray[j + 1];
+              }
+            }
+            let tm = (parseInt(servHours) + (servMinutes / 60));
+            totCost = tm.toFixed(2);
+          }
+        }
+      }
+
+      //tbl.data[n].values = tbl.data[n].values.replace("}", "");
+      tbl.data[n].values = tbl.data[n].values.concat(',"totCost":', totCost + '}');
+
+    }
+    console.log(tbl);
   }
 }
