@@ -615,7 +615,7 @@ function AddCostAndHourInfo(tbl) {
             totCost = ((parseInt(servMond) + parseInt(servTue) + parseInt(servWed) + parseInt(servThu) + parseInt(servFri)));
           }
           else if (catg == 'direct') {
-            debugger;
+            //debugger;
 
             if (servQty == 0) {
               if (valIntArray[j] == '"sQTY"')
@@ -629,7 +629,7 @@ function AddCostAndHourInfo(tbl) {
             totCost = '$' + (parseInt(servQty) * (Number.isNaN(parseInt(servCostPerUnit)) ? 0 : parseInt(servCostPerUnit))).toFixed(2);
           }
           else if (catg == 'time_based') {
-            debugger;
+            //debugger;
             if (servHours == 0) {
               if (valIntArray[j] == '"sHours"') {
                 servHours = valIntArray[j + 1];
