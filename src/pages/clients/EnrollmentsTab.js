@@ -134,6 +134,8 @@ export default function EnrollmentsTab({ client }) {
   const table = usePaginatedDataTable({
     url: `/programs/enrollments/?client=${client.id}`,
   });
+  removeAllPlanned(table.data, 'PLANNED');
+  table.totalCount = table.data.length;
   console.log(table);
   const [showEndSurveyForm, setshowEndSurveyForm] = useState();
   const [modalData, setModaData] = useState({});
@@ -178,7 +180,7 @@ export default function EnrollmentsTab({ client }) {
           // console.log(row)
           return (
             <>
-              <EditActionButton onClick={() => toggle(row.original.id, row.values)}></EditActionButton>
+              <EditActionButton onClick={() => toggle(row.original.id, row.original)}></EditActionButton>
               <EndActionButton disabled={row.original.status != 'ENROLLED'} negative onClick={() => setModalEndSurveyData({ ...row.original })}></EndActionButton>
             </>
           );
@@ -337,7 +339,6 @@ export default function EnrollmentsTab({ client }) {
                   const { program, end_date } = modalEndSurveyData;
 
                   try {
-                    //debugger;
                     const enrollmentResponse = await apiClient.patch(`/programs/enrollments/${modalEndSurveyData.id}/`,
                       {
                         client: client.id,
@@ -379,4 +380,15 @@ export default function EnrollmentsTab({ client }) {
       </Modal>
     </>
   );
+}
+function removeAllPlanned(arr, value) {
+  var i = 0;
+  while (i < arr.length) {
+    if (arr[i].status === value) {
+      arr.splice(i, 1);
+    } else {
+      ++i;
+    }
+  }
+  return arr;
 }
