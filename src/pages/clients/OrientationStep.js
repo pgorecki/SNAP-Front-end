@@ -4,7 +4,8 @@ import {
   Grid,
   Modal,
   Form,
-  Dropdown
+  Dropdown,
+  Icon
 } from 'semantic-ui-react';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
@@ -183,30 +184,31 @@ export const OrientationStep = (props) => {
           <Button
             onClick={confirmClicked}
             style={{ marginLeft: '1rem' }}
+            size="tiny"
             disabled={!hasPermission(user, 'iep.add_clientiep')}
           >
             Confirm orientation completed
           </Button>
         </Grid.Row>
         <Grid.Row>
-          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }}>
+        <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }} size="tiny">
             Assess Client
           </Button>
-          <Button disabled style={{ marginLeft: '1rem' }}>
-            Modify IEP Plan
+          <Button disabled size="tiny"><Icon name="edit" />
+            Modify IEP plan
           </Button>
           <Button
             onClick={confirmEndClicked}
-            color="red"
-            style={{ marginLeft: '1rem' }}
-          >
+            size="tiny"
+            negative
+          ><Icon name="close" />
             End IEP
           </Button>
         </Grid.Row>
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={(event) => OpenNotes(event)} >
+      <Button onClick={(event) => OpenNotes(event)} size="tiny"><Icon name="add" />
         Add Notes
       </Button>
       <PaginatedDataTable columns={notescolumns} table={notestable} />

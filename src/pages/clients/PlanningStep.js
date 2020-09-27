@@ -7,11 +7,11 @@ import {
   Modal,
   Header,
   Form,
-  Dropdown
+  Dropdown,
+  Icon
 } from 'semantic-ui-react';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
-import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import IepSurveyModal from 'modals/IepSurveyModal';
 import useResourceIndex from 'hooks/useResourceIndex';
 import { AppContext } from 'AppStore';
@@ -295,24 +295,24 @@ export const PlanningStep = (props) => {
       </div>
       <Grid>
         <Grid.Row>
-          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }}>
+          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }} size="tiny">
             Assess Client
           </Button>
-          <Button onClick={modifyiep} button>
+          <Button onClick={modifyiep} size="tiny"><Icon name="edit" />
             Modify IEP plan
           </Button>
           <Button
             onClick={confirmEndClicked}
-            color="red"
-            style={{ marginLeft: '1rem' }}
-          >
+            size="tiny"
+            negative
+          ><Icon name="close" />
             End IEP
           </Button>
         </Grid.Row>
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={(event) => OpenNotes(event)} >
+      <Button onClick={(event) => OpenNotes(event)} size="tiny"><Icon name="add" />
         Add Notes
       </Button>
       <PaginatedDataTable columns={notescolumns} table={notestable} />

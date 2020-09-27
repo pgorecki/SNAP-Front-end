@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Button, Form, Header, Modal } from 'semantic-ui-react';
+import { Button, Form, Header, Modal, Icon } from 'semantic-ui-react';
 import { Formik } from 'formik';
 import moment from 'moment';
 import { NavLink, useHistory } from 'react-router-dom';
@@ -34,8 +34,9 @@ export default function IEPTab({ client }) {
     url: `/iep/?client=${client.id}`,
   });
   const [isOpened, setIsOpened] = useState(false);
-  // const handleClose = () => setIsOpened(false);
-  // const handleShow = () => setIsOpened(true);
+  const [isIepEdit, setIsIepEdit] = useState(false);
+  const [iepId, setIepId] = useState();
+  const [iepProjectedEndDate, setIepProjectedEndDate] = useState();
 
   function toggle(row) {
     setIsOpened(true);
@@ -47,6 +48,13 @@ export default function IEPTab({ client }) {
     setIsOpened(false);
   }
 
+  function openIepEdit(row) {
+    console.log(row);
+    setIepId(row.id);
+    setIepProjectedEndDate(row.projected_end_date);
+    setIsIepEdit(true);
+  }
+
   const columns = React.useMemo(
     () => [
       {
@@ -56,8 +64,8 @@ export default function IEPTab({ client }) {
       },
       {
         Header: 'End Date',
-        accessor: 'end_date',
-        Cell: ({ value }) => (value ? formatDate(value) : ''),
+        accessor: 'projected_end_date',
+        Cell: ({ row }) => (row.original.end_date ? formatDate(row.original.end_date) : row.original.projected_end_date ? formatDate(row.original.projected_end_date) : ''),
       },
       {
         Header: 'Status',
@@ -69,13 +77,8 @@ export default function IEPTab({ client }) {
         accessor: 'actions',
         Cell: ({ row, actions }) => (
           <>
-            <Button onClick={() => toggle(row)}>Details</Button>
-            {/* <EditActionLink disabled to={`#`} /> */}
-            {/* <Button
-              onClick={(...args) => {
-                actions.updateRow(row, { created_at: new Date() });
-              }}
-            /> */}
+            <Button size="tiny" onClick={() => toggle(row)}>Details</Button>
+            <Button size="tiny" onClick={() => openIepEdit(row.original)} basic color="blue" disabled={!!row.original.end_date}><Icon name="edit" />Edit</Button>
           </>
         ),
       },
@@ -91,53 +94,57 @@ export default function IEPTab({ client }) {
       >
         New IEP
       </Button>
-      <Modal size="tiny" open={showNewIEPModal}>
-        <Modal.Header>New IEP</Modal.Header>
-        <Modal.Content>
-          <Formik
-            enableReinitialize
-            initialValues={{ start_date: new Date(), client: client.id }}
-            onSubmit={async (values, actions) => {
-              try {
-                await apiClient.post('/iep/', {
-                  ...values,
-                  start_date: moment(values.start_date).format('YYYY-MM-DD'),
-                  end_date: moment(values.start_date).format('YYYY-MM-DD'),
-                });
-                toaster.success('New IEP created');
-                setShowNewIEPModal(false);
-                table.reload();
-              } catch (err) {
-                actions.setErrors(apiErrorToFormError(err));
-              }
-              actions.setSubmitting(false);
-            }}
-          >
-            {(form) => (
-              <Form error onSubmit={form.handleSubmit}>
-                <FormDatePicker
-                  label="Start Date"
-                  name="start_date"
-                  form={form}
-                  required
-                />
-                <FormDatePicker
-                  label="Projected End Date"
-                  name="projected_end_date"
-                  form={form}
-                />
-                <FormErrors form={form} />
-                <Button primary type="submit" disabled={form.isSubmitting}>
-                  Request Eligibility
+      { showNewIEPModal && (<>
+        <Modal size="tiny" open={showNewIEPModal}>
+          <Modal.Header>New IEP</Modal.Header>
+          <Modal.Content>
+            <Formik
+              enableReinitialize
+              initialValues={{ start_date: new Date(), client: client.id }}
+              onSubmit={async (values, actions) => {
+                try {
+                  await apiClient.post('/iep/', {
+                    ...values,
+                    start_date: moment(values.start_date).format('YYYY-MM-DD'),
+                    projected_end_date: moment(values.projected_end_date).format('YYYY-MM-DD'),
+                    //end_date: moment(values.start_date).format('YYYY-MM-DD'),
+                  });
+                  toaster.success('New IEP created');
+                  setShowNewIEPModal(false);
+                  table.reload();
+                } catch (err) {
+                  actions.setErrors(apiErrorToFormError(err));
+                }
+                actions.setSubmitting(false);
+              }}
+            >
+              {(form) => (
+                <Form error onSubmit={form.handleSubmit}>
+                  <FormDatePicker
+                    label="Start Date"
+                    name="start_date"
+                    form={form}
+                    required
+                  />
+                  <FormDatePicker
+                    label="Projected End Date"
+                    name="projected_end_date"
+                    form={form}
+                  />
+                  <FormErrors form={form} />
+                  <Button primary type="submit" disabled={form.isSubmitting}>
+                    Request Eligibility
                 </Button>
-              </Form>
-            )}
-          </Formik>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setShowNewIEPModal(false)}>Cancel</Button>
-        </Modal.Actions>
-      </Modal>
+                </Form>
+              )}
+            </Formik>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button onClick={() => setShowNewIEPModal(false)}>Cancel</Button>
+          </Modal.Actions>
+        </Modal>
+      </>
+      )}
       <Header as="h4">IEPs</Header>
       <PaginatedDataTable columns={columns} table={table} />
       {isOpened && (
@@ -151,6 +158,59 @@ export default function IEPTab({ client }) {
             <Button onClick={handleClose}>Cancel</Button>
           </Modal.Actions>
         </Modal>
+      )}
+      { isIepEdit && (
+        <>
+          <Modal size="tiny" open={isIepEdit}>
+            <Modal.Header>Edit IEP</Modal.Header>
+            <Modal.Content>
+              <Formik
+                enableReinitialize
+                initialValues={{ projected_end_date: iepProjectedEndDate }}
+                onSubmit={async (values, actions) => {
+                  try {
+                    //debugger;
+                    await apiClient.patch(`/iep/${iepId}/`, {
+                      projected_end_date: moment(values.projected_end_date).format('YYYY-MM-DD')
+                    });
+                    setIepProjectedEndDate();
+                    setIepId();
+                    setIsIepEdit(false);
+                    toaster.success('IEP updated');
+                  } catch (err) {
+                    actions.setErrors(apiErrorToFormError(err));
+                  }
+                  actions.setSubmitting(false);
+                  table.reload();
+                }}
+              >
+                {(formEdit) => {
+                  return (
+                    <>
+                      <Form
+                        error
+                        initialvalues={iepProjectedEndDate}
+                        onSubmit={formEdit.handleSubmit}>
+                        <FormDatePicker label="Projected End Date" name="projected_end_date" form={formEdit} minDate={new Date()} />
+                        <Button
+                          size="tiny"
+                          primary
+                          type="submits"
+                          disabled={formEdit.isSubmitting}>
+                          Submit
+                          </Button>
+                        <FormErrors form={formEdit} />
+                      </Form>
+                    </>
+                  );
+                }}
+              </Formik>
+            </Modal.Content>
+            <Modal.Actions>
+              <Button onClick={() => setIsIepEdit(false)}>Cancel</Button>
+            </Modal.Actions>
+          </Modal>
+        </>
       )}
     </>
   );

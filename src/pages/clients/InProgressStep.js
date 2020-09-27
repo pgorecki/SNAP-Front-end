@@ -7,7 +7,8 @@ import {
   Modal,
   Header,
   Form,
-  Dropdown
+  Dropdown,
+  Icon
 } from 'semantic-ui-react';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
@@ -458,24 +459,26 @@ export const InProgressStep = (props) => {
       {/* <h4>No programs are planned yet.Please modify IEP plan </h4> */}
       <Grid>
         <Grid.Row>
-          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }}>
+        <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }} size="tiny">
             Assess Client
           </Button>
-          <Button onClick={modifyiep} button>
+          <Button onClick={modifyiep} size="tiny"><Icon name="edit" />
             Modify IEP plan
           </Button>
           <Button
             onClick={confirmEndClicked}
-            color="red"
-            style={{ marginLeft: '1rem' }}
-          >
+            size="tiny"
+            negative
+          ><Icon name="close" />
             End IEP
           </Button>
         </Grid.Row>
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={(event) => OpenNotes(event)}>Add Notes</Button>
+      <Button onClick={(event) => OpenNotes(event)} size="tiny"><Icon name="add" />
+        Add Notes
+      </Button>
       <PaginatedDataTable columns={notescolumns} table={notestable} />
       {isModidystate && (
         <Modal size="tiny" open={true}>
