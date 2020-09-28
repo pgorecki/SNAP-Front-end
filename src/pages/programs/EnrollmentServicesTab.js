@@ -138,7 +138,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
         Header: 'Hours/Cost',
         accessor: 'values',
         Cell: ({ value }) => (
-          value ? value.substring(value.indexOf("totCost") + 9, value.length - 1) : ''
+          value ? value.totalCost : ''
         ),
       },
       {
@@ -147,7 +147,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
         Cell: ({ value, row }) => {
           return (
             <>
-              <Button onClick={(event) => SetModalDetails(event, row.original)}>
+              <Button size="tiny" onClick={(event) => SetModalDetails(event, row.original)}>
                 Details
               </Button>
             </>
@@ -164,96 +164,26 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setModaDataEd(detail);
     setShowDetailsServiceName(detail.service_type.name);
     setshowDetailsServiceCatg(detail.service_type.category);
-    let valStr = detail.values.replace('}', '');
-    let valExtArray = valStr.split(',');
-    let servDate = '',
-      servQty = '',
-      servCostPerUnit = '',
-      servDesc = '',
-      servHours = 0,
-      servMinutes = 0;
-    let servMond = 0,
-      servTue = 0,
-      servWed = 0,
-      servThu = 0,
-      servFri = 0;
-    for (let i = 0; i < valExtArray.length; i++) {
-      let valIntArray = valExtArray[i].split(':');
-      for (let j = 0; j < valIntArray.length; j++) {
-        if (servDate == '') {
-          if (valIntArray[j] == '"sDate"') servDate = valIntArray[j + 1];
-        }
-        if (servQty == '') {
-          if (valIntArray[j] == '"sQTY"') servQty = valIntArray[j + 1];
-        }
-        if (servCostPerUnit == '') {
-          if (valIntArray[j] == '"sCostPerUnit"')
-            servCostPerUnit = valIntArray[j + 1];
-        }
-        if (servDesc == '') {
-          if (valIntArray[j] == '"timeBasedDesc"') {
-            servDesc = valIntArray[j + 1];
-          }
-        }
-        if (servHours == 0) {
-          if (valIntArray[j] == '"sHours"') {
-            servHours = valIntArray[j + 1];
-          }
-        }
-        if (servMinutes == 0) {
-          if (valIntArray[j] == '"sMinutes"') {
-            servMinutes = valIntArray[j + 1];
-          }
-        }
-        if (servMond == 0) {
-          if (valIntArray[j] == '"sMon"') {
-            servMond = valIntArray[j + 1];
-          }
-        }
-        if (servTue == 0) {
-          if (valIntArray[j] == '"sTue"') {
-            servTue = valIntArray[j + 1];
-          }
-        }
-        if (servWed == 0) {
-          if (valIntArray[j] == '"sWed"') {
-            servWed = valIntArray[j + 1];
-          }
-        }
-        if (servThu == 0) {
-          if (valIntArray[j] == '"sThur"') {
-            servThu = valIntArray[j + 1];
-          }
-        }
-        if (servFri == 0) {
-          if (valIntArray[j] == '"sFri"') {
-            servFri = valIntArray[j + 1];
-          }
-        }
-      }
-    }
+    const serviceDetail = (typeof (detail.values) === 'string' ? JSON.parse(detail.values) : detail.values) || {};
 
-    setShowServiceDate(servDate);
-    setShowServiceQty(servQty);
-    setShowServiceCostPerUnit(servCostPerUnit);
-    setShowServiceDesc(servDesc);
-    setShowServiceHours(servHours);
-    setShowServiceMinutes(servMinutes);
+    setShowServiceDate(serviceDetail.sDate);
+    setShowServiceQty(serviceDetail.sQTY);
+    setShowServiceCostPerUnit(serviceDetail.sCostPerUnit);
+    setShowServiceDesc(serviceDetail.timeBasedDesc);
+    setShowServiceHours(serviceDetail.sHours);
+    setShowServiceMinutes(serviceDetail.sMinutes);
     setShowServiceDays(
       'Monday: ' +
-      servMond +
+      serviceDetail.sMon +
       ', Tuesday: ' +
-      servTue +
+      serviceDetail.sTue +
       ', Wednesday: ' +
-      servWed +
+      serviceDetail.sWed +
       ', Thursday: ' +
-      servThu +
+      serviceDetail.sThur +
       ', Friday: ' +
-      servFri
+      serviceDetail.sFri
     );
-
-    //setshowDetailsServiceValues(detail.values);
-    //console.log(showDetailsServiceName);
   }
 
   useEffect(() => {
@@ -290,7 +220,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
               enrollment: enrollData.id,
               service_type: serviceTypeValue,
               effective_date: moment(values.sDate).format('YYYY-MM-DD'),
-              values: JSON.stringify(values),
+              values: values,
             });
             toaster.success('Service created');
           } catch (err) {
@@ -578,78 +508,26 @@ function AddCostAndHourInfo(tbl) {
     for (let n = 0; n < tbl.data.length; n++) {
       let catg = tbl.data[n].service_type.category;
       let totCost = '';
-      let valStr = tbl.data[n].values.replace("}", "");
-      let valExtArray = valStr.split(',');
-      let servMond = 0, servTue = 0, servWed = 0, servThu = 0, servFri = 0;
-      let servQty = 0, servCostPerUnit = 0;
-      let servHours = 0, servMinutes = 0;
-      for (let i = 0; i < valExtArray.length; i++) {
-        let valIntArray = valExtArray[i].split(':');
-        for (let j = 0; j < valIntArray.length; j++) {
-          if (catg == 'attendance') {
-            if (servMond == 0) {
-              if (valIntArray[j] == '"sMon"') {
-                servMond = valIntArray[j + 1];
-              }
-            }
-            if (servTue == 0) {
-              if (valIntArray[j] == '"sTue"') {
-                servTue = valIntArray[j + 1];
-              }
-            }
-            if (servWed == 0) {
-              if (valIntArray[j] == '"sWed"') {
-                servWed = valIntArray[j + 1];
-              }
-            }
-            if (servThu == 0) {
-              if (valIntArray[j] == '"sThur"') {
-                servThu = valIntArray[j + 1];
-              }
-            }
-            if (servFri == 0) {
-              if (valIntArray[j] == '"sFri"') {
-                servFri = valIntArray[j + 1];
-              }
-            }
-            totCost = ((parseInt(servMond) + parseInt(servTue) + parseInt(servWed) + parseInt(servThu) + parseInt(servFri)));
-          }
-          else if (catg == 'direct') {
-            //debugger;
+      let valStr = (typeof (tbl.data[n].values) === 'string' ? JSON.parse(tbl.data[n].values) : tbl.data[n].values) || {};
 
-            if (servQty == 0) {
-              if (valIntArray[j] == '"sQTY"')
-                servQty = parseInt(valIntArray[j + 1]);
-            }
-            if (servCostPerUnit == 0) {
-              if (valIntArray[j] == '"sCostPerUnit"') {
-                servCostPerUnit = (valIntArray[j + 1]).replace(/['"]+/g, '');
-              }
-            }
-            totCost = '$' + (parseInt(servQty) * (Number.isNaN(parseInt(servCostPerUnit)) ? 0 : parseInt(servCostPerUnit))).toFixed(2);
-          }
-          else if (catg == 'time_based') {
-            //debugger;
-            if (servHours == 0) {
-              if (valIntArray[j] == '"sHours"') {
-                servHours = valIntArray[j + 1];
-              }
-            }
-            if (servMinutes == 0) {
-              if (valIntArray[j] == '"sMinutes"') {
-                servMinutes = valIntArray[j + 1];
-              }
-            }
-            let tm = (parseInt(servHours) + (servMinutes / 60));
-            totCost = tm.toFixed(2);
-          }
-        }
+      if (catg == 'attendance') {
+        totCost = ((parseInt(valStr.sMon) + parseInt(valStr.sTue) + parseInt(valStr.sWed) + parseInt(valStr.sThur) + parseInt(valStr.sFri)));
       }
-
-      //tbl.data[n].values = tbl.data[n].values.replace("}", "");
-      tbl.data[n].values = tbl.data[n].values.concat(',"totCost":', totCost + '}');
-
+      else if (catg == 'direct') {
+        totCost = '$' + (parseInt(valStr.sQTY) * (Number.isNaN(parseInt(valStr.sCostPerUnit)) ? 0 : parseInt(valStr.sCostPerUnit))).toFixed(2);
+      }
+      else if (catg == 'time_based') {
+        let tm = (parseInt(valStr.sHours) + (valStr.sMinutes / 60));
+        totCost = tm.toFixed(2);
+      }
+      if (typeof (tbl.data[n].values) === 'string') {
+        tbl.data[n].values = JSON.parse(tbl.data[n].values);
+        tbl.data[n].values.totalCost = totCost;
+      }
+      else {
+        tbl.data[n].values.totalCost = totCost;
+      }
+      //console.log(tbl);
     }
-    console.log(tbl);
   }
 }
