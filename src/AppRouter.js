@@ -30,6 +30,7 @@ import ResponseList from './pages/responses/ResponseList';
 import ResponseDetails from './pages/responses/ResponseDetails';
 import ResponseNew from './pages/responses/ResponseNew';
 import ResponseEdit from './pages/responses/ResponseEdit';
+import ReportDetails from './pages/reports/ReportDetails';
 import { hasPermission } from 'utils/permissions';
 import { AppContext } from './AppStore';
 
@@ -136,6 +137,12 @@ const navigationMenu = [
     iconName: 'comment outline',
     page: ResponseList,
     permission: 'survey.view_response',
+  },
+  {
+    name: 'Reports',
+    path: '/reports',
+    iconName: 'chart bar',
+    page: ReportDetails,
   },
   {
     name: 'Account',

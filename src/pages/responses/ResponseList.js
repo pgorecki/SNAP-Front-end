@@ -21,7 +21,9 @@ export default function ResponseList() {
         accessor: 'survey',
         Cell: ({ value, row }) => {
           return (
-            <NavLink to={`/responses/${row.original.id}`}>{value.name}</NavLink>
+            <NavLink to={`/responses/${row.original.id}/edit`}>
+              {value.name}
+            </NavLink>
           );
         },
       },
@@ -34,13 +36,6 @@ export default function ResponseList() {
               {clientFullName(value)}
             </NavLink>
           );
-        },
-      },
-      {
-        Header: 'Answers',
-        accessor: 'answers',
-        Cell: ({ value, row }) => {
-          return value.length;
         },
       },
       {
