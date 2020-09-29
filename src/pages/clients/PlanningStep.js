@@ -6,11 +6,12 @@ import {
   Label,
   Modal,
   Header,
-  Form
+  Form,
+  Dropdown,
+  Icon
 } from 'semantic-ui-react';
 import { hasPermission } from 'utils/permissions';
 import toaster from 'components/toaster';
-import EnrollmentSurveyModal from 'modals/EnrollmentSurveyModal';
 import IepSurveyModal from 'modals/IepSurveyModal';
 import useResourceIndex from 'hooks/useResourceIndex';
 import { AppContext } from 'AppStore';
@@ -33,6 +34,9 @@ import { CheckBoxIep } from '../../components/CheckBoxIep';
 import moment from 'moment';
 import useFetchData from 'hooks/useFetchData';
 import { formatOwner } from 'utils/modelUtils';
+import IepResponses from '../clients/IepResponses';
+import { NavLink, useHistory } from 'react-router-dom';
+import { ErrorMessage } from 'components/common';
 
 export const PlanningStep = (props) => {
   const [data, error, loading] = useFetchData(`/programs/`, {});
@@ -54,15 +58,34 @@ export const PlanningStep = (props) => {
   const programsIndex = useResourceIndex(`/programs/?ordering=name`);
   const apiClient = useApiClient();
   const { save } = useNewResource('/notes/', {});
-  const table = usePaginatedDataTable({ url: '/surveys/' });
   const [
     existingEnrollmentPrograms,
     setExistingEnrollmentPrograms,
   ] = useState();
+  const [showIepSurveyResponses, setShowIepSurveyResponses] = useState(false);
+  const [iepSurveyId, setIepSurveyId] = useState();
   const exitingP = SavedPrograms();
   const notestable = usePaginatedDataTable({
     url: `/notes/?source_id=${initIep.id}`,
   });
+
+  const [SurveyData, ready] = useFetchData(`/surveys/`, {});
+  //console.log(SurveyData);
+  const optionSurveys = !!SurveyData.results
+    ? SurveyData.results.map(({ id, name }) => ({
+      key: id,
+      value: id,
+      flag: id,
+      text: name
+    }))
+    : [];
+
+  function showResponses(event, data) {
+    event.preventDefault();
+    setIepSurveyId(data.value);
+    setShowIepSurveyResponses(false);
+    setSurveyId(data.value);
+  }
 
   async function SavedPrograms() {
     if (typeof existingEnrollmentPrograms === 'undefined') {
@@ -77,27 +100,27 @@ export const PlanningStep = (props) => {
     }
   }
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Name',
-        accessor: 'name',
-        Cell: ({ value }) => <Label>{value}</Label>,
-      },
-      {
-        Header: 'Actions',
-        accessor: 'actions',
-        Cell: ({ row, actions }) => (
-          <>
-            <Button onClick={() => SelectSurvey(row.original.id)}>
-              Select
-            </Button>
-          </>
-        ),
-      },
-    ],
-    []
-  );
+  // const columns = React.useMemo(
+  //   () => [
+  //     {
+  //       Header: 'Name',
+  //       accessor: 'name',
+  //       Cell: ({ value }) => <Label>{value}</Label>,
+  //     },
+  //     {
+  //       Header: 'Actions',
+  //       accessor: 'actions',
+  //       Cell: ({ row, actions }) => (
+  //         <>
+  //           <Button onClick={() => SelectSurvey(row.original.id)}>
+  //             Select
+  //           </Button>
+  //         </>
+  //       ),
+  //     },
+  //   ],
+  //   []
+  // );
 
   function OpenNotes(event) {
     event.preventDefault();
@@ -160,10 +183,13 @@ export const PlanningStep = (props) => {
 
   function opensurveyforiep() {
     setIsSurveyModelState(true);
+    setSurveyId(null);
+    setShowIepSurveyResponses(false);
   }
 
-  function SelectSurvey(id) {
-    setSurveyId(id);
+  function SelectSurvey() {
+    setShowIepSurveyResponses(true);
+    setIsSurveyModelState(false);
   }
 
   const modifyiep = () => {
@@ -269,24 +295,24 @@ export const PlanningStep = (props) => {
       </div>
       <Grid>
         <Grid.Row>
-          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }}>
+          <Button onClick={opensurveyforiep} style={{ marginLeft: '1rem' }} size="tiny">
             Assess Client
           </Button>
-          <Button onClick={modifyiep} button>
+          <Button onClick={modifyiep} size="tiny"><Icon name="edit" />
             Modify IEP plan
           </Button>
           <Button
             onClick={confirmEndClicked}
-            color="red"
-            style={{ marginLeft: '1rem' }}
-          >
+            size="tiny"
+            negative
+          ><Icon name="close" />
             End IEP
           </Button>
         </Grid.Row>
       </Grid>
 
       <h2>NOTES</h2>
-      <Button onClick={(event) => OpenNotes(event)} >
+      <Button onClick={(event) => OpenNotes(event)} size="tiny"><Icon name="add" />
         Add Notes
       </Button>
       <PaginatedDataTable columns={notescolumns} table={notestable} />
@@ -333,55 +359,93 @@ export const PlanningStep = (props) => {
           </Modal>
         </>
       )}
-      <Modal
-        size="large"
-        open={isSurveyModel}
-        closeIcon
-        onClose={() => setIsSurveyModelState(false)}
-      >
-        <Modal.Header>IEP Survey(s)</Modal.Header>
-        <Modal.Content>
-          <PaginatedDataTable columns={columns} table={table} />
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setIsSurveyModelState(false)}>Cancel</Button>
-        </Modal.Actions>
-      </Modal>
-      <Modal
-        size="large"
-        open={!!surveyId}
-        closeIcon
-        onClose={() => setSurveyId()}
-      >
-        <Modal.Header>IEP survey</Modal.Header>
-        <Modal.Content>
-          {surveyId && (
-            <IepSurveyModal
-              client={initClient}
-              surveyId={surveyId}
-              onResponseSubmit={async (newResponseData) => {
-                try {
-                  await apiClient.post('/responses/', {
-                    ...newResponseData,
-                    response_context: {
-                      id: initIep['id'],
-                      type: 'ClientIEP',
-                    },
-                  });
-                  toaster.success('Entry response saved');
-                } catch (err) {
-                  const apiError = formatApiError(err.response);
-                  toaster.error(apiError);
-                }
-                setSurveyId(null);
-              }}
-            />
-          )}
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setSurveyId(null)}>Cancel</Button>
-        </Modal.Actions>
-      </Modal>
+      {isSurveyModel && (
+        <>
+          <Modal
+            size="large"
+            open={isSurveyModel}
+            closeIcon
+            onClose={() => setIsSurveyModelState(false)}
+          >
+            <Modal.Header>IEP Assessment(s)</Modal.Header>
+            <Modal.Content>
+              <Grid
+                style={{
+                  background: '#fff',
+                  margin: 0,
+                  padding: 0,
+                }}
+              >
+                <Grid.Column computer={16} mobile={16}>
+                  <Dropdown
+                    placeholder='Select Assessment'
+                    compact
+                    search
+                    selection
+                    options={optionSurveys}
+                    onChange={showResponses}
+                  />
+                  <>
+                    {hasPermission(user, 'survey.add_response') && (
+                      <Button
+                        onClick={SelectSurvey}
+                        disabled={!iepSurveyId}>
+                        New Assessment
+                      </Button>
+                    )}
+                  </>
+                </Grid.Column>
+              </Grid>
+              <IepResponses
+                iepId={initIep.id}
+                surveyId={iepSurveyId}>
+              </IepResponses>
+            </Modal.Content>
+            <Modal.Actions>
+              <Button onClick={() => setIsSurveyModelState(false)}>Cancel</Button>
+            </Modal.Actions>
+          </Modal>
+        </>
+      )}
+      {showIepSurveyResponses && (
+        <>
+          <Modal
+            size="large"
+            open={showIepSurveyResponses}
+            closeIcon
+            onClose={opensurveyforiep}
+          >
+            <Modal.Header>IEP Assessment</Modal.Header>
+            <Modal.Content>
+
+              <IepSurveyModal
+                client={initClient}
+                surveyId={surveyId}
+                onResponseSubmit={async (newResponseData) => {
+                  try {
+                    await apiClient.post('/responses/', {
+                      ...newResponseData,
+                      response_context: {
+                        id: initIep['id'],
+                        type: 'ClientIEP',
+                      },
+                    });
+                    toaster.success('Entry response saved');
+                  } catch (err) {
+                    const apiError = formatApiError(err.response);
+                    toaster.error(apiError);
+                  }
+                  opensurveyforiep();
+                }}
+              />
+
+            </Modal.Content>
+            <Modal.Actions>
+              <Button onClick={opensurveyforiep}>Cancel</Button>
+            </Modal.Actions>
+          </Modal>
+        </>
+      )}
     </>
   );
 };

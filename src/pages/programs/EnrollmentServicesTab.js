@@ -53,6 +53,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
     url: `/programs/services/?enrollment=${enrollData.id}`,
   });
   console.log(table);
+  AddCostAndHourInfo(table);
   const [show, setShow] = useState(false);
   const [showService, setShowService] = useState(false);
   // const handleClose = () => setShow(false);
@@ -113,9 +114,9 @@ export default function EnrollmentServicesTab({ enrollData }) {
   ];
 
   const minuteOptions = [
-    { value: 1, text: '15' },
-    { value: 2, text: '30' },
-    { value: 3, text: '45' },
+    { value: 15, text: '15' },
+    { value: 30, text: '30' },
+    { value: 45, text: '45' },
   ];
 
   const columns = React.useMemo(
@@ -129,14 +130,16 @@ export default function EnrollmentServicesTab({ enrollData }) {
       //  accessor: 'service_type.category',
       //},
       {
-        Header: 'Effective Date',
+        Header: 'Date',
         accessor: 'effective_date',
         Cell: ({ value }) => (value ? formatDate(value) : ''),
       },
       {
-        Header: 'Date Created',
-        accessor: 'created_at',
-        Cell: ({ value }) => (value ? formatDate(value) : ''),
+        Header: 'Hours/Cost',
+        accessor: 'values',
+        Cell: ({ value }) => (
+          value ? value.totalCost : ''
+        ),
       },
       {
         Header: 'Actions',
@@ -144,7 +147,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
         Cell: ({ value, row }) => {
           return (
             <>
-              <Button onClick={(event) => SetModalDetails(event, row.original)}>
+              <Button size="tiny" onClick={(event) => SetModalDetails(event, row.original)}>
                 Details
               </Button>
             </>
@@ -161,89 +164,26 @@ export default function EnrollmentServicesTab({ enrollData }) {
     setModaDataEd(detail);
     setShowDetailsServiceName(detail.service_type.name);
     setshowDetailsServiceCatg(detail.service_type.category);
+    const serviceDetail = (typeof (detail.values) === 'string' ? JSON.parse(detail.values) : detail.values) || {};
 
-    let valStr = detail.values.replace('}', '');
-    let valExtArray = valStr.split(',');
-    let servDate = '',
-      servQty = '',
-      servCostPerUnit = '',
-      servDesc = '',
-      servHours = 0,
-      servMinutes = 0;
-    let servMond = 0,
-      servTue = 0,
-      servWed = 0,
-      servThu = 0,
-      servFri = 0;
-    for (let i = 0; i < valExtArray.length; i++) {
-      let valIntArray = valExtArray[i].split(':');
-      for (let j = 0; j < valIntArray.length; j++) {
-        if (servDate == '') {
-          if (valIntArray[j] == '"sDate"') servDate = valIntArray[j + 1];
-        }
-        if (servQty == '') {
-          if (valIntArray[j] == '"sQTY"') servQty = valIntArray[j + 1];
-        }
-        if (servCostPerUnit == '') {
-          if (valIntArray[j] == '"sCostPerUnit"')
-            servCostPerUnit = valIntArray[j + 1];
-        }
-        if (servDesc == '') {
-          if (valIntArray[j] == '"timeBasedDesc"') {
-            servDesc = valIntArray[j + 1];
-          }
-        }
-        if (servHours == 0) {
-          if (valIntArray[j] == '"sHours"') {
-            servHours = valIntArray[j + 1];
-          }
-        }
-        if (servMinutes == 0) {
-          if (valIntArray[j] == '"sMinutes"') {
-            servMinutes = valIntArray[j + 1];
-          }
-        }
-        if (servMond == 0) {
-          if (valIntArray[j] == '"sMon"') {
-            servMond = valIntArray[j + 1];
-          }
-          if (valIntArray[j] == '"sTue"') {
-            servTue = valIntArray[j + 1];
-          }
-          if (valIntArray[j] == '"sWed"') {
-            servWed = valIntArray[j + 1];
-          }
-          if (valIntArray[j] == '"sThu"') {
-            servThu = valIntArray[j + 1];
-          }
-          if (valIntArray[j] == '"sFri"') {
-            servFri = valIntArray[j + 1];
-          }
-        }
-      }
-    }
-
-    setShowServiceDate(servDate);
-    setShowServiceQty(servQty);
-    setShowServiceCostPerUnit(servCostPerUnit);
-    setShowServiceDesc(servDesc);
-    setShowServiceHours(servHours);
-    setShowServiceMinutes(servMinutes);
+    setShowServiceDate(serviceDetail.sDate);
+    setShowServiceQty(serviceDetail.sQTY);
+    setShowServiceCostPerUnit(serviceDetail.sCostPerUnit);
+    setShowServiceDesc(serviceDetail.timeBasedDesc);
+    setShowServiceHours(serviceDetail.sHours);
+    setShowServiceMinutes(serviceDetail.sMinutes);
     setShowServiceDays(
       'Monday: ' +
-      servMond +
+      serviceDetail.sMon +
       ', Tuesday: ' +
-      servTue +
+      serviceDetail.sTue +
       ', Wednesday: ' +
-      servWed +
+      serviceDetail.sWed +
       ', Thursday: ' +
-      servThu +
+      serviceDetail.sThur +
       ', Friday: ' +
-      servFri
+      serviceDetail.sFri
     );
-
-    //setshowDetailsServiceValues(detail.values);
-    //console.log(showDetailsServiceName);
   }
 
   useEffect(() => {
@@ -280,7 +220,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
               enrollment: enrollData.id,
               service_type: serviceTypeValue,
               effective_date: moment(values.sDate).format('YYYY-MM-DD'),
-              values: JSON.stringify(values),
+              values: values,
             });
             toaster.success('Service created');
           } catch (err) {
@@ -435,12 +375,12 @@ export default function EnrollmentServicesTab({ enrollData }) {
                 valColor="#20B2AA"
               ></LabelField>
             </Grid.Column>
-            <Grid.Column computer={5} mobile={16}>
+            {/* <Grid.Column computer={5} mobile={16}>
               <LabelField
                 label="Category"
                 value={showDetailsServiceCatg}
               ></LabelField>
-            </Grid.Column>
+            </Grid.Column> */}
             <>
               {(showDetailsServiceCatg == 'direct' ||
                 showDetailsServiceCatg == 'time_based') && (
@@ -454,7 +394,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
             </>
             <>
               {showDetailsServiceCatg == 'attendance' && (
-                <Grid.Column computer={5} mobile={16}>
+                <Grid.Column computer={16} mobile={16}>
                   <LabelField
                     label="Week Start"
                     value={moment(showServiceDate).format('YYYY-MM-DD')}
@@ -515,7 +455,7 @@ export default function EnrollmentServicesTab({ enrollData }) {
             </>
             <>
               {showDetailsServiceCatg == 'attendance' && (
-                <Grid.Column computer={5} mobile={16}>
+                <Grid.Column computer={16} mobile={16}>
                   <LabelField label="Days" value={showServiceDays}></LabelField>
                 </Grid.Column>
               )}
@@ -559,6 +499,35 @@ export default function EnrollmentServicesTab({ enrollData }) {
       setShowBusTickets(false);
     } else {
       setShowBusTickets(true);
+    }
+  }
+}
+
+function AddCostAndHourInfo(tbl) {
+  if (tbl.data.length > 0) {
+    for (let n = 0; n < tbl.data.length; n++) {
+      let catg = tbl.data[n].service_type.category;
+      let totCost = '';
+      let valStr = (typeof (tbl.data[n].values) === 'string' ? JSON.parse(tbl.data[n].values) : tbl.data[n].values) || {};
+
+      if (catg == 'attendance') {
+        totCost = ((parseInt(valStr.sMon) + parseInt(valStr.sTue) + parseInt(valStr.sWed) + parseInt(valStr.sThur) + parseInt(valStr.sFri)));
+      }
+      else if (catg == 'direct') {
+        totCost = '$' + (parseInt(valStr.sQTY) * (Number.isNaN(parseInt(valStr.sCostPerUnit)) ? 0 : parseInt(valStr.sCostPerUnit))).toFixed(2);
+      }
+      else if (catg == 'time_based') {
+        let tm = (parseInt(valStr.sHours) + (valStr.sMinutes / 60));
+        totCost = tm.toFixed(2);
+      }
+      if (typeof (tbl.data[n].values) === 'string') {
+        tbl.data[n].values = JSON.parse(tbl.data[n].values);
+        tbl.data[n].values.totalCost = totCost;
+      }
+      else {
+        tbl.data[n].values.totalCost = totCost;
+      }
+      //console.log(tbl);
     }
   }
 }

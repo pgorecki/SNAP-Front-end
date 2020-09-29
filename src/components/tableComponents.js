@@ -32,7 +32,7 @@ export function EndActionButton({ onClick, ...props }) {
 
 export function EditActionButton({ onClick, ...props }) {
   return (
-    <Button size="tiny" className='ui  blue tiny basic button' onClick={onClick} {...props}>
+    <Button size="tiny" className="ui blue tiny basic button" onClick={onClick} {...props}>
       <Icon name="edit" /> Edit
     </Button>
   );

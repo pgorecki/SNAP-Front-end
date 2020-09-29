@@ -91,6 +91,7 @@ export const FormDatePicker = ({ form, label, name, required, ...props }) => {
         onBlur={() => form.setFieldTouched(name)}
         format="MM-DD-YYYY"
         required={required}
+        {...props}
       />
     </Form.Field>
   );
